@@ -1,0 +1,82 @@
+{
+  "metadata": {
+    "skill_name": "problem-spec",
+    "skill_path": "/Users/robertlopez/repos/harness/skills/problem-spec",
+    "timestamp": "2026-03-29T00:00:00Z",
+    "evals_run": [1],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": 1,
+      "eval_name": "vague-notifications-request",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 5,
+        "failed": 0,
+        "total": 5,
+        "time_seconds": 133.4,
+        "tokens": 16629,
+        "tool_calls": 7,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "A spec.md file was produced", "passed": true, "evidence": "spec.md exists with 9,319 chars covering all required sections"},
+        {"text": "The transcript shows at least 2 clarifying questions were asked before the spec was written", "passed": true, "evidence": "8 rounds of clarifying questions before writing the spec"},
+        {"text": "The spec contains a 'What We Are NOT Solving' section with at least one item", "passed": true, "evidence": "7 explicit out-of-scope items"},
+        {"text": "The spec contains an Interfaces section that names at least one schema or contract", "passed": true, "evidence": "Detailed Interfaces section with schemas, API contract, mailer methods, Sidekiq jobs"},
+        {"text": "The spec does not prescribe specific implementation technologies", "passed": true, "evidence": "Only references existing infrastructure named by the user, no new technology recommendations"}
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": 1,
+      "eval_name": "vague-notifications-request",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.6,
+        "passed": 3,
+        "failed": 2,
+        "total": 5,
+        "time_seconds": 97.7,
+        "tokens": 13667,
+        "tool_calls": 5,
+        "errors": 0
+      },
+      "expectations": [
+        {"text": "A spec.md file was produced", "passed": true, "evidence": "spec.md exists"},
+        {"text": "The transcript shows at least 2 clarifying questions were asked before the spec was written", "passed": false, "evidence": "No clarifying questions asked — all decisions made autonomously without user input"},
+        {"text": "The spec contains a 'What We Are NOT Solving' section with at least one item", "passed": true, "evidence": "Has 'What We're NOT Solving (Yet)' with 5 items"},
+        {"text": "The spec contains an Interfaces section that names at least one schema or contract", "passed": true, "evidence": "SQL schema and Rails model in Data Model section"},
+        {"text": "The spec does not prescribe specific implementation technologies", "passed": false, "evidence": "Heavily prescriptive: full Ruby classes, ERB views, JS code, ActionCable, Hotwire, Rails.cache, 'whenever' gem, time estimates — reads as an implementation guide"}
+      ],
+      "notes": ["Made all key decisions without asking user (in-app only, polling over WebSockets, service object pattern)", "Produced working implementation code rather than a problem specification"]
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0},
+      "time_seconds": {"mean": 133.4, "stddev": 0.0, "min": 133.4, "max": 133.4},
+      "tokens": {"mean": 16629, "stddev": 0, "min": 16629, "max": 16629}
+    },
+    "without_skill": {
+      "pass_rate": {"mean": 0.6, "stddev": 0.0, "min": 0.6, "max": 0.6},
+      "time_seconds": {"mean": 97.7, "stddev": 0.0, "min": 97.7, "max": 97.7},
+      "tokens": {"mean": 13667, "stddev": 0, "min": 13667, "max": 13667}
+    },
+    "delta": {
+      "pass_rate": "+0.40",
+      "time_seconds": "+35.7",
+      "tokens": "+2962"
+    }
+  },
+  "notes": [
+    "The clarifying-questions assertion is the strongest differentiator — without_skill skipped this entirely",
+    "The no-implementation-detail assertion cleanly separates: with_skill produced a spec, without_skill produced an implementation guide",
+    "With only 1 run per config, stddev is 0 — variance is unknown; add more evals as real cases arise",
+    "The without_skill 'What We Are NOT Solving' pass is somewhat non-discriminating — both versions include this section naturally"
+  ]
+}

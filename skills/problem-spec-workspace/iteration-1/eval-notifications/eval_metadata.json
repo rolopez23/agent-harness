@@ -1,0 +1,12 @@
+{
+  "eval_id": 1,
+  "eval_name": "vague-notifications-request",
+  "prompt": "I want to add notifications to my app so users know when something happens",
+  "assertions": [
+    "A spec.md file was produced",
+    "The transcript shows at least 2 clarifying questions were asked before the spec was written",
+    "The spec contains a 'What We Are NOT Solving' section with at least one item",
+    "The spec contains an Interfaces section that names at least one schema or contract",
+    "The spec does not prescribe specific implementation technologies (e.g. no specific gems, queue systems, or libraries recommended)"
+  ]
+}

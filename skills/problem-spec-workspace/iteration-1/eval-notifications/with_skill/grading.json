@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "A spec.md file was produced",
+      "passed": true,
+      "evidence": "spec.md exists at with_skill/outputs/spec.md with 9,319 chars covering all required sections"
+    },
+    {
+      "text": "The transcript shows at least 2 clarifying questions were asked before the spec was written",
+      "passed": true,
+      "evidence": "transcript.md shows 8 rounds of clarifying questions covering: assignment triggers, definition of 'involved', reminder timing, email vs in-app per event type, user preferences, read behavior, retention, and existing infrastructure — all before any spec was written"
+    },
+    {
+      "text": "The spec contains a 'What We Are NOT Solving' section with at least one item",
+      "passed": true,
+      "evidence": "spec.md has 'What We Are NOT Solving' section with 7 explicit items including user preferences, push notifications, comment emails, repeating reminders, individual dismiss, WebSockets, and mobile push"
+    },
+    {
+      "text": "The spec contains an Interfaces section that names at least one schema or contract",
+      "passed": true,
+      "evidence": "spec.md has a detailed Interfaces section with: notifications table schema (all columns with types/constraints), tasks.reminder_sent_at new column, existing tables schema, GET /api/notifications JSON contract, UserMailer methods contract, and two Sidekiq job contracts"
+    },
+    {
+      "text": "The spec does not prescribe specific implementation technologies (e.g. no specific gems, queue systems, or libraries recommended)",
+      "passed": true,
+      "evidence": "The spec only references Sidekiq, ActionMailer, and SendGrid because the simulated user named these as existing infrastructure — not as new recommendations. No new implementation technologies are prescribed."
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  }
+}

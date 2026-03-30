@@ -1,0 +1,16 @@
+{
+  "tool_calls": {
+    "Bash": 2,
+    "Write": 3
+  },
+  "total_tool_calls": 5,
+  "total_steps": 3,
+  "files_created": [
+    "/Users/robertlopez/repos/harness/skills/problem-spec-workspace/iteration-1/eval-notifications/without_skill/outputs/spec.md",
+    "/Users/robertlopez/repos/harness/skills/problem-spec-workspace/iteration-1/eval-notifications/without_skill/outputs/transcript.md",
+    "/Users/robertlopez/repos/harness/skills/problem-spec-workspace/iteration-1/eval-notifications/without_skill/outputs/metrics.json"
+  ],
+  "errors_encountered": 0,
+  "output_chars": 9515,
+  "transcript_chars": 2661
+}
