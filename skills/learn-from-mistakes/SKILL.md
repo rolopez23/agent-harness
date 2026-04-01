@@ -35,11 +35,13 @@ Categories:
 - **Missed edge case** — a case not caught by tests, verify, or review that surfaced later
 - **Implementation hole** — something in the spec that wasn't implemented, discovered late
 - **Bad assumption** — code was written based on an assumption that turned out to be wrong
+- **Large refactor** — a significant simplification or improvement that was only caught in the simplify step.
 - **Skill gap** — a class of problem the review/simplify/verify skills consistently miss
 - **Test gap** — automated tests passed but the behavior was still wrong (test didn't cover it)
 
 Do not log:
-- Things that were caught and fixed within the normal workflow (that's the workflow working)
+
+- Minor things caught in the workflow. Large refactors or token use in between steps are worth noting, but small things that are caught in the normal course of work aren't worth logging.
 - Style preferences or subjective disagreements
 - One-off environmental issues (server wasn't running, wrong config)
 
@@ -100,6 +102,7 @@ Append to `.claude/learnings.md` (the cumulative log). Also save a per-session s
 `docs/learnings/<feature>-<chunk>-<YYYY-MM-DD>.md` for traceability.
 
 Tell the user:
+
 - How many events were logged
 - Whether any patterns crossed the threshold
 - Where the files were saved

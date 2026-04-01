@@ -28,6 +28,7 @@ For any non-trivial feature, work proceeds in this order. Do not skip steps — 
 skill that can be invoked explicitly.
 
 ```
+/initialize     →  write or update AGENTS.md in a target project
 /problem-spec   →  define the problem, produce docs/<feature>/spec.md
 /plan           →  break into TDD chunks, produce docs/<feature>/plan.md + chunk sub-plans
                    (requires spec.md to exist)
@@ -55,6 +56,7 @@ for complete instructions.
 
 | Skill | Invoke | Purpose |
 |---|---|---|
+| initialize | `/initialize` | Write or update AGENTS.md in a project with skills reference and workflow |
 | problem-spec | `/problem-spec` | Define what is and isn't being solved; produce a spec doc |
 | plan | `/plan` | Break a spec into testable TDD chunks with a status dashboard |
 | verify | `/verify` | E2E verification — real curl or browser automation against a live system |
