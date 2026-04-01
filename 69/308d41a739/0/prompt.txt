@@ -1,0 +1,13 @@
+One more skill I want is a verify skill.  This instructs the llm to run the code in an E2E way.  For api it means a curl request against the running api.  For Web it means a E2E test through browser automation.  If it cannot be verified it should return verificaiton incomplete
+
+---
+
+Have verify build a markdown file as well
+
+---
+
+Ok greate the order is wrong is should go spec => plan => verify => simplify => review.  Failures in the later three either require fixes or updating the plan.
+
+---
+
+Ok one last skill lets build a learn-from-mistakes skill.  This skill is after human signoff.  If there are any human corrections log them.  If there are any bad branch or holes log them. The goal is not to fix now but to track so that insights can be gleaned.  Do raise multiple failure occurences and if a failure happens 3 times then suggest a fix in Agents.md, or Skill updates.
