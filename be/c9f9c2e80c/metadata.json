@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "bec9f9c2e80c",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 2,
+  "files_touched": [
+    "skills/learn-from-mistakes/SKILL.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/be/c9f9c2e80c/0/metadata.json",
+      "transcript": "/be/c9f9c2e80c/0/full.jsonl",
+      "content_hash": "/be/c9f9c2e80c/0/content_hash.txt",
+      "prompt": "/be/c9f9c2e80c/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 224,
+    "cache_creation_tokens": 444743,
+    "cache_read_tokens": 9876505,
+    "output_tokens": 48210,
+    "api_call_count": 129
+  }
+}
