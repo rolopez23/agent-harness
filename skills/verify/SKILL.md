@@ -1,0 +1,161 @@
+---
+name: verify
+description: >
+  Runs end-to-end verification of implemented code against a live system. For APIs, fires real
+  curl requests. For web UIs, runs browser automation. Reports what passed, what failed, and
+  what could not be verified. Returns "verification incomplete" when the system cannot be reached
+  or the verification cannot be run — this is distinct from a failure.
+  Trigger when the user says "verify this", "test this end to end", "run the E2E", "check it
+  works", or when the plan dashboard's LLM Verify column needs to be updated.
+---
+
+# Verify
+
+You are verifying that implemented code works against a live, running system. This is not a unit
+test run — it is an end-to-end check of real behavior: real HTTP requests, real browser
+interactions, real database state. You are the last line of defense before the human signs off.
+
+## Before You Start
+
+Determine what needs to be verified. In order of preference:
+
+1. Read the chunk sub-plan (`docs/<feature>/chunks/<NN>-<chunk-name>.md`) — the LLM Verification
+   section describes exactly what to run and what a passing result looks like.
+2. Read the spec (`docs/<feature>/spec.md`) — the Success Criteria section defines what must be
+   true when the work is done.
+3. If neither exists, infer from the code what the observable behavior should be.
+
+If you cannot determine what to verify, say so and return verification incomplete.
+
+## Check the System is Running
+
+Before running any verification, confirm the system is up:
+
+```bash
+# Check for a running server process
+lsof -i :3000 2>/dev/null | grep LISTEN
+# or
+curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/health 2>/dev/null
+```
+
+If the system is not running, return verification incomplete — not a failure. Note what was
+needed and how to start it.
+
+## API Verification
+
+For each behavior to verify, construct a real curl request:
+
+```bash
+# Unauthenticated request (expect 401)
+curl -s -w "\nHTTP %{http_code}" http://localhost:3000/api/endpoint
+
+# Authenticated request
+curl -s -w "\nHTTP %{http_code}" \
+  -H "Authorization: Bearer <token>" \
+  http://localhost:3000/api/endpoint
+
+# POST with body
+curl -s -w "\nHTTP %{http_code}" \
+  -X POST \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <token>" \
+  -d '{"key": "value"}' \
+  http://localhost:3000/api/endpoint
+```
+
+For each request, record:
+- The command run
+- The response body
+- The HTTP status code
+- Whether it matches the expected result from the spec/sub-plan
+
+If auth tokens are needed and none are available, note this and return verification incomplete
+for that check.
+
+## Web / Browser Verification
+
+For web UIs, use Playwright via the CLI if available:
+
+```bash
+npx playwright test --reporter=line 2>/dev/null
+# or run a specific test file
+npx playwright test path/to/spec.ts --reporter=line
+```
+
+If Playwright tests don't exist yet, write a minimal inline script to exercise the behavior:
+
+```bash
+node -e "
+const { chromium } = require('playwright');
+(async () => {
+  const browser = await chromium.launch();
+  const page = await browser.newPage();
+  await page.goto('http://localhost:3000');
+  // exercise the behavior
+  const result = await page.textContent('.selector');
+  console.log('Result:', result);
+  await browser.close();
+})();
+"
+```
+
+If Playwright is not installed and the UI cannot be verified another way, return verification
+incomplete.
+
+## Outcomes
+
+Each check has one of three outcomes:
+
+- **Verified** — the system behaved as expected
+- **Failed** — the system is running but the behavior is wrong
+- **Incomplete** — the check could not be run (system not running, auth unavailable, tooling
+  missing, behavior not observable this way)
+
+A "Failed" outcome means something is broken and should block the plan dashboard update.
+An "Incomplete" outcome means verification was attempted but couldn't be completed — flag it
+so the human can verify manually. Do not treat incomplete as failure.
+
+## Save the Output
+
+Save the report to `docs/verify/<branch-name>-<YYYY-MM-DD>.md` (use `git branch --show-current`
+for the branch name). If no `docs/` directory exists, save to `.claude/verify/` instead.
+Tell the user where the file was saved.
+
+## Output Format
+
+```markdown
+## Verify: <branch or chunk name>
+## Date: <date>
+
+### Verified ✅
+- **<what was checked>** — `<command run>` → <what was returned / observed>
+
+### Failed ❌
+- **<what was checked>** — `<command run>` → <what was returned> (expected: <what was expected>)
+
+### Incomplete ⚠️
+- **<what was checked>** — <reason: system not running / auth unavailable / tooling missing / not observable>
+
+---
+Overall: Verified / Failed / Incomplete
+```
+
+Only include sections with entries. If everything passed:
+
+```markdown
+## Verify: <branch or chunk name>
+## Date: <date>
+
+### Verified ✅
+- ...
+
+---
+Overall: Verified
+```
+
+## Update the Plan
+
+If run as part of a plan chunk:
+- **Verified** → mark LLM Verify ✅ in plan.md
+- **Failed** → mark LLM Verify ❌ in plan.md
+- **Incomplete** → mark LLM Verify ⚠️ in plan.md (add ⚠️ to the legend if not present)
