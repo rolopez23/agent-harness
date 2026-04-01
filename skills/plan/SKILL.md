@@ -89,21 +89,26 @@ Write the main plan to `docs/<feature-name>/plan.md`. Use this structure:
 
 ## Status Dashboard
 
-| # | Chunk | Blocks | Branch / Commit | Auto Tests | E2E | Human | Simplify | Review |
-|---|-------|--------|-----------------|:----------:|:---:|:-----:|:--------:|:------:|
+| # | Chunk | Blocks | Branch / Commit | Auto Tests | Verify | Simplify | Review | Human |
+|---|-------|--------|-----------------|:----------:|:------:|:--------:|:------:|:-----:|
 | 1 | [Schema](chunks/01-schema.md) | 2, 3 | — | ⬜ | ➖ | ⬜ | ⬜ | ⬜ |
 | 2 | [Event triggers](chunks/02-event-triggers.md) | 3 | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 | 3 | [Feed API](chunks/03-feed-api.md) | 4 | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 | 4 | [Email delivery](chunks/04-email-delivery.md) | — | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
 
-**Legend:** ⬜ pending · ✅ passed · ❌ failed · ➖ N/A
+**Legend:** ⬜ pending · ✅ passed · ❌ failed · ⚠️ incomplete · ➖ N/A
+
+**Workflow order per chunk:** Auto Tests → Verify → Simplify → Review → Human
 
 **Columns:**
-- **Auto Tests**: unit/integration tests passing
-- **LLM Verify**: LLM actively ran the code (curl, script, etc.) and confirmed correct behavior — mark ➖ if chunk has no externally observable surface
-- **Human**: developer manually verified the behavior
+- **Auto Tests**: unit/integration tests passing (red-green-refactor, committed clean)
+- **Verify**: E2E check — real curl or browser automation against a live system; ➖ if no external surface
 - **Simplify**: code has been through a simplify/refactor pass
-- **Review**: code has been through an automated review pass
+- **Review**: correctness review — bugs, edge cases, error handling
+- **Human**: developer has manually signed off
+
+**On failure:** ❌ in Verify, Simplify, or Review requires fixes before proceeding, or the plan
+needs updating if scope has changed. Do not mark Human ✅ while any prior column is ❌.
 
 ## Branching Strategy
 

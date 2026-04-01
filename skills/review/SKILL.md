@@ -119,5 +119,7 @@ Tell the user where the file was saved.
 
 ## Update the Plan
 
-If this was run as part of a plan chunk, update the Review column in plan.md to ✅ when
-complete (regardless of whether findings were raised — the review was done).
+If run as part of a plan chunk, update the Review column in plan.md:
+- **Clean bill of health** → ✅
+- **Findings raised** → ❌ — findings must be addressed (fixed or explicitly accepted) before
+  Human sign-off. If fixing requires scope changes, update the plan. Re-run review after fixes.

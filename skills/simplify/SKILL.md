@@ -162,5 +162,9 @@ Tell the user where the file was saved.
 
 ## Update the Plan
 
-If this was run as part of a plan chunk, update the Simplify column in plan.md to ✅ once
-tests are passing and the output is saved.
+If run as part of a plan chunk, update the Simplify column in plan.md:
+- **Changes applied, tests green** → ✅
+- **Suggestions raised** → ✅ (suggestions are for the human; the pass is recorded)
+- **Nothing to simplify** → ✅
+- **Tests failed after a change** → ❌ — changes have been reverted; chunk needs attention
+  before Review or Human sign-off.

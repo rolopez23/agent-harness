@@ -155,7 +155,9 @@ Overall: Verified
 
 ## Update the Plan
 
-If run as part of a plan chunk:
-- **Verified** → mark LLM Verify ✅ in plan.md
-- **Failed** → mark LLM Verify ❌ in plan.md
-- **Incomplete** → mark LLM Verify ⚠️ in plan.md (add ⚠️ to the legend if not present)
+If run as part of a plan chunk, update the Verify column in plan.md:
+- **Verified** → ✅
+- **Failed** → ❌ — the chunk needs fixes before Simplify or Review can run. Either fix the
+  code and re-verify, or update the plan if scope has changed.
+- **Incomplete** → ⚠️ — flag for human follow-up; does not block Simplify/Review but should
+  be resolved before Human sign-off.
