@@ -1,0 +1,17 @@
+/insights
+
+---
+
+Ok now I want to make an intiailize skill this i to install these skills into an existing Agents.md.  If it does not exist create it it.  If it does add in reference to the skills.  When creating an agents.md prioritize minimality and linking files and nested Agents.md files.
+
+---
+
+Ok last part create an install script that installs all these skills in any repo.
+
+---
+
+Ok make the intialize also work with a Claude.md.
+
+---
+
+Ok add how to install to the readme.md
