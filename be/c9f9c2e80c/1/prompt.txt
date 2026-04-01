@@ -15,3 +15,7 @@ Ok make the intialize also work with a Claude.md.
 ---
 
 Ok add how to install to the readme.md
+
+---
+
+Ok commit and push
