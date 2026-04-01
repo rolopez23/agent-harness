@@ -1,0 +1,35 @@
+{
+  "cli_version": "0.5.1",
+  "checkpoint_id": "e9207d516119",
+  "session_id": "5cee8b2e-fe09-4488-ba5c-50c753004287",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-01T07:41:22.651086Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "skills/plan/SKILL.md",
+    "skills/simplify/SKILL.md",
+    "skills/review/SKILL.md"
+  ],
+  "agent": "Claude Code",
+  "turn_id": "944da2021645",
+  "token_usage": {
+    "input_tokens": 209,
+    "cache_creation_tokens": 435731,
+    "cache_read_tokens": 8499211,
+    "output_tokens": 44235,
+    "api_call_count": 118
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-01T07:41:22.478914Z",
+    "agent_lines": 0,
+    "human_added": 17,
+    "human_modified": 11,
+    "human_removed": 0,
+    "total_committed": 17,
+    "agent_percentage": 0
+  }
+}
