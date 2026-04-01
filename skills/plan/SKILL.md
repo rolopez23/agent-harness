@@ -85,22 +85,23 @@ Write the main plan to `docs/<feature-name>/plan.md`. Use this structure:
 ```markdown
 # Plan: <Feature Name>
 
-> Spec: [docs/<feature-name>/spec.md](<relative-path-to-spec>)
+> Spec: [docs/<feature-name>/spec.md](relative-path-to-spec)
 
 ## Status Dashboard
 
-| # | Chunk | Blocks | Branch / Commit | Auto Tests | Verify | Simplify | Review | Human |
-|---|-------|--------|-----------------|:----------:|:------:|:--------:|:------:|:-----:|
-| 1 | [Schema](chunks/01-schema.md) | 2, 3 | — | ⬜ | ➖ | ⬜ | ⬜ | ⬜ |
-| 2 | [Event triggers](chunks/02-event-triggers.md) | 3 | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| 3 | [Feed API](chunks/03-feed-api.md) | 4 | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
-| 4 | [Email delivery](chunks/04-email-delivery.md) | — | — | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| #   | Chunk                                         | Blocks | Branch / Commit | Auto Tests | Verify | Simplify | Review | Human |
+| --- | --------------------------------------------- | ------ | --------------- | :--------: | :----: | :------: | :----: | :---: |
+| 1   | [Schema](chunks/01-schema.md)                 | 2, 3   | —               |     ⬜     |   ➖   |    ⬜    |   ⬜   |  ⬜   |
+| 2   | [Event triggers](chunks/02-event-triggers.md) | 3      | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
+| 3   | [Feed API](chunks/03-feed-api.md)             | 4      | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
+| 4   | [Email delivery](chunks/04-email-delivery.md) | —      | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
 
 **Legend:** ⬜ pending · ✅ passed · ❌ failed · ⚠️ incomplete · ➖ N/A
 
 **Workflow order per chunk:** Auto Tests → Verify → Simplify → Review → Human
 
 **Columns:**
+
 - **Auto Tests**: unit/integration tests passing (red-green-refactor, committed clean)
 - **Verify**: E2E check — real curl or browser automation against a live system; ➖ if no external surface
 - **Simplify**: code has been through a simplify/refactor pass
@@ -108,7 +109,8 @@ Write the main plan to `docs/<feature-name>/plan.md`. Use this structure:
 - **Human**: developer has manually signed off
 
 **On failure:** ❌ in Verify, Simplify, or Review requires fixes before proceeding, or the plan
-needs updating if scope has changed. Do not mark Human ✅ while any prior column is ❌.
+needs updating if scope has changed. Do not mark Human ✅ while any prior column is ❌ and without explict instructions from the user.
+```
 
 ## Branching Strategy
 
@@ -117,11 +119,14 @@ needs updating if scope has changed. Do not mark Human ✅ while any prior colum
 ## Chunks
 
 ### 1. Schema
+
 <2–3 sentences: what this chunk covers, what "done" looks like>
 [→ Detailed TDD plan](chunks/01-schema.md)
 
 ### 2. Event Triggers
+
 ...
+
 ```
 
 The "Branch / Commit" column starts empty (—). It gets filled in as work proceeds — with a branch
@@ -152,6 +157,8 @@ The plan.md is a living document. Update it as work progresses:
 
 - When work on a chunk begins, fill in the Branch / Commit column
 - When a status changes (tests pass, human verifies, etc.), update the emoji in the dashboard
+- If tests fail or the LLM verification fails, see if the plan missed specificaiton and update accordingly.
 - If scope changes during implementation, update the chunk description and sub-plan
 
 The plan is done when every cell in the dashboard is either ✅ or ➖.
+```
