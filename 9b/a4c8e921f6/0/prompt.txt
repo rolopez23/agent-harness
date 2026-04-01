@@ -1,0 +1,1 @@
+One more skill I want is a verify skill.  This instructs the llm to run the code in an E2E way.  For api it means a curl request against the running api.  For Web it means a E2E test through browser automation.  If it cannot be verified it should return verificaiton incomplete
