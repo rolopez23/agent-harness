@@ -91,6 +91,12 @@ before writing the spec.
 
 ---
 
+## Step 5: Identify Current Code
+
+Document all code you think you may touch or any prior art that is similar.  Mainly define the interfaces as above and how they interact. 
+
+---
+
 ## Step 5: Write the Spec
 
 Once every question is answered, write the spec to `docs/<feature-name>/spec.md`. Choose
@@ -127,6 +133,9 @@ For each external system or API touched: what we call, what we pass, what we get
 
 ### Shared State
 Anything this work reads or writes that is also owned or used by another part of the system.
+
+### Existing Code
+Document any reference similar code or code you expect to touch. This is not a design doc, so do not describe how you will change it — just what it is and how it interacts with the interfaces above, and how it relates to the problem being solved.
 
 ## Open Questions
 Any questions that came up but are deferred. Each entry should note who needs to answer it.
