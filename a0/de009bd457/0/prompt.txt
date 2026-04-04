@@ -87,3 +87,7 @@ Add to improvements
 ---
 
 Lets update the /review to use the 3 sub skills.  It runs 3 parallel reviews (standard, edge-case-hunter, and cynical).  It is fine to dismiss all but try all the approaches.  Have it report the validity of each run for future cases.
+
+---
+
+Ok now lets update the specification skill.  I would say that after the 3 sub agents run re-interview the users.
