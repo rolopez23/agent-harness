@@ -28,16 +28,19 @@ Then start a Claude Code session — the skills are immediately available as `/c
 |---|---|---|
 | initialize | `/initialize` | Write or update context files with skills reference |
 | problem-spec | `/problem-spec` | Define what is and isn't being solved |
-| plan | `/plan` | Break a spec into testable TDD chunks |
+| plan | `/plan` | Break a spec into testable steps with readiness gate |
 | verify | `/verify` | E2E check against a live system |
 | simplify | `/simplify` | Clean up staged code |
 | review | `/review` | Find bugs and missed edge cases |
+| pr-interactive-walkthrough | `/pr-interactive-walkthrough` | File-by-file walkthrough with understanding assessment |
 | learn-from-mistakes | `/learn-from-mistakes` | Log corrections after sign-off |
 | frontend-design | `/frontend-design` | Build distinctive, production-grade frontend UI |
 | systematic-debugging | `/systematic-debugging` | Root-cause-first 4-phase debugging process |
+| dispatching-parallel-agents | `/dispatching-parallel-agents` | Split independent tasks across parallel subagents |
+| skill-creator | `/skill-creator` | Create, test, and iterate on new skills |
 
 ## Workflow
 
 ```
-/problem-spec  →  /plan  →  TDD loop  →  /verify  →  /simplify  →  /review  →  human sign-off  →  /learn-from-mistakes
+/problem-spec  →  /plan  →  TDD loop  →  /verify  →  /simplify  →  /review  →  /pr-interactive-walkthrough  →  human sign-off  →  /learn-from-mistakes
 ```
