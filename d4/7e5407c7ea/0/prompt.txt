@@ -83,3 +83,7 @@ Finaly can you dive deeper into BMAD is there anything to learn from this opinio
 ---
 
 Add to improvements
+
+---
+
+Lets update the /review to use the 3 sub skills.  It runs 3 parallel reviews (standard, edge-case-hunter, and cynical).  It is fine to dismiss all but try all the approaches.  Have it report the validity of each run for future cases.
