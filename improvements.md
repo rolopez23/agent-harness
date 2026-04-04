@@ -20,14 +20,9 @@ Pending enhancements to the harness — skills to add, merges to do, structural 
 Three parallel sub-skills: standard, edge-case-hunter, adversarial. Orchestrator merges
 findings, triages, and records reviewer validity for future reference.
 
-### Upgrade `/problem-spec` — stress-test pass
-Add a final stage to `/problem-spec` that challenges the finished spec using:
-- **Pre-mortem** — "Imagine this shipped and failed. What went wrong?"
-- **Red-team** — steelman the strongest objections to the approach
-- **Socratic** — probe any assumption that hasn't been explicitly validated
-
-Spec doesn't finalize until it survives this pass.
-**Source:** `bmad-advanced-elicitation`, `bmad-prfaq`
+### ~~Upgrade `/problem-spec` — stress-test pass~~ ✅ Done
+Three parallel sub-agents (pre-mortem, red-team, socratic) run against the draft spec.
+Findings are synthesized and used to re-interview the user before finalizing.
 
 ### Add readiness gate to `/plan`
 Lightweight checklist at the end of Step 7 (self-review) verifying that spec, file map,

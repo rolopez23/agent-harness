@@ -19,10 +19,9 @@ be true when this work is done — and exactly what is out of scope.
 
 - **Never assume.** If anything is ambiguous, ask. A wrong assumption here costs far more than a
   clarifying question.
-- **No solution talk.** If the user starts describing how they want to build it, gently redirect:
+- **No solution talk.** If the user starts describing how they want to build it, redirect:
   "Let's lock down the what before the how."
 - **No partial specs.** Do not write the spec file until you have answers to every open question.
-  If the user says "just make something up", push back — a guess here becomes a constraint later.
 
 ---
 
@@ -30,10 +29,10 @@ be true when this work is done — and exactly what is out of scope.
 
 Ask the user to describe what they want to achieve. Listen for:
 
-- The goal (what changes in the world when this is done?)
-- The actors (who or what initiates this? who or what receives the result?)
-- The trigger (what causes this to happen?)
-- The success condition (how will we know it worked?)
+- The goal — what changes in the world when this is done?
+- The actors — who or what initiates this? who or what receives the result?
+- The trigger — what causes this to happen?
+- The success condition — how will we know it worked?
 
 Do not move on until you can restate the problem back in your own words and the user confirms it.
 
@@ -41,69 +40,55 @@ Do not move on until you can restate the problem back in your own words and the 
 
 ## Step 2: Clarify Until There Is No Ambiguity
 
-Go through every noun and verb in the problem statement and ask yourself: "Is this fully defined?"
-If not, ask the user. Common sources of ambiguity:
+Go through every noun and verb in the problem statement and ask: "Is this fully defined?" If not,
+ask the user. Common sources of ambiguity:
 
 - Vague quantities ("some", "a few", "many", "fast")
 - Undefined entities ("the user", "the system", "the data" — which one?)
 - Implicit behaviors ("it should update X" — when? how? what if X doesn't exist?)
-- Edge cases ("what happens if there's nothing to process?", "what if it fails halfway?")
+- Edge cases ("what if there's nothing to process?", "what if it fails halfway?")
 - Ownership ("who calls this?", "who owns the output?")
 
-Keep asking until every piece of the problem statement is concrete. Do not batch questions — ask
-one or two at a time so the conversation stays focused.
+Ask one or two questions at a time — don't batch them.
 
 ---
 
 ## Step 3: Define the Boundary
 
-Once the problem is clear, explicitly define what is and is not included. Work through this with
-the user:
+Explicitly define what is and is not included:
 
-**In scope**: What must be true when this work is complete? Keep this tight — only what is
-necessary to solve the stated problem.
+**In scope**: What must be true when this work is complete? Keep this tight.
 
-**Out of scope**: What are we explicitly not solving? This is as important as the in-scope list.
-Name the things that are adjacent, tempting, or frequently assumed — and mark them out of scope.
-If the user is unsure whether something is in or out, it needs a decision now, not later.
+**Out of scope**: What are we explicitly not solving? Name adjacent, tempting, or frequently
+assumed items and mark them out of scope. If the user is unsure whether something is in or out,
+it needs a decision now.
 
 ---
 
 ## Step 4: Define Interfaces
 
-Identify every connection point between this work and anything that already exists. You are not
-designing new interfaces here — you are documenting the contracts this work must respect or
-that will be changed by this work.
+Identify every connection point between this work and anything that already exists. Document:
 
-Ask and document:
+- **Schemas** — data structures read or written; field names, types, constraints; before/after if changing
+- **API contracts** — what is called or exposed; expected inputs/outputs; auth, rate limits, error shapes
+- **System boundaries** — external systems, services, or processes that touch this work
+- **Shared state** — anything read or written that another part of the system also owns
 
-- **Schemas**: What data structures does this read from or write to? What are the field names,
-  types, and constraints? If a schema is changing, what is the before and what is the after?
-- **API contracts**: What existing APIs does this call or expose to? What are the expected inputs
-  and outputs? What guarantees exist (auth, rate limits, error shapes)?
-- **System boundaries**: What external systems, services, or processes touch this work? What do
-  they expect? What do they return?
-- **Shared state**: Does this read or write anything that another part of the system also owns?
-  Who has authority over it?
-
-If the user says "I'm not sure what the schema looks like" — that is a blocker. Help them find it
-before writing the spec.
+If the user doesn't know what a schema looks like — that is a blocker. Help them find it first.
 
 ---
 
 ## Step 5: Identify Current Code
 
-Document all code you think you may touch or any prior art that is similar.  Mainly define the interfaces as above and how they interact. 
+Document all code likely to be touched and any prior art that is similar. Define the interfaces
+above and describe how they interact. This is not a design doc — just what exists and how it
+relates to the problem.
 
 ---
 
-## Step 5: Write the Spec
+## Step 6: Write a Draft Spec
 
-Once every question is answered, write the spec to `docs/<feature-name>/spec.md`. Choose
-`<feature-name>` as a short, lowercase, hyphenated name that describes the feature (confirm with
-the user if unsure).
-
-Use this exact structure:
+Write a draft to `docs/<feature-name>/spec.md`. Use this structure:
 
 ```markdown
 # Spec: <Feature Name>
@@ -115,7 +100,7 @@ One to three sentences. What is broken or missing, and why does it matter?
 Bullet list. Each item is a concrete, verifiable outcome.
 
 ## What We Are NOT Solving
-Bullet list. Each item is something explicitly excluded from this work.
+Bullet list. Each item is something explicitly excluded.
 
 ## Actors & Triggers
 Who or what initiates this work, and under what conditions.
@@ -129,20 +114,82 @@ How will we know this is done? What can be checked or observed?
 For each schema touched: name, relevant fields (with types), and any changes being made.
 
 ### Contracts
-For each external system or API touched: what we call, what we pass, what we get back.
+For each external system or API: what we call, what we pass, what we get back.
 
 ### Shared State
-Anything this work reads or writes that is also owned or used by another part of the system.
+Anything this work reads or writes that is also owned by another part of the system.
 
 ### Existing Code
-Document any reference similar code or code you expect to touch. This is not a design doc, so do not describe how you will change it — just what it is and how it interacts with the interfaces above, and how it relates to the problem being solved.
+Reference code expected to be touched and how it relates to the interfaces above.
 
 ## Open Questions
-Any questions that came up but are deferred. Each entry should note who needs to answer it.
+Questions that came up but are deferred. Note who needs to answer each.
 ```
 
-Do not add sections that are empty. If there are no shared state concerns, omit that section.
-If there are no open questions, omit that section.
+Omit empty sections. Tell the user this is a draft — you will stress-test it before finalizing.
 
-After writing the file, tell the user where it was saved and ask them to review it before any
-implementation begins.
+---
+
+## Step 7: Stress-Test the Draft
+
+Dispatch three subagents in parallel against the draft. Each gets the full spec draft text and
+its sub-skill instructions from `sub-skills/`:
+
+- `sub-skills/pre-mortem.md` — assumes failure and works backwards to surface hidden risks
+- `sub-skills/red-team.md` — steelmans the strongest objections to scope, criteria, and interfaces
+- `sub-skills/socratic.md` — probes unvalidated assumptions with targeted questions
+
+**Subagent prompt template:**
+
+```
+You are stress-testing a problem spec. Follow the sub-skill instructions exactly.
+
+## Sub-skill instructions
+<contents of sub-skills/<reviewer>.md>
+
+## Spec draft
+<full spec content>
+```
+
+Do not pre-filter the findings. Surface everything.
+
+---
+
+## Step 8: Re-Interview the User
+
+Synthesize the three sets of findings into a prioritized set of questions and challenges.
+Do not present all three outputs raw — distill them:
+
+1. **Group by theme** — multiple reviewers often surface the same gap from different angles;
+   merge these into one question
+2. **Rank by impact** — lead with findings that would change the spec materially if answered;
+   put speculative or minor ones at the end
+3. **Frame as questions** — even findings from the red team and pre-mortem should be presented
+   as questions to the user, not verdicts
+
+Present to the user:
+
+```
+The spec looks solid, but the stress-test raised some things worth resolving before we lock it in:
+
+**[Theme]**: <question or challenge>
+**[Theme]**: <question or challenge>
+...
+
+Any of these change your thinking?
+```
+
+Wait for responses. Update the spec draft with each answer. If an answer surfaces new ambiguity,
+ask a follow-up before moving on.
+
+---
+
+## Step 9: Finalize the Spec
+
+Once the re-interview is complete and all stress-test findings are resolved:
+
+- Update `docs/<feature-name>/spec.md` with the final answers
+- Move any unresolved items to the Open Questions section with an owner
+- Tell the user where the file was saved and ask them to review it before any implementation begins
+
+The spec is done when the user signs off. Then run `/plan`.
