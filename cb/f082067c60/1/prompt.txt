@@ -1,0 +1,13 @@
+.
+
+---
+
+Ok Can you pull in two skills from react-app-start There should be frontend and backend-end boot prompts.  Make these as new skills.
+
+---
+
+place it in the core skills directory lets make two skills next-react boot and python-psql boot
+
+---
+
+/statusline
