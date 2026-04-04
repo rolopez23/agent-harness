@@ -15,6 +15,25 @@ You are verifying that implemented code works against a live, running system. Th
 test run — it is an end-to-end check of real behavior: real HTTP requests, real browser
 interactions, real database state. You are the last line of defense before the human signs off.
 
+## The Core Rule
+
+```
+NO COMPLETION CLAIMS WITHOUT EVIDENCE
+```
+
+Run the command. Read the output. Then report the result. Never say "should work", "looks good",
+or "verified" before you have actually run the verification and read the output. Confidence is
+not evidence.
+
+| Claim | Requires |
+|---|---|
+| "Verified" | Command output showing expected behavior |
+| "Tests pass" | Test runner output: 0 failures |
+| "Fixed" | Re-run the original failing check: now passes |
+| "No regressions" | Full suite output, not just the changed path |
+
+If you haven't run it in this response, you cannot claim it.
+
 ## Before You Start
 
 Determine what needs to be verified. In order of preference:
@@ -32,7 +51,6 @@ If you cannot determine what to verify, say so and return verification incomplet
 Before running any verification, confirm the system is up:
 
 ```bash
-# Check for a running server process
 lsof -i :3000 2>/dev/null | grep LISTEN
 # or
 curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/health 2>/dev/null
@@ -63,26 +81,18 @@ curl -s -w "\nHTTP %{http_code}" \
   http://localhost:3000/api/endpoint
 ```
 
-For each request, record:
-- The command run
-- The response body
-- The HTTP status code
-- Whether it matches the expected result from the spec/sub-plan
-
-If auth tokens are needed and none are available, note this and return verification incomplete
-for that check.
+For each request, record the command run, the response body, the HTTP status code, and whether
+it matches the expected result. If auth tokens are needed and unavailable, return incomplete.
 
 ## Web / Browser Verification
 
-For web UIs, use Playwright via the CLI if available:
+Use Playwright via the CLI if available:
 
 ```bash
 npx playwright test --reporter=line 2>/dev/null
-# or run a specific test file
-npx playwright test path/to/spec.ts --reporter=line
 ```
 
-If Playwright tests don't exist yet, write a minimal inline script to exercise the behavior:
+If Playwright tests don't exist yet, write a minimal inline script:
 
 ```bash
 node -e "
@@ -91,7 +101,6 @@ const { chromium } = require('playwright');
   const browser = await chromium.launch();
   const page = await browser.newPage();
   await page.goto('http://localhost:3000');
-  // exercise the behavior
   const result = await page.textContent('.selector');
   console.log('Result:', result);
   await browser.close();
@@ -99,32 +108,28 @@ const { chromium } = require('playwright');
 "
 ```
 
-If Playwright is not installed and the UI cannot be verified another way, return verification
-incomplete.
+If Playwright is not installed and the UI cannot be verified another way, return incomplete.
 
 ## Outcomes
-
-Each check has one of three outcomes:
 
 - **Verified** — the system behaved as expected
 - **Failed** — the system is running but the behavior is wrong
 - **Incomplete** — the check could not be run (system not running, auth unavailable, tooling
   missing, behavior not observable this way)
 
-A "Failed" outcome means something is broken and should block the plan dashboard update.
-An "Incomplete" outcome means verification was attempted but couldn't be completed — flag it
-so the human can verify manually. Do not treat incomplete as failure.
+Failed blocks the plan dashboard update. Incomplete flags for human follow-up but does not
+block Simplify/Review.
 
 ## Save the Output
 
-Save the report to `docs/verify/<branch-name>-<YYYY-MM-DD>.md` (use `git branch --show-current`
+Save the report to `docs/verify/<branch-name>-<YYYY-MM-DD>.md` (`git branch --show-current`
 for the branch name). If no `docs/` directory exists, save to `.claude/verify/` instead.
 Tell the user where the file was saved.
 
 ## Output Format
 
 ```markdown
-## Verify: <branch or chunk name>
+## Verify: <step name>
 ## Date: <date>
 
 ### Verified ✅
@@ -134,30 +139,17 @@ Tell the user where the file was saved.
 - **<what was checked>** — `<command run>` → <what was returned> (expected: <what was expected>)
 
 ### Incomplete ⚠️
-- **<what was checked>** — <reason: system not running / auth unavailable / tooling missing / not observable>
+- **<what was checked>** — <reason>
 
 ---
 Overall: Verified / Failed / Incomplete
 ```
 
-Only include sections with entries. If everything passed:
-
-```markdown
-## Verify: <branch or chunk name>
-## Date: <date>
-
-### Verified ✅
-- ...
-
----
-Overall: Verified
-```
-
 ## Update the Plan
 
-If run as part of a plan chunk, update the Verify column in plan.md:
+Update the Verify column in plan.md:
 - **Verified** → ✅
-- **Failed** → ❌ — the step needs fixes before Simplify or Review can run. Either fix the
-  code and re-verify, or update the plan if scope has changed.
-- **Incomplete** → ⚠️ — flag for human follow-up; does not block Simplify/Review but should
-  be resolved before Human sign-off.
+- **Failed** → ❌ — needs fixes before Simplify or Review. Fix and re-verify, or update the
+  plan if scope changed.
+- **Incomplete** → ⚠️ — flag for human follow-up; does not block Simplify/Review but must be
+  resolved before Human sign-off.

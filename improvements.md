@@ -14,13 +14,8 @@ Referenced by `plan-step.md`. Source: `refernce/superpowers/skills/test-driven-d
 
 ## Skills to Pull In
 
-### verification-before-completion
-"Evidence before claims" — before marking anything done, run the command, read the output,
-then make the claim. Pairs tightly with `/verify` and closes the gap where automated steps
-pass but behavior is actually wrong. Short, high-signal skill.
-**Source:** `refernce/superpowers/skills/verification-before-completion/SKILL.md`
-**Where it fits:** Could be a sub-skill referenced by `verify` and `plan-step`, or a
-standalone skill invoked before any completion claim.
+### ~~verification-before-completion~~ ✅ Done
+Merged into `verify/SKILL.md` as the "Core Rule" section.
 
 ### dispatching-parallel-agents
 Pattern for splitting independent failures or tasks across parallel subagents — one agent
@@ -59,10 +54,7 @@ docs for best practices, tool naming, error messages, and an evaluation framewor
 
 ## Structural Improvements
 
-### Merge `verification-before-completion` into `verify`
-Rather than a separate skill, the core rule ("run the command, read the output, then claim")
-could be folded into the existing `/verify` SKILL.md as a standing instruction. Less to
-remember, same enforcement.
+### ~~Merge `verification-before-completion` into `verify`~~ ✅ Done
 
 ### `writing-plans` self-review → already done
 Merged into `plan/SKILL.md` as Step 7. ✅
