@@ -39,3 +39,7 @@ Ok now lets optimize my skills lets pull in elements of writing-plans and test-d
 ---
 
 One edit I like merging in but would tdd be better as a subskill that chunk can do?
+
+---
+
+lets renament chunk to plan-step.  Also change the naming convention to not be number based but E2E feature based
