@@ -27,3 +27,7 @@ Ok I added a directory can you audit the skills in this. I want to pull some int
 ---
 
 Look through all the skills and give me a list what ones would be most useful?
+
+---
+
+Ok lets pull in systemeatic debugging.
