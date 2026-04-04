@@ -38,9 +38,18 @@ Then start a Claude Code session — the skills are immediately available as `/c
 | systematic-debugging | `/systematic-debugging` | Root-cause-first 4-phase debugging process |
 | dispatching-parallel-agents | `/dispatching-parallel-agents` | Split independent tasks across parallel subagents |
 | skill-creator | `/skill-creator` | Create, test, and iterate on new skills |
+| next-react-boot | `/next-react-boot` | Scaffold a Next.js 16 / React 19 / Tailwind v4 frontend |
+| python-psql-boot | `/python-psql-boot` | Scaffold a Python / FastAPI / PostgreSQL backend |
 
 ## Workflow
 
 ```
 /problem-spec  →  /plan  →  TDD loop  →  /verify  →  /simplify  →  /review  →  /pr-interactive-walkthrough  →  human sign-off  →  /learn-from-mistakes
 ```
+
+## Attribution
+
+The boot skills were derived from scaffold prompts in these projects:
+
+- **next-react-boot** — based on [vanilla-rebuild](https://github.com/rolopez23/vanilla-rebuild) (`frontend/FRONTEND.md`)
+- **python-psql-boot** — based on [vanilla-rebuild](https://github.com/rolopez23/vanilla-rebuild) (`docs/prompts/generate-python-backend.md`)
