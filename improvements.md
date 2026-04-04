@@ -14,6 +14,37 @@ Pending enhancements to the harness — skills to add, merges to do, structural 
 
 ---
 
+## From BMAD Analysis
+
+### Upgrade `/review` — multi-layer adversarial review
+Add two sub-skills modeled on BMAD's parallel reviewer pattern:
+- `sub-skills/edge-case-hunter.md` — mechanically walks every branch/boundary, reports only
+  unhandled paths as structured JSON; method-driven, not attitude-driven
+- `sub-skills/adversarial.md` — cynical pass finding at least 10 issues; skeptical attitude
+  regardless of how clean the code looks
+
+Main `review/SKILL.md` runs both passes and merges findings.
+**Source:** `bmad-review-edge-case-hunter`, `bmad-review-adversarial-general`
+
+### Upgrade `/problem-spec` — stress-test pass
+Add a final stage to `/problem-spec` that challenges the finished spec using:
+- **Pre-mortem** — "Imagine this shipped and failed. What went wrong?"
+- **Red-team** — steelman the strongest objections to the approach
+- **Socratic** — probe any assumption that hasn't been explicitly validated
+
+Spec doesn't finalize until it survives this pass.
+**Source:** `bmad-advanced-elicitation`, `bmad-prfaq`
+
+### Add readiness gate to `/plan`
+Lightweight checklist at the end of Step 7 (self-review) verifying that spec, file map,
+and step plans are internally consistent before handing off to implementation:
+- Every spec requirement maps to a step
+- Every file in the file map is touched by at least one step
+- No step references a type, method, or file not defined elsewhere in the plan
+**Source:** `bmad-check-implementation-readiness`
+
+---
+
 ## Future Consideration
 
 ### subagent-driven-development
