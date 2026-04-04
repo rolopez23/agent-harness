@@ -55,7 +55,14 @@ skills_table() {
 | verify | \`/verify\` | [→]($HARNESS_REL/skills/verify/SKILL.md) |
 | simplify | \`/simplify\` | [→]($HARNESS_REL/skills/simplify/SKILL.md) |
 | review | \`/review\` | [→]($HARNESS_REL/skills/review/SKILL.md) |
+| pr-interactive-walkthrough | \`/pr-interactive-walkthrough\` | [→]($HARNESS_REL/skills/pr-interactive-walkthrough/SKILL.md) |
 | learn-from-mistakes | \`/learn-from-mistakes\` | [→]($HARNESS_REL/skills/learn-from-mistakes/SKILL.md) |
+| frontend-design | \`/frontend-design\` | [→]($HARNESS_REL/skills/frontend-design/SKILL.md) |
+| systematic-debugging | \`/systematic-debugging\` | [→]($HARNESS_REL/skills/systematic-debugging/SKILL.md) |
+| dispatching-parallel-agents | \`/dispatching-parallel-agents\` | [→]($HARNESS_REL/skills/dispatching-parallel-agents/SKILL.md) |
+| skill-creator | \`/skill-creator\` | [→]($HARNESS_REL/skills/skill-creator/SKILL.md) |
+| next-react-boot | \`/next-react-boot\` | [→]($HARNESS_REL/skills/next-react-boot/SKILL.md) |
+| python-psql-boot | \`/python-psql-boot\` | [→]($HARNESS_REL/skills/python-psql-boot/SKILL.md) |
 EOF
 }
 
