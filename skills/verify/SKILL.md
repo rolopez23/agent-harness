@@ -46,6 +46,12 @@ Determine what needs to be verified. In order of preference:
 
 If you cannot determine what to verify, say so and return verification incomplete.
 
+**Do not mark N/A too eagerly.** If any verification is possible — connecting to a database,
+inspecting a file, querying a queue, checking logs — do it. N/A means there is genuinely no
+observable effect to check, not "there's no HTTP endpoint." A schema migration can be verified
+by inspecting the live database. A background job can be verified by checking its side effects.
+Only mark ➖ when you have exhausted all verification paths.
+
 ## Check the System is Running
 
 Before running any verification, confirm the system is up:

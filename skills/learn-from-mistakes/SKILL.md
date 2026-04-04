@@ -96,10 +96,25 @@ Each entry follows this format:
 ### <YYYY-MM-DD> · <feature>/<step>
 
 **Category**: <Human correction | Missed edge case | Implementation hole | Bad assumption | Large refactor | Skill gap | Test gap>
+**Error class**: <Specification | Skill | Context | Prompt>
 **What happened**: <1–2 sentences describing the specific mistake or gap>
 **Where it surfaced**: <which step caught it, or "human review">
 **Pattern tag**: `<short-kebab-case-tag>` (e.g. `nil-not-checked`, `auth-missing`, `off-by-one`, `concurrent-write`)
 ```
+
+### Error Classes
+
+Every entry must be classified. This tells us where to fix:
+
+| Class | Definition | Fix lives in |
+|---|---|---|
+| **Specification** | The spec was wrong, incomplete, ambiguous, or didn't match the implementation contract (e.g. field names, casing, missing edge definitions) | Update `/problem-spec` or the spec itself |
+| **Skill** | A skill's instructions produced wrong output — missed a bug, applied an unsafe change, gave a clean bill incorrectly | Update the skill's SKILL.md |
+| **Context** | The agent had wrong context, didn't follow the workflow, or bypassed skills with raw agents | Update AGENTS.md or workflow enforcement |
+| **Prompt** | The user's request was ambiguous, misleading, or missing critical detail that led to wrong implementation | Note for future — the stress-test in `/problem-spec` should catch these |
+
+When the same **error class + pattern tag** combination recurs, the suggested fix targets the
+right layer — not just "add a rule" but "fix this specific skill" or "catch this in the spec."
 
 The pattern tag is the key field — it's how recurring issues are detected.
 
@@ -109,11 +124,13 @@ After appending the new entries, scan `.claude/learnings.md` for pattern tags th
 3 or more times. For each such tag:
 
 1. List the occurrences (dates, features, brief descriptions)
-2. Determine whether the fix belongs in:
-   - **AGENTS.md** — if it's a behavioral reminder Claude should always follow
-   - **A skill update** — if a specific skill (review, simplify, verify, plan) consistently
-     misses this class of problem
-3. Draft the suggestion (see format below) but do not apply it — present it to the user
+2. Check the error class distribution for this tag — are they all the same class?
+3. Route the fix based on the dominant error class:
+   - **Specification** → update `/problem-spec` skill (add to stress-test) or suggest spec template change
+   - **Skill** → update the specific skill that missed it (name the skill and what to add)
+   - **Context** → add a rule to AGENTS.md or update workflow enforcement
+   - **Prompt** → note it; suggest the user add it to their own CLAUDE.md conventions
+4. Draft the suggestion (see format below) but do not apply it — present it to the user
 
 ## Suggesting a Fix
 

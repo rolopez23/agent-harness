@@ -108,8 +108,10 @@ Readable code is better than comments. If you can as an LLM infer the comment fr
 - Duplicate extraction where the extracted abstraction is clean
 - Guard clause / early return simplifications
 
-After applying, run the test suite. All tests must pass. If a change breaks a test, revert it
-— don't adjust the test to match the new code unless the test was wrong.
+After applying **each** change, run the test suite immediately. All tests must pass. If a
+change breaks a test, revert that specific change — don't adjust the test to match the new
+code unless the test was genuinely wrong. Do not batch multiple changes before running tests.
+A "safe optimization" that breaks tests was not safe — revert it, don't debug it.
 
 **Uncertain improvements — suggest, don't apply:**
 Present as: "Consider: [what to do] — [one sentence why]. Leave as-is if you disagree."

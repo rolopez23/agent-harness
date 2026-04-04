@@ -33,11 +33,19 @@ Valid inputs or states not handled correctly. Ask what happens when:
 - Partial writes that can fail halfway, leaving inconsistent state
 - Missing auth checks on new endpoints
 - Input validation gaps
+- Async operations without cleanup (abort controllers, unsubscribe, cancel tokens)
+- Silent failures — catch blocks that swallow errors with no log or rethrow
+
+### Infrastructure Side Effects
+- Test setup/teardown that corrupts live state (e.g. `drop_all` leaving migration markers)
+- Migrations that are irreversible or leave orphaned state
+- Shared resources (DB connections, file handles, event loops) not properly scoped
 
 ### Contract Violations
-- API response shape differs from the documented contract
+- API response shape differs from the documented contract (check field names AND casing)
 - A required side effect isn't atomic
 - A spec guarantee isn't upheld in the implementation
+- Spec fields that are accepted in requests but never persisted or returned
 
 ## Output Format
 
