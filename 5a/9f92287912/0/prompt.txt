@@ -79,3 +79,7 @@ I think we can mark the rest as future to consider.
 ---
 
 Finaly can you dive deeper into BMAD is there anything to learn from this opinionated flow to improve mine?
+
+---
+
+Add to improvements
