@@ -63,6 +63,7 @@ for complete instructions.
 | simplify | `/simplify` | Apply clear improvements; suggest uncertain ones; never touch tests |
 | review | `/review` | Find bugs, missed edge cases, unhandled errors; report only |
 | learn-from-mistakes | `/learn-from-mistakes` | Log corrections and gaps after human sign-off |
+| frontend-design | `/frontend-design` | Build distinctive, production-grade frontend UI |
 
 Skills live in `skills/`. Each skill directory contains a `SKILL.md` and optionally
 `sub-skills/`, `evals/`, and supporting scripts.
