@@ -19,12 +19,8 @@ Merged into `verify/SKILL.md` as the "Core Rule" section.
 
 ### ~~dispatching-parallel-agents~~ ✅ Done
 
-### webapp-testing
-Playwright-based browser testing with a `with_server.py` helper that manages server
-lifecycle. Includes a decision tree (static vs dynamic app) and reconnaissance-then-action
-pattern. Directly addresses frontend debugging friction.
-**Source:** `refernce/skills/skills/webapp-testing/SKILL.md`
-**Where it fits:** Standalone skill; pairs with `/verify` for UI surfaces.
+### ~~webapp-testing~~ ✅ Done
+Added as `skills/verify/sub-skills/webapp-testing/`. Referenced from the Web / Browser Verification section of verify.
 
 ### subagent-driven-development
 Orchestrator pattern: fresh subagent per task, spec-compliance review, then code-quality

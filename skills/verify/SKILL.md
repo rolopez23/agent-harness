@@ -86,27 +86,20 @@ it matches the expected result. If auth tokens are needed and unavailable, retur
 
 ## Web / Browser Verification
 
-Use Playwright via the CLI if available:
+For frontend verification, use the webapp-testing sub-skill — it handles server lifecycle,
+static vs dynamic detection, and the reconnaissance-then-action pattern:
+
+> **Sub-skill:** `sub-skills/webapp-testing/SKILL.md`
+
+Quick path when Playwright tests already exist:
 
 ```bash
 npx playwright test --reporter=line 2>/dev/null
 ```
 
-If Playwright tests don't exist yet, write a minimal inline script:
-
-```bash
-node -e "
-const { chromium } = require('playwright');
-(async () => {
-  const browser = await chromium.launch();
-  const page = await browser.newPage();
-  await page.goto('http://localhost:3000');
-  const result = await page.textContent('.selector');
-  console.log('Result:', result);
-  await browser.close();
-})();
-"
-```
+If tests don't exist yet, follow the decision tree in `webapp-testing/SKILL.md` to write a
+minimal inline script against the running app. Use `sub-skills/webapp-testing/scripts/with_server.py`
+to manage server lifecycle if the server isn't already running.
 
 If Playwright is not installed and the UI cannot be verified another way, return incomplete.
 
