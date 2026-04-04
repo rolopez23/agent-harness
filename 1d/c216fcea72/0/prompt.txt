@@ -71,3 +71,7 @@ Sure
 ---
 
 Can we add this as a subskill to verify.  It seems the best way to verify frontend changes.
+
+---
+
+I think we can mark the rest as future to consider.
