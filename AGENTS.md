@@ -64,6 +64,7 @@ for complete instructions.
 | review | `/review` | Find bugs, missed edge cases, unhandled errors; report only |
 | learn-from-mistakes | `/learn-from-mistakes` | Log corrections and gaps after human sign-off |
 | frontend-design | `/frontend-design` | Build distinctive, production-grade frontend UI |
+| systematic-debugging | `/systematic-debugging` | Root-cause-first 4-phase debugging process |
 
 Skills live in `skills/`. Each skill directory contains a `SKILL.md` and optionally
 `sub-skills/`, `evals/`, and supporting scripts.
