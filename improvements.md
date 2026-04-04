@@ -17,12 +17,7 @@ Referenced by `plan-step.md`. Source: `refernce/superpowers/skills/test-driven-d
 ### ~~verification-before-completion~~ ✅ Done
 Merged into `verify/SKILL.md` as the "Core Rule" section.
 
-### dispatching-parallel-agents
-Pattern for splitting independent failures or tasks across parallel subagents — one agent
-per problem domain, all dispatched in the same turn. Directly addresses the "parallel agents
-for monorepo work" opportunity flagged in the insights report.
-**Source:** `refernce/superpowers/skills/dispatching-parallel-agents/SKILL.md`
-**Where it fits:** Standalone skill; also good reference material for subagent-driven-development.
+### ~~dispatching-parallel-agents~~ ✅ Done
 
 ### webapp-testing
 Playwright-based browser testing with a `with_server.py` helper that manages server
