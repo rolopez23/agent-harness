@@ -16,15 +16,9 @@ Pending enhancements to the harness — skills to add, merges to do, structural 
 
 ## From BMAD Analysis
 
-### Upgrade `/review` — multi-layer adversarial review
-Add two sub-skills modeled on BMAD's parallel reviewer pattern:
-- `sub-skills/edge-case-hunter.md` — mechanically walks every branch/boundary, reports only
-  unhandled paths as structured JSON; method-driven, not attitude-driven
-- `sub-skills/adversarial.md` — cynical pass finding at least 10 issues; skeptical attitude
-  regardless of how clean the code looks
-
-Main `review/SKILL.md` runs both passes and merges findings.
-**Source:** `bmad-review-edge-case-hunter`, `bmad-review-adversarial-general`
+### ~~Upgrade `/review` — multi-layer adversarial review~~ ✅ Done
+Three parallel sub-skills: standard, edge-case-hunter, adversarial. Orchestrator merges
+findings, triages, and records reviewer validity for future reference.
 
 ### Upgrade `/problem-spec` — stress-test pass
 Add a final stage to `/problem-spec` that challenges the finished spec using:

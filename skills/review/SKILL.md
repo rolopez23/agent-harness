@@ -2,20 +2,24 @@
 name: review
 description: >
   Reviews staged changes or a branch diff for bugs, missed edge cases, and unhandled error
-  conditions. Reports findings only — does not modify code. A clean bill of health is a
-  completely valid and common output.
+  conditions. Runs three parallel reviewers — standard correctness, exhaustive path tracing,
+  and adversarial — then merges findings and reports reviewer validity.
   Trigger when the user says "review this", "check for bugs", "what did I miss", "look for
-  edge cases", or when invoked as a subagent before committing. Also trigger when the plan
-  dashboard's Review column needs to be updated.
+  edge cases", or when the plan dashboard's Review column needs to be updated.
 ---
 
 # Review
 
-You are reviewing code that is staged for commit (or on a branch) looking for three things:
-bugs, missed edge cases, and unhandled error conditions. You do not touch the code. You report
-what you find.
+Three independent reviewers run in parallel against the same diff. Each brings a different
+lens. Findings may overlap, contradict, or be unique — that's the point. All findings are
+surfaced; each is triaged before acting on it.
 
-## Get the Diff
+The three sub-skills are in `sub-skills/`:
+- `standard.md` — correctness: bugs, edge cases, error handling, contract violations
+- `edge-case-hunter.md` — exhaustive path tracing: every unhandled branch/boundary, JSON output
+- `adversarial.md` — cynical: at least 10 issues, including speculative ones
+
+## Step 1: Gather Context
 
 ```bash
 git diff --cached          # staged changes
@@ -23,103 +27,113 @@ git diff --cached          # staged changes
 git diff main...HEAD
 ```
 
-Read the diff. Then read the full context of every file touched — a bug is often visible only
-when you see how the changed code interacts with its surroundings.
+Also read:
+- Every file touched in the diff (bugs are often visible only in context)
+- `docs/<feature>/spec.md` if it exists — Success Criteria and Interfaces sections
 
-Also read the spec if one exists (`docs/<feature>/spec.md`) — the Success Criteria and
-Interfaces sections tell you what the code is supposed to do and what contracts it must honor.
+## Step 2: Dispatch All Three in Parallel
 
-## The Bias
+Spawn three subagents in the same turn. Give each:
+1. The full diff text
+2. The spec content (if found)
+3. Their sub-skill instructions from `sub-skills/<reviewer>.md`
 
-**A clean review is not a failure.** If the code is correct, say so. Do not manufacture
-findings to appear useful.
+Do not wait for one to finish before starting the others.
 
-Only raise an issue if you can articulate: what the bug is, under what conditions it occurs,
-and what the incorrect behavior would be. Vague concerns ("this might be slow", "consider
-adding logging") are not bugs — leave them out.
+**Subagent prompt template:**
 
-## What to Look For
+```
+You are running a code review. Follow the instructions in the sub-skill exactly.
 
-### 1. Bugs
-Logic that produces the wrong result for valid inputs. Common patterns:
+## Sub-skill instructions
+<contents of sub-skills/<reviewer>.md>
 
-- Off-by-one errors (boundary conditions, zero vs. empty, first vs. last)
-- Wrong operator (`<` vs `<=`, `=` vs `==`, `&&` vs `||`)
-- Mutation where a copy was intended (or vice versa)
-- Order-dependent operations that aren't guaranteed to run in order
-- State that isn't reset between uses
+## Diff
+<git diff output>
 
-### 2. Missed Edge Cases
-Valid inputs or states the code doesn't handle correctly. Work through the spec's Success
-Criteria and ask: does this code actually satisfy each one? Then ask what the code does when:
+## Spec (if available)
+<spec content, or "No spec found">
+```
 
-- The input is empty, nil, zero, or negative
-- The input is at the maximum or minimum boundary
-- A collection has one element vs. many
-- A dependent record doesn't exist
-- The same operation is called twice (idempotency)
-- Concurrent requests arrive simultaneously (race conditions in shared state)
+## Step 3: Merge Findings
 
-### 3. Unhandled Error Conditions
-Failure modes that aren't caught or that produce the wrong response. Look for:
+Once all three complete, compile the report. Include every finding — do not pre-filter.
+The triage step is for the human, not for the reviewer.
 
-- External calls (network, DB, file system) with no error handling
-- Exceptions that bubble up to the wrong layer
-- Partial writes — code that modifies multiple things and can fail halfway through, leaving
-  inconsistent state
-- Missing authentication or authorization checks on new endpoints
-- Input validation gaps — what happens if a required field is missing or malformed?
+For edge-case-hunter's JSON output, convert each entry to a finding line:
+```
+- **<location>** — <trigger_condition> → <potential_consequence> · fix: `<guard_snippet>`
+```
 
-### 4. Contract Violations
-Code that doesn't match the interfaces defined in the spec:
+## Step 4: Triage
 
-- API response shape differs from the documented contract
-- A side effect the spec requires (e.g. "atomically marks all unread") isn't atomic
-- A guarantee the spec makes (e.g. "within the same transaction") isn't upheld
+For each finding, assign one of:
+- **Valid** — real issue, should be fixed
+- **Speculative** — plausible but unconfirmed; worth noting
+- **Dismissed** — false positive or out of scope; note why
+
+The human makes final triage calls, but pre-triage obvious false positives with a brief
+reason so the human doesn't have to stop and investigate them.
 
 ## Output Format
 
+Save to `docs/reviews/<branch-name>-<YYYY-MM-DD>.md`. If no `docs/` exists, use `.claude/reviews/`.
+
 ```markdown
 ## Review: <branch or "staged changes">
 ## Date: <date>
-
-### Bugs
-- **<file>:<line>** — <what the bug is, when it occurs, what goes wrong>
-
-### Edge Cases
-- **<file>:<line>** — <what input or state triggers it, what happens>
-
-### Error Handling
-- **<file>:<line>** — <what can fail, what happens when it does>
-
-### Contract Violations
-- **<file>:<line>** — <which contract, how it's violated>
 
 ---
-Clean bill of health.
+
+### Standard Review
+
+#### Bugs
+- **<file>:<line>** — <finding> · `[Valid | Speculative | Dismissed: <reason>]`
+
+#### Edge Cases
+- ...
+
+#### Error Handling
+- ...
+
+#### Contract Violations
+- ...
+
+---
+
+### Edge Case Hunter
+
+- **<file>:<line>** — <trigger> → <consequence> · fix: `<guard>` · `[Valid | Speculative | Dismissed: <reason>]`
+
+---
+
+### Adversarial
+
+1. **<file>:<line>** — <finding> · `[Valid | Speculative | Dismissed: <reason>]`
+2. ...
+
+---
+
+## Reviewer Validity
+
+| Reviewer | Findings | Unique | Overlap | Verdict |
+|---|---|---|---|---|
+| Standard | N | N | N | Useful / Redundant / Noisy |
+| Edge Case Hunter | N | N | N | Useful / Redundant / Noisy |
+| Adversarial | N | N | N | Useful / Redundant / Noisy |
+
+**Notes:** <anything notable about this run — e.g. "adversarial found 3 real issues standard missed",
+"edge case hunter was redundant given the simplicity of this diff", etc.>
 ```
 
-Only include sections that have findings. If there are no findings at all:
-
-```markdown
-## Review: <branch or "staged changes">
-## Date: <date>
-
-Clean bill of health.
-```
-
-Do not include suggestions for improvements, style feedback, or performance observations —
-those belong in the simplify skill. This review is strictly about correctness.
-
-## Save the Output
-
-Save the report to `docs/reviews/<branch-name>-<YYYY-MM-DD>.md` (use `git branch --show-current`
-for the branch name). If no `docs/` directory exists, save to `.claude/reviews/` instead.
-Tell the user where the file was saved.
+The **Reviewer Validity** table is the learning artifact. Over time it shows which reviewers
+pull their weight on which types of changes. A reviewer that is consistently "Redundant" on
+small diffs may not be worth running there; one that is consistently "Noisy" on UI changes
+is worth noting.
 
 ## Update the Plan
 
-If run as part of a plan chunk, update the Review column in plan.md:
-- **Clean bill of health** → ✅
-- **Findings raised** → ❌ — findings must be addressed (fixed or explicitly accepted) before
-  Human sign-off. If fixing requires scope changes, update the plan. Re-run review after fixes.
+Update the Review column in plan.md:
+- **All findings dismissed or clean** → ✅
+- **Valid findings raised** → ❌ — address findings (fix or explicitly accept) before Human
+  sign-off. Re-run review after fixes.
