@@ -99,3 +99,7 @@ Ok anything else
 ---
 
 YEs do it!
+
+---
+
+Ok I added a new skill pr-interactive-walkthrough.  Lets a change it to also take in two commit hashes and calculate the diff on that.  Then I want to add to plans a cognitive understanding that requires the human to pass the pr-interactive-walkthrough.
