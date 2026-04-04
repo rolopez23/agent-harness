@@ -1,0 +1,86 @@
+# Improvements Backlog
+
+Pending enhancements to the harness — skills to add, merges to do, structural changes.
+
+---
+
+## In Progress
+
+### TDD sub-skill (`skills/plan/sub-skills/tdd.md`)
+The Iron Law, red-green-refactor rules, good/bad test examples, rationalization red flags,
+and verification checklist — extracted from the superpowers TDD skill as a standalone
+sub-skill that `plan-step.md` (and any future skill) can reference.
+**Source:** `refernce/superpowers/skills/test-driven-development/SKILL.md`
+
+---
+
+## Skills to Pull In
+
+### verification-before-completion
+"Evidence before claims" — before marking anything done, run the command, read the output,
+then make the claim. Pairs tightly with `/verify` and closes the gap where automated steps
+pass but behavior is actually wrong. Short, high-signal skill.
+**Source:** `refernce/superpowers/skills/verification-before-completion/SKILL.md`
+**Where it fits:** Could be a sub-skill referenced by `verify` and `plan-step`, or a
+standalone skill invoked before any completion claim.
+
+### dispatching-parallel-agents
+Pattern for splitting independent failures or tasks across parallel subagents — one agent
+per problem domain, all dispatched in the same turn. Directly addresses the "parallel agents
+for monorepo work" opportunity flagged in the insights report.
+**Source:** `refernce/superpowers/skills/dispatching-parallel-agents/SKILL.md`
+**Where it fits:** Standalone skill; also good reference material for subagent-driven-development.
+
+### webapp-testing
+Playwright-based browser testing with a `with_server.py` helper that manages server
+lifecycle. Includes a decision tree (static vs dynamic app) and reconnaissance-then-action
+pattern. Directly addresses frontend debugging friction.
+**Source:** `refernce/skills/skills/webapp-testing/SKILL.md`
+**Where it fits:** Standalone skill; pairs with `/verify` for UI surfaces.
+
+### subagent-driven-development
+Orchestrator pattern: fresh subagent per task, spec-compliance review, then code-quality
+review. More structured version of what the harness already does informally with agents.
+Has sub-agent prompt templates (implementer, spec-reviewer, code-quality-reviewer).
+**Source:** `refernce/superpowers/skills/subagent-driven-development/SKILL.md`
+**Where it fits:** Standalone skill; would extend the plan workflow after `/plan` produces steps.
+
+### using-git-worktrees
+Isolated branch workspaces per feature. Systematic directory selection, safety verification
+(.gitignore check), auto-detects project setup, verifies clean baseline before starting.
+**Source:** `refernce/superpowers/skills/using-git-worktrees/SKILL.md`
+**Where it fits:** Standalone skill; natural pre-step before executing a plan.
+
+### mcp-builder
+Full MCP server development guide — TypeScript (recommended) and Python, with reference
+docs for best practices, tool naming, error messages, and an evaluation framework.
+**Source:** `refernce/skills/skills/mcp-builder/SKILL.md`
+**Where it fits:** Standalone skill; independent of the core dev workflow.
+
+---
+
+## Structural Improvements
+
+### Merge `verification-before-completion` into `verify`
+Rather than a separate skill, the core rule ("run the command, read the output, then claim")
+could be folded into the existing `/verify` SKILL.md as a standing instruction. Less to
+remember, same enforcement.
+
+### `writing-plans` self-review → already done
+Merged into `plan/SKILL.md` as Step 7. ✅
+
+### Scope check in `problem-spec`
+The scope-check pattern from `writing-plans` ("if this covers multiple independent
+subsystems, split before planning") could also live in `/problem-spec` — catch it even
+earlier before a plan is written.
+
+---
+
+## Naming / Convention Cleanup
+
+### Update `AGENTS.md` workflow block to reference `steps/` path
+The workflow comment block in AGENTS.md still says generic "docs/<feature>" — could be
+more precise now that we have a canonical `docs/<feature>/steps/<step-name>.md` convention.
+
+### `README.md` skills table is missing skill-creator
+`skill-creator` is installed by `install.sh` but not listed in the README skills table.
