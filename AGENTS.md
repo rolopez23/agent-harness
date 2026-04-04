@@ -30,7 +30,7 @@ skill that can be invoked explicitly.
 ```
 /initialize     →  write or update AGENTS.md in a target project
 /problem-spec   →  define the problem, produce docs/<feature>/spec.md
-/plan           →  break into TDD chunks, produce docs/<feature>/plan.md + chunk sub-plans
+/plan           →  break into steps, produce docs/<feature>/plan.md + docs/<feature>/steps/<step-name>.md
                    (requires spec.md to exist)
 
   For each step:

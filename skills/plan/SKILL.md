@@ -165,7 +165,7 @@ to implement, write them all now. If they want to review the main plan first, wr
 
 After writing the complete plan, check it against the spec with fresh eyes:
 
-1. **Spec coverage** — skim each requirement in the spec. Can you point to a step or step that
+1. **Spec coverage** — skim each requirement in the spec. Can you point to a step that
    implements it? List any gaps and add tasks for them.
 2. **Placeholder scan** — search for any of the failure patterns from Step 6. Fix them inline.
 3. **Type/name consistency** — do method names, types, and property names used in later steps match
@@ -173,6 +173,21 @@ After writing the complete plan, check it against the spec with fresh eyes:
    `clearFullLayers()` in step 7 is a bug in the plan.
 
 Fix issues inline — no need to re-review after fixing.
+
+## Step 8: Readiness Gate
+
+Before handing off to implementation, verify the plan is internally consistent. Every item
+must pass — if any fails, fix it before proceeding.
+
+- [ ] Every requirement in the spec maps to at least one step
+- [ ] Every file in the file map (Step 1) is touched by at least one step
+- [ ] No step references a type, method, or file not defined in the file map or an earlier step
+- [ ] Dependency graph has no cycles — steps can be executed in the listed order
+- [ ] Each step's "Done When" condition is observable and checkable
+- [ ] No step depends on out-of-scope work from the spec
+
+If all pass, tell the user: "Plan passes readiness gate — ready to implement." If any fail,
+list failures and fix before continuing.
 
 ## Keeping the Plan Current
 
