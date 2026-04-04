@@ -101,21 +101,24 @@ Write to `docs/<feature-name>/plan.md`:
 
 ## Status Dashboard
 
-| Step                                                      | Blocks          | Branch / Commit | Auto Tests | Verify | Simplify | Review | Human |
-| --------------------------------------------------------- | --------------- | --------------- | :--------: | :----: | :------: | :----: | :---: |
-| [schema](steps/schema.md)                                 | event-triggers, feed-api | —      |     ⬜     |   ➖   |    ⬜    |   ⬜   |  ⬜   |
-| [event-triggers](steps/event-triggers.md)                 | feed-api        | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
-| [feed-api](steps/feed-api.md)                             | email-delivery  | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
-| [email-delivery](steps/email-delivery.md)                 | —               | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
+| Step                                                      | Blocks          | Branch / Commit | Auto Tests | Verify | Simplify | Review | Understand | Human |
+| --------------------------------------------------------- | --------------- | --------------- | :--------: | :----: | :------: | :----: | :--------: | :---: |
+| [schema](steps/schema.md)                                 | event-triggers, feed-api | —      |     ⬜     |   ➖   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| [event-triggers](steps/event-triggers.md)                 | feed-api        | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| [feed-api](steps/feed-api.md)                             | email-delivery  | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| [email-delivery](steps/email-delivery.md)                 | —               | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
 
 **Legend:** ⬜ pending · ✅ passed · ❌ failed · ⚠️ incomplete · ➖ N/A
 
-**Workflow order per step:** Auto Tests → Verify → Simplify → Review → Human
+**Workflow order per step:** Auto Tests → Verify → Simplify → Review → Understand → Human
 
 - **Auto Tests**: unit/integration tests passing (red-green-refactor, committed clean)
 - **Verify**: E2E check — real curl or browser automation against a live system; ➖ if no external surface
 - **Simplify**: code has been through a simplify/refactor pass
 - **Review**: correctness review — bugs, edge cases, error handling
+- **Understand**: human passes `/pr-interactive-walkthrough` — all files rated Medium or High in the
+  understanding assessment. Run with the step's commit range (before/after). Low on any file → ❌,
+  follow up on low areas before sign-off
 - **Human**: developer has manually signed off
 
 **On failure:** ❌ in any column requires fixes before proceeding. Do not mark Human ✅ while any

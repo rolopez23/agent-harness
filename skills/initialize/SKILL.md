@@ -84,6 +84,7 @@ Check for context files in subdirectories before starting work in them.
     /verify    →  E2E check against live system
     /simplify  →  clean up staged code
     /review    →  correctness and edge case check
+    /pr-interactive-walkthrough  →  cognitive understanding check
     human      →  sign off
 
 /learn-from-mistakes  →  log corrections; updates .claude/learnings.md

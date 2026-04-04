@@ -38,6 +38,7 @@ skill that can be invoked explicitly.
     /verify     →  E2E check against live system; produces docs/verify/<branch>-<date>.md
     /simplify   →  clean up staged code; produces docs/simplify/<branch>-<date>.md
     /review     →  correctness check; produces docs/reviews/<branch>-<date>.md
+    /pr-interactive-walkthrough  →  cognitive understanding check
     human       →  developer signs off
 
 /learn-from-mistakes  →  log corrections and gaps; updates .claude/learnings.md
@@ -62,6 +63,7 @@ for complete instructions.
 | verify | `/verify` | E2E verification — real curl or browser automation against a live system |
 | simplify | `/simplify` | Apply clear improvements; suggest uncertain ones; never touch tests |
 | review | `/review` | Find bugs, missed edge cases, unhandled errors; report only |
+| pr-interactive-walkthrough | `/pr-interactive-walkthrough` | File-by-file code walkthrough with understanding assessment |
 | learn-from-mistakes | `/learn-from-mistakes` | Log corrections and gaps after human sign-off |
 | frontend-design | `/frontend-design` | Build distinctive, production-grade frontend UI |
 | systematic-debugging | `/systematic-debugging` | Root-cause-first 4-phase debugging process |

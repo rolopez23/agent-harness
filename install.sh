@@ -71,6 +71,7 @@ workflow_block() {
     /verify    →  E2E check against live system
     /simplify  →  clean up staged code
     /review    →  correctness and edge case check
+    /pr-interactive-walkthrough  →  cognitive understanding check
     human      →  sign off
 
 /learn-from-mistakes  →  log corrections; updates .claude/learnings.md

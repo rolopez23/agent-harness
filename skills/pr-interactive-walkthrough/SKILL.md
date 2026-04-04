@@ -1,6 +1,6 @@
 ---
 name: pr-interactive-walkthrough
-description: Guides an interactive, file-by-file PR walkthrough in run order (startup then request path). At the start, asks whether to use code snippets per file or summaries-only; skips tests, Markdown, and shell scripts by default; pauses after every question and after each file’s restate/walk-through prompt—never bundling the next file or §3 assessment with a pending question; ends with a calibrated understanding assessment (repo-hygiene files excluded from rubric) and follow-up questions for low-understanding areas. Use when the user asks for a PR walkthrough, to go through a PR together, file-by-file review, or to check their understanding of a branch.
+description: Guides an interactive, file-by-file PR walkthrough in run order (startup then request path). Accepts two commit hashes to diff a specific range, or defaults to staged/branch diff. At the start, asks whether to use code snippets per file or summaries-only; skips tests, Markdown, and shell scripts by default; pauses after every question and after each file’s restate/walk-through prompt—never bundling the next file or §3 assessment with a pending question; ends with a calibrated understanding assessment (repo-hygiene files excluded from rubric) and follow-up questions for low-understanding areas. Use when the user asks for a PR walkthrough, to go through a PR together, file-by-file review, to check their understanding of a branch, or when the plan dashboard’s Understand column needs to be updated.
 ---
 
 # Interactive PR Code Walkthrough
@@ -31,6 +31,10 @@ If they do not answer before you must proceed (e.g. single-shot request), **defa
 
 ### 1. Determine scope and run order
 
+Determine the diff source. Three modes, checked in this order:
+
+- **Commit range (if two hashes provided):** `git diff <commit-a> <commit-b> --name-only`
+  The user may provide hashes, refs, or tags. Use them directly. Example: `/pr-interactive-walkthrough abc123 def456`
 - **Staged files:** `git diff --cached --name-only`
 - **Branch vs main:** First `git fetch origin main` then `git diff origin/main...HEAD --name-only` (or `main...HEAD` if no origin/main)
 - **Exclude by default** (unless the user explicitly asks to include them), same spirit as skipping tests:
