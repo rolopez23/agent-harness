@@ -1,0 +1,69 @@
+/insights
+
+---
+
+Ok now I want to make an intiailize skill this i to install these skills into an existing Agents.md.  If it does not exist create it it.  If it does add in reference to the skills.  When creating an agents.md prioritize minimality and linking files and nested Agents.md files.
+
+---
+
+Ok last part create an install script that installs all these skills in any repo.
+
+---
+
+Ok make the intialize also work with a Claude.md.
+
+---
+
+Ok add how to install to the readme.md
+
+---
+
+Ok commit and push
+
+---
+
+Ok I added a directory can you audit the skills in this. I want to pull some into the harness first do frontend-design
+
+---
+
+Look through all the skills and give me a list what ones would be most useful?
+
+---
+
+Ok lets pull in systemeatic debugging.
+
+---
+
+Ok now lets optimize my skills lets pull in elements of writing-plans and test-driven-development into my plan skill.  I think there can be some elements that overlap.  Use your taste to create the best version that merges all three into my plan skill.
+
+---
+
+One edit I like merging in but would tdd be better as a subskill that chunk can do?
+
+---
+
+lets renament chunk to plan-step.  Also change the naming convention to not be number based but E2E feature based
+
+---
+
+Ok lets go over the other possible improvments lets save them to an improvements.md so we don't forget
+
+---
+
+Ok integrate teh TDD skill into plan and pull it in
+
+---
+
+Ok lets commit the improvements
+
+---
+
+Ok what is the next item on the list
+
+---
+
+Yes lets merge.
+
+---
+
+Sure
