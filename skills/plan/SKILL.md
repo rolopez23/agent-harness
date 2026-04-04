@@ -144,6 +144,8 @@ prior column is ❌ without explicit user instruction.
 ## Step 6: Write the Step Plans
 
 For each step, write a detailed TDD implementation plan. See `sub-skills/plan-step.md`.
+TDD rules (Iron Law, red-green-refactor, commit rules, red flags) live in `sub-skills/tdd.md`
+— read it before implementing any cycle.
 
 Each step plan lives at `docs/<feature-name>/steps/<step-name>.md`. The main plan links to
 each one.

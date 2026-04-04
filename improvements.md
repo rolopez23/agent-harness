@@ -6,11 +6,9 @@ Pending enhancements to the harness — skills to add, merges to do, structural 
 
 ## In Progress
 
-### TDD sub-skill (`skills/plan/sub-skills/tdd.md`)
-The Iron Law, red-green-refactor rules, good/bad test examples, rationalization red flags,
-and verification checklist — extracted from the superpowers TDD skill as a standalone
-sub-skill that `plan-step.md` (and any future skill) can reference.
-**Source:** `refernce/superpowers/skills/test-driven-development/SKILL.md`
+### ~~TDD sub-skill (`skills/plan/sub-skills/tdd.md`)~~ ✅ Done
+Iron Law, red-green-refactor, good/bad examples, red flags, verification checklist.
+Referenced by `plan-step.md`. Source: `refernce/superpowers/skills/test-driven-development/SKILL.md`
 
 ---
 
