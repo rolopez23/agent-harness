@@ -33,6 +33,8 @@ Then start a Claude Code session — the skills are immediately available as `/c
 | simplify | `/simplify` | Clean up staged code |
 | review | `/review` | Find bugs and missed edge cases |
 | learn-from-mistakes | `/learn-from-mistakes` | Log corrections after sign-off |
+| frontend-design | `/frontend-design` | Build distinctive, production-grade frontend UI |
+| systematic-debugging | `/systematic-debugging` | Root-cause-first 4-phase debugging process |
 
 ## Workflow
 

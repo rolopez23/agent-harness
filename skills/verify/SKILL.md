@@ -19,8 +19,8 @@ interactions, real database state. You are the last line of defense before the h
 
 Determine what needs to be verified. In order of preference:
 
-1. Read the chunk sub-plan (`docs/<feature>/chunks/<NN>-<chunk-name>.md`) — the LLM Verification
-   section describes exactly what to run and what a passing result looks like.
+1. Read the step plan (`docs/<feature>/steps/<step-name>.md`) — the LLM Verification section
+   describes exactly what to run and what a passing result looks like.
 2. Read the spec (`docs/<feature>/spec.md`) — the Success Criteria section defines what must be
    true when the work is done.
 3. If neither exists, infer from the code what the observable behavior should be.
@@ -157,7 +157,7 @@ Overall: Verified
 
 If run as part of a plan chunk, update the Verify column in plan.md:
 - **Verified** → ✅
-- **Failed** → ❌ — the chunk needs fixes before Simplify or Review can run. Either fix the
+- **Failed** → ❌ — the step needs fixes before Simplify or Review can run. Either fix the
   code and re-verify, or update the plan if scope has changed.
 - **Incomplete** → ⚠️ — flag for human follow-up; does not block Simplify/Review but should
   be resolved before Human sign-off.

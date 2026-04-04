@@ -1,30 +1,71 @@
 ---
 name: learn-from-mistakes
 description: >
-  Runs after human sign-off on a chunk. Logs human corrections, missed cases, and
+  Runs before and after human sign-off on a step. Logs human corrections, missed cases, and
   implementation holes for pattern tracking. Does not fix anything — the goal is to accumulate
   insight over time. When the same class of mistake occurs 3 or more times, surfaces a concrete
   suggestion to update AGENTS.md or an existing skill.
-  Trigger after a human marks a chunk complete, when the user says "log what went wrong",
-  "retrospective", "what did we miss", or "learn from this".
+  Trigger after automated steps complete (pre-human) and again after human sign-off (post-human).
+  Also trigger when the user says "log what went wrong", "retrospective", "what did we miss",
+  or "learn from this".
 ---
 
 # Learn From Mistakes
 
-You are running a lightweight retrospective on a completed chunk. You are not fixing anything.
+You are running a lightweight retrospective on a completed step. You are not fixing anything.
 You are logging what happened so that patterns can emerge over time and improve future work.
 
-## What to Collect
+## When This Runs
 
-Read the output files for this chunk in order:
+This skill runs twice per step:
 
-1. `docs/verify/<branch>-*.md` — what failed or was incomplete during E2E verification
-2. `docs/simplify/<branch>-*.md` — what was simplified, what was suggested
-3. `docs/reviews/<branch>-*.md` — bugs, edge cases, contract violations found
-4. The chunk sub-plan (`docs/<feature>/chunks/<NN>-<chunk-name>.md`) — compare what was
-   planned vs. what actually happened
-5. Any human corrections — ask the user: "Were there any corrections you made after the
-   automated steps? Anything that only became obvious during human review?"
+- **Pre-human** (after Review, before sign-off): mine the automated step outputs for gaps —
+  what verify/simplify/review caught, what they missed, what required rework.
+- **Post-human** (after sign-off): capture everything the human corrected or flagged that the
+  automated steps did not.
+
+The post-human run is the most important. Do not skip it or treat it as optional.
+
+## Step 1: Read the Automated Step Outputs
+
+Read all output files for this step:
+
+1. `docs/verify/<branch>-*.md` — failures, incomplete checks, issues discovered
+2. `docs/simplify/<branch>-*.md` — what was applied, what was suggested, any regressions
+3. `docs/reviews/<branch>-*.md` — bugs, edge cases, contract violations found (or clean bill)
+4. The step plan (`docs/<feature>/steps/<step-name>.md`) — compare planned vs. actual
+
+For each file, ask: **did this step catch everything it should have?** A clean bill of health
+from review is not a free pass — if a real issue emerged later, the clean bill was wrong and
+that is a loggable skill gap.
+
+## Step 2: Mine the Conversation for Human Corrections
+
+Scroll back through the conversation for this step and extract every correction the human made.
+Do not rely on the human to remember — do the work yourself. Look for:
+
+- Messages where the human said something was wrong, missing, or not done correctly
+- Places where the human asked "why wasn't X done?" or "you should have..."
+- Steps the human had to request that should have happened automatically
+- Anything the human had to fix themselves after the automated steps passed
+- Workflow violations — steps run out of order, skipped, or executed incorrectly
+
+For each correction found, ask:
+1. Which automated step should have caught this?
+2. Why didn't it?
+3. Is this a one-off or a pattern?
+
+## Step 3: Ask the Human Directly
+
+After mining the conversation, ask the human these specific questions — do not bundle them
+into one vague question:
+
+1. "Were there any corrections you made that I haven't mentioned above?"
+2. "Did any automated step give you false confidence — passed when something was actually wrong?"
+3. "Was anything in the workflow unclear or out of order?"
+4. "Is there a rule you'd want me to follow every time that I didn't follow here?"
+
+Wait for responses before writing the log entries. Every answer is a candidate log entry.
 
 ## What Counts as a Loggable Event
 
@@ -35,13 +76,13 @@ Categories:
 - **Missed edge case** — a case not caught by tests, verify, or review that surfaced later
 - **Implementation hole** — something in the spec that wasn't implemented, discovered late
 - **Bad assumption** — code was written based on an assumption that turned out to be wrong
-- **Large refactor** — a significant simplification or improvement that was only caught in the simplify step.
+- **Large refactor** — a significant simplification that was only caught in the simplify step
 - **Skill gap** — a class of problem the review/simplify/verify skills consistently miss
-- **Test gap** — automated tests passed but the behavior was still wrong (test didn't cover it)
+- **Test gap** — automated tests passed but the behavior was still wrong
 
 Do not log:
 
-- Minor things caught in the workflow. Large refactors or token use in between steps are worth noting, but small things that are caught in the normal course of work aren't worth logging.
+- Small things caught and handled cleanly in the normal course of the workflow
 - Style preferences or subjective disagreements
 - One-off environmental issues (server wasn't running, wrong config)
 
@@ -52,9 +93,9 @@ Append entries to `.claude/learnings.md`. Create the file if it doesn't exist.
 Each entry follows this format:
 
 ```markdown
-### <YYYY-MM-DD> · <feature>/<chunk>
+### <YYYY-MM-DD> · <feature>/<step>
 
-**Category**: <Human correction | Missed edge case | Implementation hole | Bad assumption | Skill gap | Test gap>
+**Category**: <Human correction | Missed edge case | Implementation hole | Bad assumption | Large refactor | Skill gap | Test gap>
 **What happened**: <1–2 sentences describing the specific mistake or gap>
 **Where it surfaced**: <which step caught it, or "human review">
 **Pattern tag**: `<short-kebab-case-tag>` (e.g. `nil-not-checked`, `auth-missing`, `off-by-one`, `concurrent-write`)
@@ -69,10 +110,9 @@ After appending the new entries, scan `.claude/learnings.md` for pattern tags th
 
 1. List the occurrences (dates, features, brief descriptions)
 2. Determine whether the fix belongs in:
-   - **AGENTS.md** — if it's a behavioral reminder Claude should always follow (e.g. "always
-     check for nil before calling methods on optional associations")
-   - **A skill update** — if a specific skill (review, simplify, verify, plan, tdd-chunk)
-     consistently misses this class of problem
+   - **AGENTS.md** — if it's a behavioral reminder Claude should always follow
+   - **A skill update** — if a specific skill (review, simplify, verify, plan) consistently
+     misses this class of problem
 3. Draft the suggestion (see format below) but do not apply it — present it to the user
 
 ## Suggesting a Fix
@@ -83,7 +123,7 @@ When a pattern crosses the 3-occurrence threshold, output:
 ## Pattern Detected: `<tag>`
 
 Occurred <N> times:
-- <date> · <feature/chunk> — <one-line summary>
+- <date> · <feature/step> — <one-line summary>
 - ...
 
 **Suggested fix:**
@@ -98,16 +138,15 @@ Wait for the user's response before making any changes to AGENTS.md or skill fil
 
 ## Save the Output
 
-Append to `.claude/learnings.md` (the cumulative log). Also save a per-session summary to
-`docs/learnings/<feature>-<chunk>-<YYYY-MM-DD>.md` for traceability.
+Append to `.claude/learnings.md` (the cumulative log). Also save or update a per-step summary
+at `docs/learnings/<feature>-<step>-<YYYY-MM-DD>.md`. If the file already exists from a
+pre-human run, append a `## Post-Human Additions` section rather than overwriting.
 
 Tell the user:
-
-- How many events were logged
+- How many new events were logged
 - Whether any patterns crossed the threshold
 - Where the files were saved
 
 ## Update the Plan
 
-Mark the Human column ✅ in plan.md if it isn't already — this skill runs after human
-sign-off, so by the time it runs that column should be getting its final update.
+After the post-human run, mark the Human column ✅ in plan.md.

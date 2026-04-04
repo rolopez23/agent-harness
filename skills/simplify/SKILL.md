@@ -160,6 +160,22 @@ Save the report to `docs/simplify/<branch-name>-<YYYY-MM-DD>.md` (use `git branc
 for the branch name). If no `docs/` directory exists, save to `.claude/simplify/` instead.
 Tell the user where the file was saved.
 
+## Commit the Changes
+
+Stage all modified files (including the report) and create a commit:
+
+```bash
+git add <modified files> docs/simplify/<report file>
+git commit -m "Simplify <chunk label>: <one-line description of what changed>
+
+<optional body: key refactors applied>
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
+```
+
+Only commit if at least one change was applied. If nothing was applied (suggestions only or
+nothing to simplify), skip the commit — no point creating an empty commit.
+
 ## Update the Plan
 
 If run as part of a plan chunk, update the Simplify column in plan.md:

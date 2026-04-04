@@ -79,7 +79,7 @@ Check for context files in subdirectories before starting work in them.
 /problem-spec   →  define the problem, produce docs/<feature>/spec.md
 /plan           →  break into TDD chunks, produce docs/<feature>/plan.md
 
-  For each chunk:
+  For each step:
     write tests (red) → write code (green) → refactor → commit
     /verify    →  E2E check against live system
     /simplify  →  clean up staged code

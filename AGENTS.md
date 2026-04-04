@@ -33,7 +33,7 @@ skill that can be invoked explicitly.
 /plan           →  break into TDD chunks, produce docs/<feature>/plan.md + chunk sub-plans
                    (requires spec.md to exist)
 
-  For each chunk:
+  For each step:
     write tests (red) → write code (green) → refactor → commit
     /verify     →  E2E check against live system; produces docs/verify/<branch>-<date>.md
     /simplify   →  clean up staged code; produces docs/simplify/<branch>-<date>.md

@@ -2,7 +2,7 @@
 name: plan
 description: >
   Creates a structured implementation plan from a problem spec, breaking work into independently
-  testable chunks with dependency tracking and a living status dashboard.
+  testable steps with dependency tracking and a living status dashboard.
   ONLY trigger this skill when a problem spec already exists at docs/<feature>/spec.md — if no spec
   is present, simpler ad-hoc planning suffices and this skill should not be used.
   Trigger on: "make a plan", "plan this out", "how should we implement this", "create an
@@ -14,73 +14,85 @@ description: >
 # Plan Skill
 
 You are creating a living implementation plan from a problem spec. The goal is to break the work
-into chunks that can be built, tested, and verified independently — and to track the state of each
-chunk as the work proceeds.
+into steps that can be built, tested, and verified independently — and to track the state of each
+step as the work proceeds.
 
 ## Before You Start
 
-Locate the spec. It should be at `docs/<feature-name>/spec.md`. Read it fully. If it does not
-exist, stop and tell the user: "I need a problem spec before I can make a plan. Run /problem-spec
-first."
+Locate the spec at `docs/<feature-name>/spec.md`. Read it fully. If it does not exist, stop:
+"I need a problem spec before I can make a plan. Run /problem-spec first."
 
-## What Makes a Good Chunk
+**Scope check:** If the spec covers multiple independent subsystems, suggest splitting into separate
+plans before continuing — one plan per subsystem, each producing working, testable software on its
+own. A plan that covers too much is worse than no plan.
 
-A chunk is a unit of work that can be tested on its own. Good chunks:
+## Step 1: Map the File Structure
+
+Before decomposing into steps, map out which files will be created or modified and what each is
+responsible for. This is where decomposition decisions get locked in — do it before writing tasks,
+not during.
+
+- Each file should have one clear responsibility
+- Files that change together should live together; split by behavior, not by layer
+- In existing codebases, follow established patterns unless a file has grown unwieldy enough that
+  a split belongs in the plan
+
+List the files explicitly:
+
+```
+Create:  src/models/notification.ts     — Notification data model
+Create:  src/jobs/digest-sender.ts      — Background job: sends digest emails
+Modify:  src/api/feed.ts (lines ~40–80) — Add notification feed endpoint
+Test:    tests/models/notification.ts
+Test:    tests/jobs/digest-sender.ts
+```
+
+This structure informs step decomposition. Each step should produce self-contained file changes
+that make sense independently.
+
+## Step 2: Decompose the Spec into Steps
+
+Read the "What We Are Solving" and "Interfaces" sections. Using the file map from Step 1, identify
+natural units of independently testable work.
+
+A step is a unit of work that can be tested on its own. Good steps:
 
 - Have a clear, observable outcome (something you can assert about)
 - Map to a coherent layer or behavior (data model, API endpoint, background job, UI component)
 - Are small enough that one person can hold the whole thing in their head
 - Are large enough that testing them tells you something meaningful
 
-Poor chunks are either too fine-grained (single function) or too coarse (the whole feature at once).
-When in doubt, split at natural seams: schema changes, new API surfaces, new integrations.
+Typical layers: data model → core logic → API/transport → integrations → UI. Name each step
+after the E2E capability it delivers — what the user or system can do when it's done, not what
+the code does internally. Use kebab-case:
 
-Each chunk should have, at minimum, automated tests. Where the behavior surfaces externally (an
-API endpoint, a background job, a UI flow), there should also be an LLM verification step — the
-LLM runs the code (curl, script, test suite, whatever is natural) and confirms the behavior is
-correct. This doesn't need to be a scripted/automated test; it's a verification pass where the
-LLM actively exercises the code and checks the result.
+```
+schema → event-triggers → feed-api → email-delivery
+```
 
-## Step 1: Decompose the Spec into Chunks
+Not `01-schema`, not `create-notification-table`. What does the feature do when this step is complete?
 
-Read through the "What We Are Solving" and "Interfaces" sections of the spec. Identify the natural
-layers of implementation. Typical patterns:
+## Step 3: Map Dependencies
 
-- Data layer (migrations, models, schema changes)
-- Core logic (service objects, domain rules, background jobs)
-- API / transport layer (controllers, routes, serializers)
-- Integration points (mailers, external services, webhooks)
-- Frontend / UI (if applicable)
+For each step, identify what it blocks and what blocks it. Be explicit: "step 3 cannot be
+meaningfully tested until step 1 is complete" is a blocking dependency. "step 4 can be built
+in parallel with step 3" is worth calling out.
 
-Name each chunk concisely (e.g. "notifications schema", "comment event triggers", "feed API",
-"email delivery"). Number them in a suggested build order.
+Express as: step N blocks steps [X, Y]. An empty blocks list means the step is a leaf.
 
-## Step 2: Map Dependencies
+## Step 4: Choose a Branching Strategy
 
-For each chunk, identify which other chunks it blocks or is blocked by. Be explicit: "chunk 3
-cannot be meaningfully tested until chunk 1 is complete" is a blocking dependency. "chunk 4 can
-be built in parallel with chunk 3" is worth calling out.
+Based on step count, dependencies, and team size:
 
-Express dependencies as: chunk N blocks chunks [X, Y]. An empty blocks list means the chunk is
-a leaf — it can be shipped and verified without anything downstream waiting on it.
+- **Single feature branch** — tightly coupled sequential steps; one branch, commits per step
+- **Per-step branches** — few dependencies; steps can be reviewed and merged independently
+- **Worktrees** — truly independent steps; work on them simultaneously without context-switching
 
-## Step 3: Choose a Branching Strategy
+State your recommendation and reasoning briefly. Record whatever the user chooses.
 
-Based on the chunk count, dependency structure, and team size, recommend a branching approach:
+## Step 5: Write the Plan Document
 
-- **Single feature branch**: best for tightly coupled, sequential chunks where parallelism isn't
-  practical. One branch, commits per chunk.
-- **Per-chunk branches**: best for chunks with few dependencies that can be reviewed and merged
-  independently.
-- **Worktrees**: best for chunks that are truly independent and you want to work on simultaneously
-  without context-switching.
-
-State your recommendation and reasoning briefly. The user may override it — whatever they choose,
-record it in the plan.
-
-## Step 4: Write the Plan Document
-
-Write the main plan to `docs/<feature-name>/plan.md`. Use this structure:
+Write to `docs/<feature-name>/plan.md`:
 
 ```markdown
 # Plan: <Feature Name>
@@ -89,18 +101,16 @@ Write the main plan to `docs/<feature-name>/plan.md`. Use this structure:
 
 ## Status Dashboard
 
-| #   | Chunk                                         | Blocks | Branch / Commit | Auto Tests | Verify | Simplify | Review | Human |
-| --- | --------------------------------------------- | ------ | --------------- | :--------: | :----: | :------: | :----: | :---: |
-| 1   | [Schema](chunks/01-schema.md)                 | 2, 3   | —               |     ⬜     |   ➖   |    ⬜    |   ⬜   |  ⬜   |
-| 2   | [Event triggers](chunks/02-event-triggers.md) | 3      | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
-| 3   | [Feed API](chunks/03-feed-api.md)             | 4      | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
-| 4   | [Email delivery](chunks/04-email-delivery.md) | —      | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
+| Step                                                      | Blocks          | Branch / Commit | Auto Tests | Verify | Simplify | Review | Human |
+| --------------------------------------------------------- | --------------- | --------------- | :--------: | :----: | :------: | :----: | :---: |
+| [schema](steps/schema.md)                                 | event-triggers, feed-api | —      |     ⬜     |   ➖   |    ⬜    |   ⬜   |  ⬜   |
+| [event-triggers](steps/event-triggers.md)                 | feed-api        | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
+| [feed-api](steps/feed-api.md)                             | email-delivery  | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
+| [email-delivery](steps/email-delivery.md)                 | —               | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |  ⬜   |
 
 **Legend:** ⬜ pending · ✅ passed · ❌ failed · ⚠️ incomplete · ➖ N/A
 
-**Workflow order per chunk:** Auto Tests → Verify → Simplify → Review → Human
-
-**Columns:**
+**Workflow order per step:** Auto Tests → Verify → Simplify → Review → Human
 
 - **Auto Tests**: unit/integration tests passing (red-green-refactor, committed clean)
 - **Verify**: E2E check — real curl or browser automation against a live system; ➖ if no external surface
@@ -108,57 +118,67 @@ Write the main plan to `docs/<feature-name>/plan.md`. Use this structure:
 - **Review**: correctness review — bugs, edge cases, error handling
 - **Human**: developer has manually signed off
 
-**On failure:** ❌ in Verify, Simplify, or Review requires fixes before proceeding, or the plan
-needs updating if scope has changed. Do not mark Human ✅ while any prior column is ❌ and without explict instructions from the user.
-```
+**On failure:** ❌ in any column requires fixes before proceeding. Do not mark Human ✅ while any
+prior column is ❌ without explicit user instruction.
+
+---
 
 ## Branching Strategy
 
 <one paragraph: recommended approach and why>
 
-## Chunks
+---
 
-### 1. Schema
+## Steps
 
-<2–3 sentences: what this chunk covers, what "done" looks like>
-[→ Detailed TDD plan](chunks/01-schema.md)
+### schema
 
-### 2. Event Triggers
+<2–3 sentences: what this step delivers, what "done" looks like>
+[→ Detailed plan](steps/schema.md)
+
+### event-triggers
 
 ...
-
 ```
 
-The "Branch / Commit" column starts empty (—). It gets filled in as work proceeds — with a branch
-name, worktree path, or commit hash, whatever is appropriate.
+## Step 6: Write the Step Plans
 
-The status columns track:
-- **Auto Tests**: unit/integration tests passing in CI or locally
-- **LLM Verify**: LLM ran the code and confirmed correct behavior — mark ➖ if no external surface
-- **Human**: the developer has manually verified the behavior works as expected
-- **Simplify**: the code has been through a simplify/refactor pass
-- **Review**: the code has been through an automated review pass
+For each step, write a detailed TDD implementation plan. See `sub-skills/plan-step.md`.
 
-## Step 5: Write the Chunk Sub-Plans
-
-For each chunk, invoke the TDD chunk planner to produce a detailed implementation plan. See
-`sub-skills/tdd-chunk.md` for how to do this.
-
-Each sub-plan lives at `docs/<feature-name>/chunks/<NN>-<chunk-name>.md`. The main plan links to
+Each step plan lives at `docs/<feature-name>/steps/<step-name>.md`. The main plan links to
 each one.
 
-You can write all sub-plans immediately after the main plan, or write them on demand as each chunk
-is started. If the user seems ready to start implementing, write them all now. If they want to
-review the main plan first, write the sub-plans lazily.
+**No placeholders.** Every step in a sub-plan must contain what the engineer actually needs.
+These are failures — never write them:
+- "TBD", "TODO", "implement later", "fill in details"
+- "Add appropriate error handling" / "handle edge cases" (without showing the code)
+- "Write tests for the above" (without the actual test code)
+- "Similar to Step N" (repeat the code — the engineer may read steps out of order)
+- Steps that describe what to do without showing how
+
+You can write all sub-plans immediately, or lazily as each step starts. If the user seems ready
+to implement, write them all now. If they want to review the main plan first, write them on demand.
+
+## Step 7: Self-Review
+
+After writing the complete plan, check it against the spec with fresh eyes:
+
+1. **Spec coverage** — skim each requirement in the spec. Can you point to a step or step that
+   implements it? List any gaps and add tasks for them.
+2. **Placeholder scan** — search for any of the failure patterns from Step 6. Fix them inline.
+3. **Type/name consistency** — do method names, types, and property names used in later steps match
+   what you defined in earlier steps? A function called `clearLayers()` in step 3 but
+   `clearFullLayers()` in step 7 is a bug in the plan.
+
+Fix issues inline — no need to re-review after fixing.
 
 ## Keeping the Plan Current
 
-The plan.md is a living document. Update it as work progresses:
+The plan is a living document. Update it as work progresses:
 
-- When work on a chunk begins, fill in the Branch / Commit column
-- When a status changes (tests pass, human verifies, etc.), update the emoji in the dashboard
-- If tests fail or the LLM verification fails, see if the plan missed specificaiton and update accordingly.
-- If scope changes during implementation, update the chunk description and sub-plan
+- When work on a step begins, fill in the Branch / Commit column
+- When a status changes, update the emoji in the dashboard
+- If tests fail or verification fails, check whether the plan missed something and update it
+- If scope changes, update the step description and sub-plan
 
-The plan is done when every cell in the dashboard is either ✅ or ➖.
-```
+The plan is done when every dashboard cell is either ✅ or ➖.
