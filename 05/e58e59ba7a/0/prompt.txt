@@ -1,0 +1,17 @@
+Ok another reference repo addy osmani dropped his google inspired agent skills it is in reference as agent-skills can you evaluate what I may want to lift / integrate.
+
+---
+
+make a new sub-agent to review for security-and-hardening
+
+---
+
+Can you run the complete flow with playwright?
+
+---
+
+Run the playwright mcp, upload simple contract and navigate to the new page
+
+---
+
+sorry wrong repo whomp whomp, too many claudes
