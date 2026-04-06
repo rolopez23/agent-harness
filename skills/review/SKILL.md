@@ -1,23 +1,25 @@
 ---
 name: review
 description: >
-  Reviews staged changes or a branch diff for bugs, missed edge cases, and unhandled error
-  conditions. Runs three parallel reviewers — standard correctness, exhaustive path tracing,
-  and adversarial — then merges findings and reports reviewer validity.
+  Reviews staged changes or a branch diff for bugs, missed edge cases, unhandled error
+  conditions, and security vulnerabilities. Runs four parallel reviewers — standard correctness,
+  exhaustive path tracing, adversarial, and security — then merges findings and reports
+  reviewer validity.
   Trigger when the user says "review this", "check for bugs", "what did I miss", "look for
   edge cases", or when the plan dashboard's Review column needs to be updated.
 ---
 
 # Review
 
-Three independent reviewers run in parallel against the same diff. Each brings a different
+Four independent reviewers run in parallel against the same diff. Each brings a different
 lens. Findings may overlap, contradict, or be unique — that's the point. All findings are
 surfaced; each is triaged before acting on it.
 
-The three sub-skills are in `sub-skills/`:
+The four sub-skills are in `sub-skills/`:
 - `standard.md` — correctness: bugs, edge cases, error handling, contract violations
 - `edge-case-hunter.md` — exhaustive path tracing: every unhandled branch/boundary, JSON output
 - `adversarial.md` — cynical: at least 10 issues, including speculative ones
+- `security.md` — OWASP Top 10, auth gaps, input trust boundaries, secrets, data exposure
 
 ## Step 1: Gather Context
 
@@ -31,9 +33,9 @@ Also read:
 - Every file touched in the diff (bugs are often visible only in context)
 - `docs/<feature>/spec.md` if it exists — Success Criteria and Interfaces sections
 
-## Step 2: Dispatch All Three in Parallel
+## Step 2: Dispatch All Four in Parallel
 
-Spawn three subagents in the same turn. Give each:
+Spawn four subagents in the same turn. Give each:
 1. The full diff text
 2. The spec content (if found)
 3. Their sub-skill instructions from `sub-skills/<reviewer>.md`
@@ -57,7 +59,7 @@ You are running a code review. Follow the instructions in the sub-skill exactly.
 
 ## Step 3: Merge Findings
 
-Once all three complete, compile the report. Include every finding — do not pre-filter.
+Once all four complete, compile the report. Include every finding — do not pre-filter.
 The triage step is for the human, not for the reviewer.
 
 For edge-case-hunter's JSON output, convert each entry to a finding line:
@@ -114,6 +116,22 @@ Save to `docs/reviews/<branch-name>-<YYYY-MM-DD>.md`. If no `docs/` exists, use 
 
 ---
 
+### Security
+
+#### Critical
+- **<file>:<line>** — <vulnerability> · Impact: <impact> · Fix: `<fix>` · `[Valid | Speculative | Dismissed: <reason>]`
+
+#### High
+- ...
+
+#### Medium
+- ...
+
+#### Low
+- ...
+
+---
+
 ## Reviewer Validity
 
 | Reviewer | Findings | Unique | Overlap | Verdict |
@@ -121,6 +139,7 @@ Save to `docs/reviews/<branch-name>-<YYYY-MM-DD>.md`. If no `docs/` exists, use 
 | Standard | N | N | N | Useful / Redundant / Noisy |
 | Edge Case Hunter | N | N | N | Useful / Redundant / Noisy |
 | Adversarial | N | N | N | Useful / Redundant / Noisy |
+| Security | N | N | N | Useful / Redundant / Noisy |
 
 **Notes:** <anything notable about this run — e.g. "adversarial found 3 real issues standard missed",
 "edge case hunter was redundant given the simplicity of this diff", etc.>
