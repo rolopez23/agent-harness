@@ -3,7 +3,7 @@
   "checkpoint_id": "05e58e59ba7a",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 4,
+  "checkpoints_count": 5,
   "files_touched": [
     "skills/review/SKILL.md",
     "skills/review/sub-skills/security.md"
@@ -20,13 +20,19 @@
       "transcript": "/05/e58e59ba7a/1/full.jsonl",
       "content_hash": "/05/e58e59ba7a/1/content_hash.txt",
       "prompt": "/05/e58e59ba7a/1/prompt.txt"
+    },
+    {
+      "metadata": "/05/e58e59ba7a/2/metadata.json",
+      "transcript": "/05/e58e59ba7a/2/full.jsonl",
+      "content_hash": "/05/e58e59ba7a/2/content_hash.txt",
+      "prompt": "/05/e58e59ba7a/2/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 2320,
-    "cache_creation_tokens": 113908,
-    "cache_read_tokens": 974371,
-    "output_tokens": 8306,
-    "api_call_count": 30
+    "input_tokens": 2323,
+    "cache_creation_tokens": 125129,
+    "cache_read_tokens": 985663,
+    "output_tokens": 8351,
+    "api_call_count": 31
   }
 }
