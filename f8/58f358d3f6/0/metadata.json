@@ -1,0 +1,46 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "f858f358d3f6",
+  "session_id": "b4f1b5e2-df45-4d7e-8990-24c26217d4b6",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-13T06:14:50.081224Z",
+  "branch": "main",
+  "checkpoints_count": 0,
+  "files_touched": [
+    "skills/pr-interactive-walkthrough/SKILL.md",
+    "skills/review/sub-skills/standard.md",
+    "skills/simplify/SKILL.md",
+    "skills/simplify/sub-skills/frontend-cleanup.md",
+    "skills/btw-pull-request/skill.md",
+    "skills/plan/SKILL.md",
+    "skills/plan/sub-skills/plan-step.md",
+    "skills/review/SKILL.md",
+    "skills/verify/SKILL.md",
+    "skills/learn-from-mistakes/SKILL.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-6[1m]",
+  "turn_id": "3a2bd143d317",
+  "token_usage": {
+    "input_tokens": 19,
+    "cache_creation_tokens": 11956,
+    "cache_read_tokens": 222694,
+    "output_tokens": 2634,
+    "api_call_count": 9
+  },
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-13T06:14:50.04793Z",
+    "agent_lines": 514,
+    "agent_removed": 55,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 514,
+    "total_lines_changed": 569,
+    "agent_percentage": 100,
+    "metric_version": 2
+  }
+}
