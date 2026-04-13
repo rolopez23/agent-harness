@@ -25,6 +25,77 @@ helpers. Do not add behavior here.
 
 **COMMIT** — Tests green, code and tests together in one commit. Never commit red.
 
+## Choosing the Test Level
+
+Before writing the test, decide what level it lives at. Each cycle's test should be at the
+*lowest level that exercises the actual behavior you care about*. Write higher-level tests
+only when the behavior genuinely crosses a boundary.
+
+| What you're testing | Test level | Why |
+|---|---|---|
+| Pure logic — a function with inputs and outputs, no I/O | Unit | Fast, deterministic, easy to enumerate edge cases. No setup. |
+| A function that touches one external boundary (DB, HTTP client, filesystem, clock) | Integration | The boundary is the point of the test — mocking it tests nothing real. Use a real test DB, a real local server, real fixture files. |
+| A behavior that crosses multiple boundaries (HTTP → service → DB → response) | Integration or E2E | Pick the smallest seam that still proves the behavior. Prefer integration over E2E unless the browser/UI is the thing under test. |
+| A user-visible flow (form submit → API → DB → render) | E2E (Playwright/curl) | This is what `/verify` covers. The unit-test version of this flow proves nothing about the real system. |
+
+**The rule:** if mocking the boundary would make the test pass without proving the behavior,
+the test is at the wrong level. Move it up.
+
+**The corollary:** do not write integration tests for pure logic. A function that takes a
+string and returns a string does not need a database. Pushing pure logic into an integration
+test makes the suite slow without making it more correct.
+
+## DAMP Over DRY in Tests
+
+Production code follows DRY (Don't Repeat Yourself). Test code follows **DAMP** —
+Descriptive And Meaningful Phrases. Each test should read like a tiny spec for one
+behavior, with all the relevant setup visible inline. Repetition across tests is fine.
+Hidden setup is not.
+
+```typescript
+// ✅ DAMP — the reader sees exactly what this test is asserting
+test('rejects a contract larger than 5MB', async () => {
+  const file = new File(['x'.repeat(6 * 1024 * 1024)], 'big.pdf', { type: 'application/pdf' });
+  const result = await validateContract(file);
+  expect(result.ok).toBe(false);
+  expect(result.error).toBe('file too large');
+});
+
+test('rejects a contract with the wrong mime type', async () => {
+  const file = new File(['ok'], 'note.txt', { type: 'text/plain' });
+  const result = await validateContract(file);
+  expect(result.ok).toBe(false);
+  expect(result.error).toBe('unsupported file type');
+});
+
+// ❌ Over-DRY — the reader has to chase the helper to know what is being tested
+function makeFile(opts) { /* defaults hidden here */ }
+test('rejects invalid contracts', async () => {
+  for (const c of INVALID_CASES) {
+    const result = await validateContract(makeFile(c));
+    expect(result.ok).toBe(false);
+  }
+});
+```
+
+**When to extract a helper anyway:**
+- It builds a fixture that has nothing to do with what's being asserted (e.g. a fully
+  populated `User` object when the test only cares about one field) — extract it, name it
+  after the *role* (`anAdminUser()`, `aFreshContract()`), and keep the per-test deviations
+  visible at the call site.
+- Setup is genuinely expensive (DB connections, server startup) — share it via a fixture,
+  not a function the test calls.
+
+**When to leave the duplication:**
+- Two tests have similar-looking setup but assert different behaviors. The duplication
+  documents the intent. Collapsing them hides which inputs matter.
+- A test loop iterating over cases where each case needs slightly different assertions —
+  write the cases as separate `test()` blocks. The redundancy is the point: each failure
+  names the specific case that broke.
+
+The test name + the test body should tell the whole story. If a reader has to scroll up to
+a `beforeEach` or chase a helper to understand what failed, the test is too DRY.
+
 ## What a Good Test Looks Like
 
 ```typescript

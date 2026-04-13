@@ -89,6 +89,55 @@ schema → event-triggers → feed-api → email-delivery
 
 Not `01-schema`, not `create-notification-table`. What does the feature do when this step is complete?
 
+### Slice Vertically, Not Horizontally
+
+Decompose by feature slice, not by architectural layer. The default failure mode is to write
+a plan where step 1 = all schemas, step 2 = all API routes, step 3 = all UI — nothing is
+shippable or verifiable end-to-end until the very last step lands.
+
+- ❌ **Horizontal:** `schemas → api-routes → ui-components → wiring`. Each step compiles but
+  none of them deliver an observable behavior on their own. Verify is forced to ➖ until the
+  end, which means most of the workflow runs blind.
+- ✅ **Vertical:** `upload-contract → list-contracts → review-contract`. Each step touches
+  the schema, API, and UI needed for *one* user-visible capability and ends in something a
+  human can actually try.
+
+Prefer vertical slices unless the steps share so much foundation that horizontal is
+genuinely simpler (rare, and usually only for the very first foundational step like an
+auth scaffold). A vertical slice is verifiable on its own; a horizontal slice is not.
+
+### Step Sizing
+
+Every step in the plan should be **S or M**. Use this table to calibrate:
+
+| Size | Files touched | Code added | Treat as |
+|---|---|---|---|
+| **XS** | 1 | < 30 lines | A *cycle* inside another step, not a standalone step. Merge it into a neighbor. |
+| **S** | 1–3 | 30–100 lines | A normal step. One model + tests, one validator + tests, one focused UI component. |
+| **M** | 3–6 | 100–300 lines | A normal step. One vertical slice of a small feature: one route + service + tests. |
+| **L** | 6–10 | 300–600 lines | Acceptable **only** if it passes the 4-signal split check below and genuinely cannot be split. |
+| **XL** | 10+ | 600+ lines | Always a planning failure. Split before adding to the plan. |
+
+A single step that takes a feature all the way from model → API → UI is usually L or XL and
+should be **multiple steps**, not one. The fact that it's "one feature" is not a reason to
+keep it together — the verification gates work per step, and a step you can't verify halfway
+through gives the workflow nothing to bite on.
+
+### When to Split a Step Further
+
+Even if a step looks reasonably sized, split it if **any** of these are true:
+
+- The step would take more than ~2 hours of focused work
+- The "Done When" condition needs more than 3 bullet points to express clearly
+- The step touches two distinct subsystems (e.g., backend service *and* frontend page, or
+  database *and* background worker) where each could be verified on its own
+- The step's name needs an "and" to describe it (`upload-and-list`, `validate-and-store`)
+
+A step that only reaches **L** because it fails one of these is hiding work. Split it. A
+step that is L *and* passes all four signals — for example, a single service method that
+genuinely needs six files of related fixtures and tests to verify — is the rare case where
+L is the right size.
+
 ## Step 3: Map Dependencies
 
 For each step, identify what it blocks and what blocks it. Be explicit: "step 3 cannot be

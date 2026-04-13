@@ -103,10 +103,54 @@ Tests should assert against semantic names, roles, or behavior — not raw CSS c
 - Assert `getByRole('list')` not `closest('[class*="max-h-"]')`
 - Assert `aria-expanded` state not presence of a CSS class
 
+### 8. The "AI Aesthetic" — Default Tells
+
+LLM-generated UIs have recognizable defaults. They look generic, dated, and "AI-shaped"
+even when they technically work. Flag and replace these defaults with choices that match
+the project's actual design system (or, if there isn't one, with anything more specific
+than the defaults below).
+
+| AI default | Why it reads as AI | Replace with |
+|---|---|---|
+| Purple / indigo for everything (`bg-indigo-600`, `text-purple-500`) | Tailwind's "look how nice the defaults are" palette; nobody's brand is actually indigo | The project's actual brand color, or a neutral primary like slate / zinc |
+| Gradient buttons (`from-purple-500 to-pink-500`) | Bootstrap-era "make it pop" energy | Solid color buttons; reserve gradients for hero sections only |
+| Generic emoji icons in headings (✨ 🚀 🎉) | Filler that adds no information | Lucide / Heroicons SVGs, or no icon at all |
+| `rounded-2xl` / `rounded-3xl` on every card | The "soft modern" default; everything looks like a kids' app | `rounded-md` or `rounded-lg`; reserve large radii for hero cards |
+| Drop shadows on every container (`shadow-lg`, `shadow-xl`) | Material Design 2014 leaking through | Borders or subtle `shadow-sm`; flat by default |
+| `text-gray-500` body copy on white | Low contrast, fails WCAG AA at small sizes | `text-gray-700` or darker for body text |
+| "Glassmorphism" — `backdrop-blur` + translucent white | Cliché since 2021 | Solid backgrounds; use blur only when content is genuinely behind something |
+| Centered single-column layout with huge vertical padding | Default Tailwind landing-page template | Layout that matches the actual content density of the app |
+| `max-w-7xl mx-auto` everywhere with no thought to content | Cargo-culted from starter templates | Width chosen for the content (prose ~65ch, dashboards full-width, forms ~md) |
+| Lorem-ipsum-shaped real copy ("Welcome to our amazing platform") | Marketing template energy in a working app | Concrete, specific copy that names what the user is actually looking at |
+
+The fix isn't always to apply a project-specific design — it's to *notice* the default and
+flag it. If the project has a design system, point to it. If it doesn't, suggest a neutral
+alternative and ask the user.
+
+### 9. Responsive Breakpoint Coverage
+
+Every UI change should be checked at the four standard breakpoints. If the diff touches
+layout (flex, grid, width, padding, position, max-w), verify each:
+
+| Width | Represents | What to check |
+|---|---|---|
+| **320px** | Smallest phones (iPhone SE) | No horizontal scroll; tap targets ≥ 44px; text doesn't overflow containers |
+| **768px** | Tablet portrait, larger phones landscape | Layout transitions cleanly from mobile to multi-column; nothing awkwardly half-stacked |
+| **1024px** | Tablet landscape, small laptops | Sidebars/columns appear if the design has them; line lengths stay readable (≤ ~80ch for prose) |
+| **1440px** | Standard desktop | Content doesn't stretch into unreadably long lines; max-widths kick in; whitespace is intentional, not infinite |
+
+The check is: open the page at each width, scroll top to bottom, look for overflow, broken
+alignment, illegible line lengths, and tap targets that are too small for touch. If the diff
+only touches a leaf component (a button, an icon, a single label), 320 + 1440 is enough.
+If it touches layout, all four.
+
+This is a `/verify` activity for the live system, not a code-only check — flag the missing
+coverage here so it gets into the verification step.
+
 ## Output
 
 For each finding, state:
-- Which category (1–7) it falls under
+- Which category (1–9) it falls under
 - The specific file and component
 - The fix (apply directly if clear, suggest if uncertain)
 

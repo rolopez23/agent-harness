@@ -36,6 +36,30 @@ Ask the user to describe what they want to achieve. Listen for:
 
 Do not move on until you can restate the problem back in your own words and the user confirms it.
 
+### Reframe Instructions as Verifiable Success Criteria
+
+User goals usually arrive as instructions ("make it faster", "improve UX", "handle errors").
+Instructions are not testable — they leave the bar undefined and let "done" drift. Before
+moving on, translate every fuzzy instruction into a concrete, observable criterion. If you
+cannot translate it, that is the next clarifying question.
+
+| Fuzzy instruction | Verifiable criterion |
+|---|---|
+| "Make it faster" | LCP < 2.5s on the contract upload page; API p95 < 500ms under 10 concurrent requests |
+| "Improve the UX" | New users complete the upload → review flow without help in under 3 minutes; no error toasts in the happy path |
+| "Handle errors better" | Every 4xx returns a JSON `{error: string}` body; every 5xx is logged with a request ID; the UI shows the error message inline within 1s |
+| "Make it more reliable" | The job retries up to 3× with exponential backoff; failed jobs land in a dead-letter table; success rate ≥ 99% across 100 sample runs |
+| "Polish the page" | All four breakpoints (320 / 768 / 1024 / 1440) render without overflow; no layout shift > 0.1; matches the design system palette |
+| "Add tests" | Coverage on the changed files ≥ 80%; every public function in the new module has at least one passing test |
+
+The pattern: name a number, a state, or an observable behavior. If the criterion can be
+checked by a script, a screenshot, or a stopwatch, it's a real criterion. If it relies on
+"feels good", it isn't — keep translating.
+
+This is also a forcing function for scope: a user who can't agree to a number usually
+hasn't decided what they actually want, and the conversation needs to happen now, not
+during implementation.
+
 ---
 
 ## Step 2: Clarify Until There Is No Ambiguity
@@ -62,6 +86,30 @@ Explicitly define what is and is not included:
 **Out of scope**: What are we explicitly not solving? Name adjacent, tempting, or frequently
 assumed items and mark them out of scope. If the user is unsure whether something is in or out,
 it needs a decision now.
+
+### The "Not Doing" List Is the Most Valuable Part of the Spec
+
+The Out of Scope list does more work than any other section. A spec that lists ten in-scope
+items but no out-of-scope items has not been thought through — every adjacent feature is
+implicitly a maybe, and "maybe" expands during implementation. Force the decisions now.
+
+Push hard on these specifically — they are the things implementations bleed into:
+
+- **Adjacent features** the user mentioned in passing ("...and eventually we'll want X")
+- **Edge cases** that sound important but aren't on the critical path ("what about offline mode?")
+- **Polish items** the user assumes will be free ("obviously it should look great on mobile")
+- **Refactors** tempting but not required ("while we're in there, we should clean up Y")
+- **Backwards compatibility** with old data, old clients, old APIs — explicitly in or explicitly out
+- **Performance / scale targets** beyond the immediate need
+- **Auth, observability, rate limiting** — included by default? or deferred?
+
+For each, get a yes/no from the user — not a "we'll see". If it's a yes, it goes in scope
+with its own success criterion (Step 1 reframe). If it's a no, it goes in the Not Doing list
+with one sentence on *why deferred* so the next person reading the spec doesn't relitigate
+the decision.
+
+A good Not Doing list is usually longer than the In Scope list. That is a feature of the
+spec, not a bug.
 
 ---
 
