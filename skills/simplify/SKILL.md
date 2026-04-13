@@ -20,6 +20,29 @@ are removing everything that doesn't need to be there.
 
 This skill can never touch tests. You can only refactor code covered by the tests.
 
+## Verification Gate
+
+Before running simplify, check that verification has been completed:
+
+1. Look for a plan at `docs/<feature>/plan.md`. If one exists, check the Verify column for
+   the current step — it must be ✅ or ➖ (N/A).
+2. Look for a verification report at `docs/<feature>/verify/<step>-*.md`. If the plan shows
+   Verify should have run, a report must exist.
+
+**If the plan exists and Verify is still ⬜ (pending) with no report:**
+Stop and say: "Verification has not been run for this step. Run `/verify` first — simplify
+runs after verify in the workflow (make it work → make it work well → make it beautiful)."
+Do not proceed with the simplify pass.
+
+**If no plan exists** (ad-hoc simplify, not part of a step workflow): skip this gate.
+
+## Sub-Skills
+
+If the diff touches React components (`.tsx` files that export JSX), also run the frontend
+cleanup sub-skill after the main simplify pass:
+- [`sub-skills/frontend-cleanup.md`](sub-skills/frontend-cleanup.md) — component extraction,
+  semantic HTML, accessibility, readable class names, data transformations, style constants
+
 ## Get the Diff
 
 ```bash
@@ -99,6 +122,91 @@ Make names human readable and the code should look like prose.
 
 Readable code is better than comments. If you can as an LLM infer the comment from the code, delete it.
 
+## Example: API Route Cleanup
+
+**Before** — validation inline, magic numbers, repeated response pattern, handler does too much:
+
+```typescript
+export async function POST(request: Request) {
+  let body: Record<string, unknown>;
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: 'invalid JSON' }, { status: 400 });
+  }
+  const { text } = body;
+  if (!text || typeof text !== 'string' || text.trim() === '') {
+    return NextResponse.json({ error: 'text field is required' }, { status: 400 });
+  }
+  try {
+    const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+    const message = await client.messages.create({
+      model: process.env.ANTHROPIC_MODEL ?? 'claude-haiku-4-5-20251001',
+      max_tokens: 8192,
+      system: SYSTEM_PROMPT,
+      messages: [{ role: 'user', content: text }],
+    });
+    const content = message.content[0];
+    if (content.type !== 'text') {
+      return NextResponse.json({ error: 'unexpected response type' }, { status: 500 });
+    }
+    const parsed = JSON.parse(content.text);
+    return NextResponse.json(parsed);
+  } catch {
+    return NextResponse.json({ error: 'evaluation failed' }, { status: 500 });
+  }
+}
+```
+
+**After** — named constants, extracted helpers, handler reads like prose:
+
+```typescript
+const MAX_TOKENS = 8192;
+const HTTP_BAD_REQUEST = 400;
+const HTTP_UNPROCESSABLE = 422;
+const HTTP_INTERNAL = 500;
+
+function errorResponse(message: string, status: number) {
+  return NextResponse.json({ error: message }, { status });
+}
+
+function parseRequestBody(body: unknown): string | null {
+  if (typeof body !== 'object' || body === null || Array.isArray(body)) return null;
+  const { text } = body as Record<string, unknown>;
+  if (!text || typeof text !== 'string' || text.trim() === '') return null;
+  return text.trim();
+}
+
+function buildMessages(text: string): Anthropic.MessageCreateParams {
+  return { model, max_tokens: MAX_TOKENS, system: SYSTEM_PROMPT,
+    messages: [{ role: 'user', content: text }] };
+}
+
+export async function POST(request: Request) {
+  let body: unknown;
+  try { body = await request.json(); } catch {
+    return errorResponse('invalid JSON', HTTP_BAD_REQUEST);
+  }
+  const text = parseRequestBody(body);
+  if (!text) return errorResponse('text field is required', HTTP_BAD_REQUEST);
+
+  try {
+    const message = await client.messages.create(buildMessages(text));
+    // ... check truncation, validate schema, return result.data
+  } catch (e) {
+    const status = e instanceof Anthropic.APIError ? e.status : HTTP_INTERNAL;
+    return errorResponse('evaluation failed', status);
+  }
+}
+```
+
+**What changed and why:**
+- **Magic numbers → named constants** (§9) — `8192`, `400`, `422`, `500` now have names
+- **Repeated pattern → helper** (§2, §6) — `NextResponse.json({ error }, { status })` × 6 → `errorResponse()`
+- **Function doing too much → extracted** (§4) — input validation pulled into `parseRequestBody()`, message building into `buildMessages()`
+- **Client created per-request → module-level** — eliminates redundant initialization
+- **Handler reads like a story** — parse body, validate, call API, check response, return
+
 ## Applying Changes
 
 **Clear improvements — apply directly:**
@@ -158,8 +266,9 @@ If nothing was applied and nothing was suggested, only show the Result line.
 
 ## Save the Output
 
-Save the report to `docs/simplify/<branch-name>-<YYYY-MM-DD>.md` (use `git branch --show-current`
-for the branch name). If no `docs/` directory exists, save to `.claude/simplify/` instead.
+Save the report to `docs/<feature>/simplify/<step-name>-<YYYY-MM-DD>.md`. Determine `<feature>`
+from the plan path (e.g., `docs/eval-results-display/plan.md` → `eval-results-display`).
+If no plan exists, use `docs/simplify/<branch-name>-<YYYY-MM-DD>.md` as fallback.
 Tell the user where the file was saved.
 
 ## Commit the Changes
@@ -167,7 +276,7 @@ Tell the user where the file was saved.
 Stage all modified files (including the report) and create a commit:
 
 ```bash
-git add <modified files> docs/simplify/<report file>
+git add <modified files> docs/<feature>/simplify/<report file>
 git commit -m "Simplify <chunk label>: <one-line description of what changed>
 
 <optional body: key refactors applied>
@@ -178,9 +287,10 @@ Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>"
 Only commit if at least one change was applied. If nothing was applied (suggestions only or
 nothing to simplify), skip the commit — no point creating an empty commit.
 
-## Update the Plan
+## Update the Plan (MANDATORY)
 
-If run as part of a plan chunk, update the Simplify column in plan.md:
+**You MUST update plan.md immediately after this skill completes — not later, not batched.**
+Update the Simplify column in plan.md:
 - **Changes applied, tests green** → ✅
 - **Suggestions raised** → ✅ (suggestions are for the human; the pass is recorded)
 - **Nothing to simplify** → ✅
