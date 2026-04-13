@@ -10,14 +10,16 @@ description: >
 
 # Review
 
-Three independent reviewers run in parallel against the same diff. Each brings a different
+Four independent reviewers run in parallel against the same diff. Each brings a different
 lens. Findings may overlap, contradict, or be unique — that's the point. All findings are
 surfaced; each is triaged before acting on it.
 
-The three sub-skills are in `sub-skills/`:
+The four sub-skills are in `sub-skills/`:
 - `standard.md` — correctness: bugs, edge cases, error handling, contract violations
 - `edge-case-hunter.md` — exhaustive path tracing: every unhandled branch/boundary, JSON output
 - `adversarial.md` — cynical: at least 10 issues, including speculative ones
+- `prior-art.md` — historical: prior reviews on this file or similar files; only surfaces
+  findings that another reviewer already caught on related code
 
 ## Two Run Modes
 
@@ -65,12 +67,16 @@ Also read:
 - Every file touched in the diff (bugs are often visible only in context)
 - `docs/<feature>/spec.md` if it exists — Success Criteria and Interfaces sections
 
-## Step 2: Dispatch All Three in Parallel
+## Step 2: Dispatch All Four in Parallel
 
-Spawn three subagents in the same turn. Give each:
+Spawn four subagents in the same turn. Give each:
 1. The full diff text
 2. The spec content (if found)
 3. Their sub-skill instructions from `sub-skills/<reviewer>.md`
+
+Prior-art additionally needs file-system access to read prior review reports, the
+learnings log, and git history — give it the list of files in the diff and confirm it
+can run shell commands.
 
 Do not wait for one to finish before starting the others.
 
@@ -150,6 +156,25 @@ If no plan exists, use `docs/reviews/<branch-name>-<YYYY-MM-DD>.md` as fallback.
 
 ---
 
+### Prior Art
+
+#### Files checked
+- Direct prior reviews on: <files>
+- Similar files inspected: <files with reason>
+- Learnings log entries scanned: <count>
+
+#### Findings that still apply
+- **<file>:<line>** — From `<source report>` on `<other file>`: "<original finding>". Present
+  here because <reason>. · `[Valid | Speculative | Dismissed: <reason>]`
+
+#### Already addressed
+- From `<source>` on `<other file>`: "<finding>" — handled here at <file>:<line> by <how>.
+
+#### Not applicable
+- From `<source>` on `<other file>`: "<finding>" — does not apply because <reason>.
+
+---
+
 ## Reviewer Validity
 
 | Reviewer | Findings | Unique | Overlap | Verdict |
@@ -157,6 +182,7 @@ If no plan exists, use `docs/reviews/<branch-name>-<YYYY-MM-DD>.md` as fallback.
 | Standard | N | N | N | Useful / Redundant / Noisy |
 | Edge Case Hunter | N | N | N | Useful / Redundant / Noisy |
 | Adversarial | N | N | N | Useful / Redundant / Noisy |
+| Prior Art | N | N | N | Useful / Redundant / Noisy |
 
 **Notes:** <anything notable about this run — e.g. "adversarial found 3 real issues standard missed",
 "edge case hunter was redundant given the simplicity of this diff", etc.>
