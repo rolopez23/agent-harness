@@ -27,3 +27,7 @@ Ok also can you update install to not target repo Agents.md but user Agents.md?
 ---
 
 I would not install them by default.  Have them be requestable
+
+---
+
+Do it!
