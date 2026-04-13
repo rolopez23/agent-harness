@@ -50,6 +50,58 @@ Test:    tests/jobs/digest-sender.ts
 This structure informs step decomposition. Each step should produce self-contained file changes
 that make sense independently.
 
+### Refactor Check Before Decomposition
+
+Once the file map is written, look at the **Modify** entries — the existing files this work
+will touch. If the plan will land non-trivial changes in files that are already large,
+tangled, or have a known smell (long methods, mixed responsibilities, tight coupling to
+things this work shouldn't depend on), pause and ask the user before continuing:
+
+```
+Before I decompose into steps, this plan will modify these existing files:
+
+- <file 1> (~<lines> lines, <one-line observation>)
+- <file 2> (~<lines> lines, <one-line observation>)
+- ...
+
+Some of these look like they'd be easier to change cleanly if they were refactored first.
+Want me to kick off /refactor on <specific files> before we plan the new work? Refactoring
+into a clean shape now avoids stacking new code on top of structural problems and having
+to back-fill the cleanup later.
+
+Yes / no / only on <subset>
+```
+
+**When to ask:**
+
+- The plan will touch a single file in **3+ different steps** — that file is a coupling
+  point and is likely to grow worse during this work
+- A file slated for modification is **>300 lines**, or has a function the plan needs to
+  edit that's >50 lines
+- The plan needs to add behavior to a class that already has mixed responsibilities (e.g.,
+  a `UserService` that also does email sending and audit logging)
+- The plan will introduce a new concept that fits naturally in an existing module, but
+  the existing module has no clean place to put it
+
+**When NOT to ask:**
+
+- The plan only **creates** new files (no Modify entries)
+- **Create entries outnumber Modify entries by 5× or more** — this is mostly new work,
+  the existing files are incidental, and refactoring them would be a detour
+- The refactor would be larger than the feature itself — flag it as a separate piece of
+  work in Open Questions, don't bundle them
+
+The goal of refactoring is *to move faster*, not to slow down — so "we want to ship fast"
+is a reason **to** ask, not a reason to skip the question. A clean shape is what makes the
+next change cheap. Only skip when the refactor genuinely isn't on the path of this work.
+
+If the user says yes, hand off to `/refactor` with the specific files and a one-sentence
+goal ("make room for the upcoming notification feed feature"). When refactor finishes,
+re-run Step 1 of this skill — the file map may have changed.
+
+If the user says no, note it in the plan under Open Questions / Known Smells so it
+doesn't get silently lost.
+
 ## Verification-First Planning
 
 > "Your job is to deliver code you have proven to work."

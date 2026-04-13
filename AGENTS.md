@@ -62,6 +62,7 @@ for complete instructions.
 | plan | `/plan` | Break a spec into testable TDD chunks with a status dashboard |
 | verify | `/verify` | E2E verification — real curl or browser automation against a live system |
 | simplify | `/simplify` | Apply clear improvements; suggest uncertain ones; never touch tests |
+| refactor | `/refactor` | Restructure existing code with Fowler's catalog; Chesterton's Fence on every removal |
 | review | `/review` | Find bugs, missed edge cases, unhandled errors; report only |
 | pr-interactive-walkthrough | `/pr-interactive-walkthrough` | File-by-file code walkthrough with understanding assessment |
 | learn-from-mistakes | `/learn-from-mistakes` | Log corrections and gaps after human sign-off |
