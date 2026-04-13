@@ -1,0 +1,5 @@
+For my workflow do you think simplify should be before or after review
+
+---
+
+are you sure what are the tradeoffs of each?
