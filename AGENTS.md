@@ -75,6 +75,50 @@ Skills live in `skills/`. Each skill directory contains a `SKILL.md` and optiona
 
 ---
 
+## Skill Routing
+
+When the user makes a request, route it through this table before responding. The goal is
+to invoke the right skill instead of doing ad-hoc work that bypasses the workflow.
+
+| If the user says... | Invoke |
+|---|---|
+| "build / add / implement / create [non-trivial feature]" | `/problem-spec` (then `/plan`) |
+| "make a plan", "how should we build this", "break this into tasks" | `/plan` (requires spec.md to exist; if not, run `/problem-spec` first) |
+| "set up AGENTS.md", "onboard this repo", "install the skills here" | `/initialize` |
+| "verify this", "test it end to end", "check that it works", "run the e2e" | `/verify` |
+| "simplify this", "clean this up", "is this the simplest version" | `/simplify` |
+| "refactor this", "make this more modular", "this file is too big", "extract X out of Y", "split this up", "reduce coupling" | `/refactor` |
+| "review this", "find bugs", "what did I miss", "look for edge cases" | `/review` |
+| "walk me through this PR", "explain this code", "do I understand this" | `/pr-interactive-walkthrough` |
+| "what went wrong", "log the corrections", "retrospective", "learn from this" | `/learn-from-mistakes` |
+| "debug this", "why is X failing", "find the root cause" | `/systematic-debugging` |
+| "design this UI", "make this look good", "build the frontend for X" | `/frontend-design` |
+| "split this work", "run these in parallel", "dispatch agents" | `/dispatching-parallel-agents` |
+| "create a skill", "add a new skill", "improve this skill" | `/skill-creator` |
+
+**Routing rules — read before invoking:**
+
+1. **Bug fixes go to `/systematic-debugging`, not `/problem-spec`.** Specs are for new
+   capabilities. If the user says "fix this bug" or "X is broken," skip the spec.
+2. **`/plan` requires a spec.** If `docs/<feature>/spec.md` doesn't exist, refuse and run
+   `/problem-spec` first. Do not improvise a plan from a verbal description.
+3. **`/review` ≠ `/pr-interactive-walkthrough`.** Review hunts for bugs and edge cases.
+   Walkthrough tests human comprehension. Both run per step; they are not interchangeable.
+4. **`/simplify` and `/review` have two run modes.** In *workflow mode* (running as part of
+   a plan-driven step), the prior-step gate enforces order: Auto Tests → Verify → Simplify
+   → Review. In *standalone mode* (running ad-hoc on staged changes, a PR, or a branch diff
+   outside any plan), the gate is skipped — the caller is asking for a one-off pass. Don't
+   try to bypass the gate in workflow mode; do feel free to run either skill directly when
+   the work isn't tied to a plan.
+5. **Don't run a skill as a list.** If you find yourself "summarizing what /simplify would
+   say" or "doing a quick mental review," stop and invoke the actual skill. The sub-skills
+   and gates only fire when the skill runs.
+6. **Trivial changes don't need the workflow.** A typo fix, a single-line CSS tweak, or a
+   one-character rename can be done directly. Use judgment — when in doubt, route through
+   the workflow rather than around it.
+
+---
+
 ## Behavioral Rules
 
 Rules added here by `/learn-from-mistakes` when a pattern occurs 3+ times. Starts empty.
