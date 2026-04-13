@@ -1,0 +1,78 @@
+Great! Ok now look through the learnings file in that, anything to make these skills better you see there?
+
+---
+
+Save these as improvements.md so I can slowly parse 1 by 1.  I would say lets start with the hightest lvel.  I would say that lets add the gate to every skill in the chain that if being run as part of a plan verify that the earlier step is completed in the plan before starting.  Lets add that to review and simplify, as well as to the plan.  Also I think we need to distinguish between background agents.  They cannot run the skills of verify / simplify / review so I think we need to add explicit instructions in the plan-step to run those immediately after merge the work of worktree agents.
+
+---
+
+Ok can you look in the skills repo in reference.  It should have many skills that overlap with our workflow.  Lets just get a list of skills aiming to serve the same purpose.
+
+---
+
+only compare to the agent-skills repo not wuperopowers
+
+---
+
+What is chesterton's fence framing?
+
+---
+
+I thnk this is a good principle but not relevant.  Simplify is running on new code.  I think we should state that simplify cannot alter test code though, that should cover many of these cases.
+
+---
+
+nope that is good! I think we can move to another.   4. problem-spec — Add the "reframe instructions as success criteria" translation pattern (e.g., "make it faster" → "LCP < 2.5s"). Add explicit "Not Doing" list. seems to be all good suggestions.
+
+---
+
+Ok I like these suggestions.  Not sure I believe in the test pyramid  Add the test-level decision tree (pure logic → unit, crosses boundary → integration). Add
+  "DAMP over DRY in tests" rule. For tdd-step.
+
+---
+
+Ok go over the list again you showed earlier
+
+---
+
+explain the changes to plan
+
+---
+
+I would change it slightly.  I like the XS means that the step would be better off as a cycle, not a full step.  Most steps should be S or M. Large may be acceptable if you pass the 4-signal list and cannot be split easily.  Even the exmaple you have there shoudl really be multiple steps.
+
+---
+
+Ok show me the list
+
+---
+
+For 5 I like both, make it so
+
+---
+
+I wanted to add the pieces to frontend cleanup, sorry for the confusion, not this, but I think that was fine.
+
+---
+
+Lets clean up the skill rule /review and /simplify can be run as part of the workflow or independently on a pr / staged files. If part of the workflow the running part is good.
+
+---
+
+Also I want to create a new skill.  Refactor, this skill eptimizes the principles of Martin Fowler's refactoring and cleans up code to be more modular.  I to think the Chesterton's field rule should apply to all features / code removed in this step.
+
+---
+
+Lets also add a rule to refactor that is is not mandatory the first step is to evaluate if we should refactor.  It is acceptable to do nothing if there are not significant benefits.  In fact since all refactorings create risk it is preferable unless there are signifcant improvements found, due a test for the degree for refactoring to always match the benefits.
+
+---
+
+Great I would also add to plan, if the plan will touch many files ask if they want to refactor those files before building the full plan, this will kick off the refactor skill.
+
+---
+
+I would remove the want to move fast.  The goal of recactoring is moving fast. I would say do not ask if only create or create is 5x greater than modify.  Refatori would be bigger than feature is also a great reson.  The other are not.
+
+---
+
+Ok are these updates committed?
