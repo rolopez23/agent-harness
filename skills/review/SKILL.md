@@ -19,6 +19,40 @@ The three sub-skills are in `sub-skills/`:
 - `edge-case-hunter.md` — exhaustive path tracing: every unhandled branch/boundary, JSON output
 - `adversarial.md` — cynical: at least 10 issues, including speculative ones
 
+## Two Run Modes
+
+Review can be invoked two ways. Both are valid — they have different gates.
+
+- **Workflow mode** — invoked as part of a plan-driven step. Runs after Simplify, before
+  Understand, against the step's staged code. The prior-step gate below applies.
+- **Standalone mode** — invoked ad-hoc on staged changes, a PR, or a branch diff outside
+  of any plan. No gate; skip straight to Step 1. Use this when reviewing someone else's
+  PR or any one-off correctness pass.
+
+Detect the mode by looking for a plan at `docs/<feature>/plan.md` that references the
+files in the diff. If one exists and the diff matches a step in it, you're in workflow
+mode. Otherwise, standalone.
+
+## Prior-Step Gate (workflow mode only)
+
+When running as part of a plan, review follows Simplify in the chain:
+Auto Tests → Verify → Simplify → **Review** → Understand → Human. Before doing any work,
+confirm the prior columns are complete.
+
+1. Find the row for the current step in `docs/<feature>/plan.md`.
+2. The **Auto Tests** column must be ✅.
+3. The **Verify** column must be ✅ or ➖ (N/A). A verification report must exist at
+   `docs/<feature>/verify/<step>-*.md` if Verify is ✅.
+4. The **Simplify** column must be ✅. A simplify report must exist at
+   `docs/<feature>/simplify/<step>-*.md`.
+
+**If any prior column is ⬜ or ❌:** Stop and say which one. For example: "Simplify has not
+been run for this step — run `/simplify` first. Review runs against the simplified code so the
+findings are about the code that will actually ship, not an intermediate version." Do not proceed.
+
+In standalone mode, skip this gate entirely — there is no plan to gate against, and the
+caller has decided to run review directly.
+
 ## Step 1: Gather Context
 
 ```bash

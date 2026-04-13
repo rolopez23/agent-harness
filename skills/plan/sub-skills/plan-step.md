@@ -43,6 +43,37 @@ controller action, one job behavior, one integration point.
 - Update `plan.md`: mark Auto Tests ✅ for this step
 - Run LLM Verification and mark the Verify column accordingly
 
+## Worktree / Background-Agent Handoff
+
+When a step is implemented by a worktree or background agent, the agent's responsibility
+ends at "tests green and work merged back." Background agents **cannot** reliably run
+`/verify`, `/simplify`, or `/review` themselves — they run in a different process, have no
+visibility into the parent plan, and cannot update the dashboard from inside their isolated
+worktree. Trying to delegate V/S/R into the worktree has burned us before
+(`agents-skip-workflow` in the learnings log).
+
+**The contract for a worktree agent:**
+
+1. Implement the step's cycles (red → green → refactor → commit) inside the worktree
+2. Run the step's automated test suite — all green
+3. Merge the work back to the parent branch
+4. Report: branch name, commit range, "tests green, ready for V/S/R"
+
+**The orchestrator's responsibility, immediately after the merge — not later, not batched:**
+
+1. `/verify` against the merged code on the parent branch (with the live system running)
+2. `/simplify` on the merged diff
+3. `/review` on the simplified diff
+4. Update the plan dashboard for this step's Verify, Simplify, Review columns
+
+Only after V/S/R complete on the parent branch is the step ready for Understand and Human.
+The prior-step gate enforces this — `/simplify` and `/review` will refuse to run if Verify
+isn't done, so the orchestrator cannot accidentally skip a stage.
+
+**If multiple worktree agents merge in parallel,** run V/S/R per step in the order the merges
+land. Do not batch V/S/R across multiple steps — each step's report and dashboard row is
+independent, and batching loses the per-step granularity the workflow depends on.
+
 ---
 
 ## Proof of Work

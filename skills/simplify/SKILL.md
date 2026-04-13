@@ -20,21 +20,47 @@ are removing everything that doesn't need to be there.
 
 This skill can never touch tests. You can only refactor code covered by the tests.
 
-## Verification Gate
+## Two Run Modes
 
-Before running simplify, check that verification has been completed:
+Simplify can be invoked two ways. Both are valid — they have different gates.
 
-1. Look for a plan at `docs/<feature>/plan.md`. If one exists, check the Verify column for
-   the current step — it must be ✅ or ➖ (N/A).
-2. Look for a verification report at `docs/<feature>/verify/<step>-*.md`. If the plan shows
-   Verify should have run, a report must exist.
+- **Workflow mode** — invoked as part of a plan-driven step. Runs after Verify, before
+  Review, against the step's staged code. The prior-step gate below applies.
+- **Standalone mode** — invoked ad-hoc on staged changes, a PR, or a branch diff outside
+  of any plan. No gate; skip straight to "Get the Diff." Use this when reviewing someone
+  else's PR, cleaning up a feature branch before merge, or any one-off cleanup.
 
-**If the plan exists and Verify is still ⬜ (pending) with no report:**
-Stop and say: "Verification has not been run for this step. Run `/verify` first — simplify
-runs after verify in the workflow (make it work → make it work well → make it beautiful)."
-Do not proceed with the simplify pass.
+Detect the mode by looking for a plan at `docs/<feature>/plan.md` that references the
+files in the diff. If one exists and the diff matches a step in it, you're in workflow
+mode. Otherwise, standalone.
 
-**If no plan exists** (ad-hoc simplify, not part of a step workflow): skip this gate.
+## Prior-Step Gate (workflow mode only)
+
+When running as part of a plan, simplify follows Verify in the chain:
+Auto Tests → Verify → **Simplify** → Review → Understand → Human. Before doing any work,
+confirm the prior columns are complete.
+
+1. Find the row for the current step in `docs/<feature>/plan.md`.
+2. The **Auto Tests** column must be ✅.
+3. The **Verify** column must be ✅ or ➖ (N/A).
+4. If Verify is ✅, a verification report must exist at `docs/<feature>/verify/<step>-*.md`.
+
+**If Auto Tests is not ✅:** Stop and say: "Auto Tests have not passed for this step. Tests must
+be green before Simplify runs — simplify only refactors code that is covered by passing tests."
+
+**If Verify is still ⬜ (pending) or ❌ with no report:** Stop and say: "Verification has not been
+run (or has failed) for this step. Run `/verify` first — simplify runs after verify in the
+workflow (make it work → make it work well → make it beautiful)." Do not proceed.
+
+In standalone mode, skip this gate entirely — there is no plan to gate against, and the
+caller has decided to run simplify directly.
+
+## Re-Run After Subsequent Fixes
+
+If code in this step's files changed *after* the last simplify pass (e.g., a review finding
+was fixed, a worktree merge brought in new commits), the prior pass is stale. Re-run simplify
+on the new diff before allowing Review to start. Stale simplify reports are worse than no
+report — they lie about what was checked.
 
 ## Sub-Skills
 

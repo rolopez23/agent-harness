@@ -141,6 +141,13 @@ Write to `docs/<feature-name>/plan.md`:
 **On failure:** ❌ in any column requires fixes before proceeding. Do not mark Human ✅ while any
 prior column is ❌ without explicit user instruction.
 
+**Prior-step gate (enforced by each skill):** Every workflow skill (`verify`, `simplify`,
+`review`, `pr-interactive-walkthrough`, `learn-from-mistakes`) reads this dashboard before
+running and refuses to start if the prior column for the current step is not ✅ or ➖. This
+is a hard gate, not a suggestion — it exists because the workflow has been silently skipped
+or reordered before. If a skill stops with a "prior step not complete" message, do not bypass
+it; run the prior skill first.
+
 ---
 
 ## Branching Strategy
