@@ -1,0 +1,39 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "d0d0c3a5858c",
+  "session_id": "b4f1b5e2-df45-4d7e-8990-24c26217d4b6",
+  "strategy": "manual-commit",
+  "created_at": "2026-04-13T07:20:16.617223Z",
+  "branch": "main",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "AGENTS.md",
+    "skills/plan/SKILL.md",
+    "skills/refactor/SKILL.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-6[1m]",
+  "turn_id": "71dda4ffeaba",
+  "token_usage": {
+    "input_tokens": 211,
+    "cache_creation_tokens": 147609,
+    "cache_read_tokens": 8871000,
+    "output_tokens": 64496,
+    "api_call_count": 96
+  },
+  "session_metrics": {
+    "turn_count": 21
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-04-13T07:20:16.291773Z",
+    "agent_lines": 406,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 44,
+    "total_committed": 406,
+    "total_lines_changed": 450,
+    "agent_percentage": 90.22222222222223,
+    "metric_version": 2
+  }
+}
