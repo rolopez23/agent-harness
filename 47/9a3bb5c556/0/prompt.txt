@@ -1,0 +1,29 @@
+yes!
+
+---
+
+Ok can you also do an uncommited comparison of skills between superpowers / agent-skills and this repo.  I want mainly to track what has been folded in and not, also to track for using later.
+
+---
+
+what is receiving-code-review
+
+---
+
+that is fine for now.  Actually I want to add a new sub-agent on review.  This is the prior-art subagent.  Look at all code-reviews on this file or similar files(files that were flagged as templates for this file or doing a very similar purpose).  Make sure all comments on those files are not relevant for this file.
+
+---
+
+Yes!
+
+---
+
+Ok push up! Also update the skills-inventory.md not just to compare but also to map similar skills are workflows for reference
+
+---
+
+Ok also can you update install to not target repo Agents.md but user Agents.md?
+
+---
+
+I would not install them by default.  Have them be requestable
