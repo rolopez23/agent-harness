@@ -1,0 +1,62 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "7d4223804aa2",
+  "session_id": "34216458-52c1-4249-b314-6b116c261b7c",
+  "strategy": "manual-commit",
+  "created_at": "2026-07-12T05:35:50.092249Z",
+  "branch": "workflow-cleanup-renames-hook",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "AGENTS.md",
+    "Readme.md",
+    "hooks/verify-evidence.sh",
+    "install.sh",
+    "skills/clean-code/SKILL.md",
+    "skills/clean-code/sub-skills/frontend-cleanup.md",
+    "skills/initialize/SKILL.md",
+    "skills/learn-from-mistakes/SKILL.md",
+    "skills/plan/SKILL.md",
+    "skills/plan/sub-skills/plan-step.md",
+    "skills/refactor/SKILL.md",
+    "skills/review-comprehensive/SKILL.md",
+    "skills/review-comprehensive/sub-skills/adversarial.md",
+    "skills/review-comprehensive/sub-skills/edge-case-hunter.md",
+    "skills/review-comprehensive/sub-skills/prior-art.md",
+    "skills/review-comprehensive/sub-skills/security.md",
+    "skills/review-comprehensive/sub-skills/standard.md",
+    "skills/review/SKILL.md",
+    "skills/review/sub-skills/adversarial.md",
+    "skills/review/sub-skills/edge-case-hunter.md",
+    "skills/review/sub-skills/prior-art.md",
+    "skills/review/sub-skills/security.md",
+    "skills/review/sub-skills/standard.md",
+    "skills/simplify/SKILL.md",
+    "skills/simplify/sub-skills/frontend-cleanup.md",
+    "skills/verify/SKILL.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-8[1m]",
+  "turn_id": "855878528adf",
+  "token_usage": {
+    "input_tokens": 214,
+    "cache_creation_tokens": 175839,
+    "cache_read_tokens": 14599903,
+    "output_tokens": 78099,
+    "api_call_count": 107
+  },
+  "session_metrics": {
+    "turn_count": 3
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-07-12T05:35:49.639778Z",
+    "agent_lines": 1286,
+    "agent_removed": 1372,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 1286,
+    "total_lines_changed": 2658,
+    "agent_percentage": 100,
+    "metric_version": 2
+  }
+}
