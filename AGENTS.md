@@ -66,6 +66,7 @@ for complete instructions.
 | frontend-design | `/frontend-design` | Build distinctive, production-grade frontend UI |
 | systematic-debugging | `/systematic-debugging` | Root-cause-first 4-phase debugging process |
 | dispatching-parallel-agents | `/dispatching-parallel-agents` | Split independent tasks across parallel subagents |
+| tone | `/tone` | Toggle the house tone and coding standards on/off, independently |
 
 Skills live in `skills/`. Each skill directory contains a `SKILL.md` and optionally
 `sub-skills/`, `evals/`, and supporting scripts.
@@ -91,6 +92,7 @@ to invoke the right skill instead of doing ad-hoc work that bypasses the workflo
 | "design this UI", "make this look good", "build the frontend for X" | `/frontend-design` |
 | "split this work", "run these in parallel", "dispatch agents" | `/dispatching-parallel-agents` |
 | "create a skill", "add a new skill", "improve this skill" | `/skill-creator` |
+| "tone off/on", "disable coding standards", "stop being terse", "tone status" | `/tone` |
 
 **Routing rules — read before invoking:**
 
@@ -121,6 +123,76 @@ Rules added here when a pattern of mistakes recurs 3+ times. Starts empty.
 
 <!-- learned-rules -->
 <!-- learned-rules-end -->
+
+---
+
+## Conversation Tone
+
+House voice for all prose. Source of truth: `tone/tone.md` (the SessionStart /
+UserPromptSubmit hooks inject it every turn). Disable with `HARNESS_TONE=off`.
+
+<!-- tone -->
+
+Precise and concise.
+
+- Lead with the answer. No preamble, no restating the user's request back to them.
+- Drop articles (a/an/the) where meaning stays clear.
+- Drop filler (just/really/basically/actually/simply), hedging (maybe/perhaps/I think),
+  and pleasantries (sure/certainly/of course/happy to/great question).
+- Be logically precise; use exact words for concepts. If unsure, raise it.
+- Pass errors, stack traces, code, commands, and exact file paths through verbatim —
+  never paraphrase, truncate, or "clean up" an error string.
+- Fragments are fine. Short synonyms over long ones (big, not extensive).
+
+For user questions:
+
+- Always ask one question at a time. Handle all follow-ups before moving on to the next question.
+
+Scope: applies to prose only. Never alter code blocks, commit messages, security warnings, error messages, or PR bodies —
+those stay in normal, complete form.
+
+<!-- tone-end -->
+
+---
+
+## Coding Standards
+
+Applied before writing code. Source of truth: `tone/coding-standards.md` (the
+UserPromptSubmit hook injects it when the prompt reads as a coding request).
+
+<!-- coding-standards -->
+
+Apply before writing code, not after. Stop at the first rung that resolves the task.
+
+1. Think first. State assumptions explicitly. If the request is ambiguous, ask before
+   coding — do not guess and proceed. Surface tradeoffs and simpler alternatives up front.
+
+2. Necessity (YAGNI). Does this need to be built at all? Do not add speculative features,
+   flexibility, or error handling for scenarios no one asked for.
+
+3. Reuse before writing. In order: existing helpers/patterns in this codebase → standard
+   library → native platform feature → an already-installed dependency → one line → only
+   then write new code. Do not add a dependency you can avoid.
+
+4. Simplicity. Write the minimum code that solves the problem. No premature abstractions,
+   base classes, or design patterns until an actual requirement demands them.
+
+5. Surgical changes. Touch only what the task requires. Match the surrounding style even
+   if you'd do it differently. Fix the bug first; refactor separately. Remove only code
+   your change made obsolete — leave unrelated dead code alone.
+
+6. Verify. For non-trivial logic, write the failing test first, then make it pass. Break
+   multi-step work into independently checkable stages with explicit success criteria.
+   Trivial one-liners skip tests.
+
+7. Safety invariants — never optimize these away, even under "make it minimal": input
+   validation at trust boundaries, error handling that prevents data loss, security
+   (auth/crypto/secrets), and accessibility.
+
+These front-load the same values the /clean-code, /refactor, and /review-comprehensive
+skills enforce later — the goal is a first draft that's already close.
+
+<!-- coding-standards-end -->
 
 ---
 

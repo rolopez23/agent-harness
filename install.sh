@@ -160,6 +160,7 @@ skills_table() {
 | frontend-design | \`/frontend-design\` | [→]($HARNESS_REL/skills/frontend-design/SKILL.md) |
 | systematic-debugging | \`/systematic-debugging\` | [→]($HARNESS_REL/skills/systematic-debugging/SKILL.md) |
 | dispatching-parallel-agents | \`/dispatching-parallel-agents\` | [→]($HARNESS_REL/skills/dispatching-parallel-agents/SKILL.md) |
+| tone | \`/tone\` | [→]($HARNESS_REL/skills/tone/SKILL.md) |
 | skill-creator | \`/skill-creator\` | [→]($HARNESS_REL/skills/skill-creator/SKILL.md) |
 | btw-pull-request | \`/btw-pull-request\` | [→]($HARNESS_REL/skills/btw-pull-request/skill.md) |
 EOF
@@ -297,6 +298,17 @@ cp "$HARNESS_DIR/hooks/verify-evidence.sh" "$HOOKS_DST/verify-evidence.sh"
 chmod +x "$HOOKS_DST/verify-evidence.sh"
 green "  + verify-evidence.sh"
 
+cp "$HARNESS_DIR/hooks/tone-hooks.sh" "$HOOKS_DST/tone-hooks.sh"
+chmod +x "$HOOKS_DST/tone-hooks.sh"
+green "  + tone-hooks.sh"
+
+# Tone + coding-standards source files (read by tone-hooks.sh at runtime).
+TONE_DST="$USER_CLAUDE_DIR/tone"
+mkdir -p "$TONE_DST"
+cp "$HARNESS_DIR/tone/tone.md" "$TONE_DST/tone.md"
+cp "$HARNESS_DIR/tone/coding-standards.md" "$TONE_DST/coding-standards.md"
+green "  + tone/ (tone.md, coding-standards.md)"
+
 SETTINGS="$USER_CLAUDE_DIR/settings.json"
 HOOK_CMD="$HOOKS_DST/verify-evidence.sh"
 
@@ -318,6 +330,35 @@ else
     "hooks": { "PostToolUse": [
       { "matcher": "Skill",
         "hooks": [ { "type": "command", "command": "$HOOK_CMD" } ] } ] }
+EOF
+fi
+
+# Tone hooks: inject house tone (every turn) + coding standards (on coding prompts).
+TONE_HOOK="$HOOKS_DST/tone-hooks.sh"
+
+register_tone_hook() {
+  local evt="$1" cmd="$2" tmp
+  if jq -e --arg e "$evt" --arg c "$cmd" '[.hooks[$e][]?.hooks[]?.command] | index($c)' "$SETTINGS" >/dev/null 2>&1; then
+    yellow "  $evt already registers the tone hook — no change"
+  else
+    tmp="$(mktemp)"
+    jq --arg e "$evt" --arg c "$cmd" '
+      .hooks[$e] = ((.hooks[$e] // []) + [
+        { matcher: "", hooks: [ { type: "command", command: $c } ] }
+      ])' "$SETTINGS" > "$tmp" && mv "$tmp" "$SETTINGS"
+    green "  + registered tone $evt hook in settings.json"
+  fi
+}
+
+if command -v jq >/dev/null 2>&1; then
+  [[ -f "$SETTINGS" ]] || echo '{}' > "$SETTINGS"
+  register_tone_hook "SessionStart"     "$TONE_HOOK session-start"
+  register_tone_hook "UserPromptSubmit" "$TONE_HOOK user-prompt-submit"
+else
+  yellow "  jq not found — add these tone hooks to $SETTINGS manually:"
+  cat <<EOF
+    "SessionStart":     [ { "matcher": "", "hooks": [ { "type": "command", "command": "$TONE_HOOK session-start" } ] } ],
+    "UserPromptSubmit": [ { "matcher": "", "hooks": [ { "type": "command", "command": "$TONE_HOOK user-prompt-submit" } ] } ]
 EOF
 fi
 

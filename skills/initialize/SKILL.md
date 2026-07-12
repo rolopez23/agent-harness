@@ -116,6 +116,26 @@ Rules added when a pattern of mistakes recurs 3+ times.
 <!-- learned-rules-end -->
 ```
 
+### Conversation Tone and Coding Standards
+
+Copy these two sections in verbatim from the harness's canonical source files — do not
+rewrite them. Read `tone/tone.md` and `tone/coding-standards.md` from the harness root and
+paste each file's content (including its `<!-- tone -->` / `<!-- coding-standards -->`
+anchors) under the matching heading:
+
+```markdown
+## Conversation Tone
+
+<!-- contents of tone/tone.md -->
+
+## Coding Standards
+
+<!-- contents of tone/coding-standards.md -->
+```
+
+These are injected at runtime by `tone-hooks.sh`; including them here keeps them visible in
+the project's context file and lets a human edit the wording per project.
+
 ---
 
 ## Creating a file
@@ -167,6 +187,8 @@ Check for each section by marker:
 | Workflow | `## Workflow` |
 | Skills table | `## Skills` |
 | Behavioral rules | `learned-rules` |
+| Conversation tone | `<!-- tone -->` |
+| Coding standards | `<!-- coding-standards -->` |
 
 For the Skills table specifically: if the section exists, check each skill row individually
 and append any missing rows. Do not duplicate rows that are already present.
