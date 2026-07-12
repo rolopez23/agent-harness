@@ -1,0 +1,203 @@
+<task-notification>
+<task-id>a00d7b6848e817476</task-id>
+<tool-use-id>toolu_01BfPzo3k4N4YdczJsctRDxD</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-harness/97e49f26-ad3d-4114-9f6a-2d0a6769ddf8/tasks/a00d7b6848e817476.output</output-file>
+<status>completed</status>
+<summary>Agent "Design harness→plugin conversion" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>I have everything I need. Here is the design.
+
+---
+
+# Converting the harness into an installable Claude Code plugin + marketplace
+
+## Grounding facts I confirmed in the repo
+
+- 15 skills under `skills/`; `btw-pull-request/skill.md` is lowercase (won't auto-discover) and carries `disable-model-invocation: true`.
+- All frontmatter is `name` + `description` (btw also has `version`) — already plugin-compatible.
+- Cross-references to bare slash commands total **66** across 8 SKILL.md files: `/plan` ×16, `/refactor` ×13, `/clean-code` ×11, `/verify` ×9, `/problem-spec` ×7, `/review-comprehensive` ×4, `/pr-interactive-walkthrough` ×3, `/initialize` ×3. `initialize/SKILL.md` alone holds 27 (it *generates* the routing/skills tables); `refactor` holds 16 (mostly self-reference).
+- `install.sh` does three jobs that the plugin system fully replaces: copy skills → `~/.claude/skills`, inject workflow/routing into global `~/.claude/AGENTS.md` + `CLAUDE.md`, register the PostToolUse hook in `~/.claude/settings.json`.
+- `hooks/verify-evidence.sh` matches the verify skill via `grep -Eq '"(skill|command|name)"...:"/?verify"'` — this regex will **miss** the namespaced `harness:verify` identifier and must change.
+- Skill internal resources use skill-relative paths (`scripts/with_server.py`, skill-creator's `scripts/`, `agents/`, `references/`) — these survive the copy-to-cache intact, no changes needed.
+- GitHub remote is `rolopez23/agent-harness`. Repo-root `AGENTS.md` is contributor dev-context (not shipped to users).
+
+## Plugin name decision
+
+Use **`harness`** (short, kebab). Namespaced invocation becomes `/harness:plan`. This directly shrinks problem #2: a 7-char prefix keeps rewritten references readable. The *marketplace* is named `agent-harness` (matches the repo).
+
+---
+
+## Question 1 — Preserving always-on workflow/routing context
+
+**Recommendation: a SessionStart hook as the primary always-on mechanism, plus a repurposed `/harness:initialize` for opt-in project files. Drop global-memory injection entirely.**
+
+A plugin cannot write the user's `~/.claude/AGENTS.md`/`CLAUDE.md`, but a `SessionStart` hook can inject the exact same guidance as `additionalContext` into every session in every project — which is what install.sh was really buying. This is strictly better than editing global memory: it version-controls the routing text inside the plugin and updates atomically when the plugin updates.
+
+**How the SessionStart hook works.** `hooks/hooks.json` registers a command hook on `SessionStart`. The script prints a JSON object to stdout; Claude appends the `additionalContext` string to the session's context:
+
+```bash
+#!/usr/bin/env bash
+# hooks/session-context.sh
+set -euo pipefail
+ctx="$(cat "${CLAUDE_PLUGIN_ROOT}/context/workflow.md")"
+learned="${CLAUDE_PLUGIN_DATA}/learned-rules.md"      # see Q6
+[[ -f "$learned" ]] &amp;&amp; ctx="$ctx"$'\n\n## Learned rules (global)\n'"$(cat "$learned")"
+printf '%s' "$ctx" | jq -Rs '{hookSpecificOutput:{hookEventName:"SessionStart",additionalContext:.}}'
+```
+
+`context/workflow.md` is a lean (~40-line) file: the workflow ordering diagram + the routing table + the routing rules — the same content currently in AGENTS.md §Canonical Workflow and §Skill Routing, but with **namespaced** command names. Keep it tight; it is paid on every session.
+
+**Three-layer defense** (use all three, in priority order):
+1. **SessionStart additionalContext** — always-on routing/ordering, replaces global memory.
+2. **Rich skill `description`s** — the actual auto-invocation trigger; already strong. This is the fallback if a user disables hooks.
+3. **`/harness:initialize`** — repurposed to write a *short pointer* AGENTS.md/CLAUDE.md into a target **project** (committed, shareable, and read by non-Claude agents like Codex that ignore Claude hooks). No longer the install path — just per-project onboarding.
+
+I explicitly reject option (b)-only (descriptions alone): it loses the *ordering/gating* semantics ("Verify before Review", "plan requires spec") that live in the routing rules, which no single description encodes.
+
+---
+
+## Question 2 — Invocation namespacing ripple
+
+**Recommendation: do one mechanical rewrite pass to namespace all references, `/x` → `/harness:x`, and keep the short plugin name.**
+
+Rationale: skill invocation *is* `/harness:plan` at runtime. Leaving `/plan` in the docs means every command a human copies, and every command the model surfaces to the user, is wrong. Auto-invocation is by description regardless, so the references are documentation — but wrong documentation is worse than none.
+
+**Churn assessment per option:**
+- **(A) Rewrite all** — ~66 substitutions in 8 files, a scripted `sed 's#/(verify|plan|problem-spec|clean-code|refactor|review-comprehensive|initialize|pr-interactive-walkthrough)#/harness:&amp;#'`-style pass plus review of the 8 files. Watch two hotspots: `initialize/SKILL.md` (27 — it *emits* the tables, so its template strings must produce `/harness:` forms) and `refactor` (16 self-refs). ~1 hour, low risk. **Chosen.**
+- **(B) Leave bare prose** — zero effort, but ships non-working commands in user-facing docs. Rejected.
+- **(C) Short name** — orthogonal; adopt it (`harness`) to make (A)'s output readable.
+
+Also update the description strings that reference siblings (e.g. plan's "run /problem-spec first" → "/harness:problem-spec first") and teach `skill-creator` to emit namespaced sibling refs.
+
+---
+
+## Question 3 — verify hook → hooks.json
+
+`hooks/hooks.json` at the core plugin root, using `${CLAUDE_PLUGIN_ROOT}`:
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [ { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/session-context.sh" } ] }
+    ],
+    "PostToolUse": [
+      { "matcher": "Skill",
+        "hooks": [ { "type": "command", "command": "${CLAUDE_PLUGIN_ROOT}/hooks/verify-evidence.sh" } ] }
+    ]
+  }
+}
+```
+
+The settings.json/jq registration in install.sh is deleted — hooks.json replaces it. **One code change is required in `verify-evidence.sh`:** its skill-name guard regex must match the namespaced identifier. Change line 24's pattern from `"/?verify"` to something like `"/?(harness:)?verify"` so it fires on `harness:verify` while staying a no-op for every other Skill call. The rest of the script (report discovery via `.cwd`, evidence grep, exit 2 blocking) is unchanged and portable.
+
+---
+
+## Question 4 — install.sh
+
+**Delete it; replace with README instructions.** All three of its jobs are now obsolete (marketplace copies skills; SessionStart hook replaces global-memory injection; hooks.json replaces settings.json patching). Keeping it invites two divergent, drifting install paths. Git history preserves it. The README gains:
+
+```
+/plugin marketplace add rolopez23/agent-harness
+/plugin install harness@agent-harness
+/plugin install harness-next-react@agent-harness    # optional
+/plugin install harness-python-psql@agent-harness    # optional
+```
+
+(If you want a zero-config convenience for non-marketplace users, a *10-line* shim that only `cp -r`s `skills/` into `~/.claude/skills` is acceptable — but I'd omit it.)
+
+---
+
+## Question 5 — optional bootstrap skills
+
+**Split the marketplace into 3 plugins: `harness` (core) + `harness-next-react` + `harness-python-psql`.** Rationale: the bootstraps are stack-specific and were already opt-in. Bundling them into core means every user's model carries their auto-invocation descriptions ("scaffold a Next.js app") as trigger noise in unrelated projects — the exact reason install.sh gated them behind `--with`. Separate plugins reproduce that opt-in cleanly through `/plugin install`. Keeping them as two plugins rather than one combined `harness-bootstraps` avoids a Python user pulling in Next.js triggers and vice-versa. One marketplace, three entries.
+
+---
+
+## Question 6 — learned-rules / nested-agents-index / accumulated learning
+
+The plugin can't persist edits to its own cached files, so accumulated learning needs a different home. **Two-tier:**
+
+- **Global learnings** → `${CLAUDE_PLUGIN_DATA}/learned-rules.md`. This dir persists across plugin updates and is writable at runtime. The SessionStart hook already appends it to `additionalContext` (see Q1 script), so global rules become always-on in every project without touching plugin files. A reintroduced `learn-from-mistakes` skill appends here on the 3+-recurrence trigger.
+- **Project-scoped learnings + nested-agents-index** → the target **project's** AGENTS.md/CLAUDE.md, written by `/harness:initialize`, which plants the `&lt;!-- learned-rules --&gt;` / `&lt;!-- nested-agents-index --&gt;` markers there. This is where these belong conceptually anyway — most learnings and all nested-index entries are project-specific and benefit from being committed and code-reviewed.
+
+The markers thus move *out* of global memory and split by scope: global → plugin data dir (hook-injected), project → project files (initialize-managed). `nested-agents-index` is purely a project concern and leaves the plugin surface entirely.
+
+---
+
+## Question 7 — Target file tree and implementation sequence
+
+**Primary layout (root = core plugin + marketplace; minimizes git churn — only 2 skills move):**
+
+```
+agent-harness/                         # repo == marketplace, and == core plugin (source ".")
+├── .claude-plugin/
+│   ├── plugin.json                    # core "harness" manifest
+│   └── marketplace.json               # 3 plugin entries
+├── skills/                            # 13 CORE skills stay in place (no move)
+│   ├── initialize/SKILL.md            # repurposed: writes PROJECT files
+│   ├── problem-spec/  plan/  verify/  clean-code/  refactor/
+│   ├── review-comprehensive/  pr-interactive-walkthrough/
+│   ├── frontend-design/  systematic-debugging/
+│   ├── dispatching-parallel-agents/  skill-creator/
+│   └── btw-pull-request/SKILL.md      # RENAMED from skill.md
+├── hooks/
+│   ├── hooks.json                     # SessionStart + PostToolUse (NEW)
+│   ├── session-context.sh             # emits workflow.md + PLUGIN_DATA rules (NEW)
+│   └── verify-evidence.sh             # regex updated for harness:verify
+├── context/
+│   └── workflow.md                    # namespaced workflow + routing table (NEW)
+├── bootstraps/
+│   ├── next-react/
+│   │   ├── .claude-plugin/plugin.json
+│   │   └── skills/next-react-boot/SKILL.md
+│   └── python-psql/
+│       ├── .claude-plugin/plugin.json
+│       └── skills/python-psql-boot/SKILL.md
+├── Readme.md                          # rewritten: marketplace install
+├── AGENTS.md                          # repo dev-context; refs namespaced; NOT shipped
+└── (install.sh deleted)
+```
+
+`marketplace.json`:
+```json
+{ "name": "agent-harness",
+  "owner": { "name": "Rob Lopez", "email": "rob.lopez@gmail.com" },
+  "plugins": [
+    { "name": "harness",             "source": "." },
+    { "name": "harness-next-react",  "source": "./bootstraps/next-react" },
+    { "name": "harness-python-psql", "source": "./bootstraps/python-psql" }
+  ] }
+```
+
+Core `plugin.json` (skills + hooks auto-discovered, no pointers needed):
+```json
+{ "name": "harness", "version": "1.0.0",
+  "description": "Spec→plan→TDD→verify→clean-code→review workflow as skills, with an evidence-gated verify hook and always-on routing context.",
+  "author": { "name": "Rob Lopez", "email": "rob.lopez@gmail.com", "url": "https://github.com/rolopez23/agent-harness" } }
+```
+
+*Alternative (cleaner, more churn):* a `plugins/harness/…` monorepo where each plugin is fully self-contained and `source` points at `./plugins/*`. It avoids copying `bootstraps/` and repo docs into the core plugin's cache, at the cost of moving all 13 core skills. I prefer the root-as-core layout for a takehome; note the tradeoff.
+
+**Ordered implementation steps:**
+1. Add `.claude-plugin/plugin.json` (core) and `.claude-plugin/marketplace.json` (3 entries).
+2. `git mv skills/btw-pull-request/skill.md skills/btw-pull-request/SKILL.md` (keep `disable-model-invocation: true`).
+3. `git mv` the two bootstrap skills into `bootstraps/next-react/skills/…` and `bootstraps/python-psql/skills/…`; add each bootstrap's `plugin.json`. Remove them from core `skills/`.
+4. Write `context/workflow.md` (namespaced workflow diagram + routing table + routing rules).
+5. Write `hooks/session-context.sh` (SessionStart → additionalContext, incl. `${CLAUDE_PLUGIN_DATA}/learned-rules.md`) and `hooks/hooks.json`.
+6. Patch `hooks/verify-evidence.sh` skill-name regex to match `harness:verify`.
+7. Namespacing pass: `/x` → `/harness:x` across the 13 core SKILL.md files, the initialize templates, `context/workflow.md`, and repo `AGENTS.md` (~66 refs; verify the two hotspots).
+8. Repurpose `initialize/SKILL.md` to write a *project* AGENTS.md/CLAUDE.md pointer with the `learned-rules`/`nested-agents-index` markers and namespaced commands; drop its "install into ~/.claude" framing.
+9. Delete `install.sh`; rewrite `Readme.md` with the `/plugin marketplace add` + per-plugin `/plugin install` instructions.
+10. Test locally: `/plugin marketplace add &lt;abs repo path&gt;`, `/plugin install harness@agent-harness`; confirm all 13 skills auto-discover, `/harness:verify` fires the PostToolUse block on evidence-free reports, SessionStart injects the routing context, and the two bootstrap plugins install independently. Run `claude plugin validate` if available.
+
+---
+
+### Critical Files for Implementation
+- /Users/robertlopez/repos/harness/install.sh (the mechanism being replaced — encodes every behavior the plugin must reproduce)
+- /Users/robertlopez/repos/harness/hooks/verify-evidence.sh (regex change for namespacing + becomes the model for hooks.json)
+- /Users/robertlopez/repos/harness/AGENTS.md (source of the workflow/routing text that moves into context/workflow.md)
+- /Users/robertlopez/repos/harness/skills/initialize/SKILL.md (repurposed; 27 of the 66 namespacing edits live here)
+- /Users/robertlopez/repos/harness/Readme.md (rewritten to the marketplace install flow)</result>
+<usage><subagent_tokens>32278</subagent_tokens><tool_uses>10</tool_uses><duration_ms>214797</duration_ms></usage>
+</task-notification>
