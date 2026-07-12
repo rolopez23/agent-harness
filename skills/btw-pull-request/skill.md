@@ -1,13 +1,8 @@
 ---
 name: btw-pull-request
-description: >
-  Commits unrelated files to a clean PR without disrupting the current branch. Creates a
-  temporary worktree off the base branch, copies specified files in, commits, pushes, and
-  optionally opens a PR — then cleans up. Use when you have changes (README updates, config
-  fixes, env templates, CI tweaks) that should land independently of the feature branch
-  you're working on. Trigger when the user says "push this to a clean branch", "make a
-  separate PR for this", "btw PR", or when you notice unrelated changes mixed into feature
-  work that should be split out.
+description: Human invoked like btw put makes a pull requests
+disable-model-invocation: true
+version: "1.0.0"
 ---
 
 # BTW Pull Request
@@ -24,6 +19,7 @@ the base branch. The goal is zero disruption to in-progress work.
 ## Inputs
 
 The user provides (or you identify from context):
+
 - **Files to include** — specific file paths to commit
 - **Branch name** — e.g., `chore/readme-update` (suggest one if not provided)
 - **Base branch** — defaults to `main`
