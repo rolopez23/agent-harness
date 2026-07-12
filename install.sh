@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
-# install.sh — install harness skills and context files at the user level
+# install.sh — FALLBACK installer for users who don't use the Claude Code plugin system.
+#
+# The primary install path is the plugin marketplace (see Readme.md):
+#   /plugin marketplace add rolopez23/agent-harness
+#   /plugin install rl-as@agent-harness
+#
+# This script is the no-plugin alternative. It copies skills into <claude-dir>/skills/
+# and installs the verify + tone hooks at the user level, so skills are available
+# un-namespaced (/verify, /plan, …). It does NOT write global AGENTS.md/CLAUDE.md —
+# run /initialize inside a project to add the workflow/routing context there.
 #
 # Usage:
 #   ./install.sh                          # default install into ~/.claude
@@ -7,13 +16,6 @@
 #   ./install.sh --with <skill>           # also install an optional skill
 #                                         # (repeatable; e.g. --with next-react-boot)
 #   ./install.sh --with all               # install every optional skill
-#
-# Skills land in <claude-dir>/skills/ and context files land in
-# <claude-dir>/AGENTS.md and <claude-dir>/CLAUDE.md, so they apply to every
-# project automatically.
-#
-# Optional skills are project bootstraps that only make sense in specific
-# stacks. They are skipped by default. Request them explicitly with --with.
 
 set -euo pipefail
 
@@ -42,7 +44,7 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     -h|--help)
-      sed -n '2,16p' "$0"
+      sed -n '2,19p' "$0"
       exit 0
       ;;
     *)
@@ -141,153 +143,9 @@ for s in "${updated[@]+"${updated[@]}"}";    do yellow "  ↺ $s"; done
 for s in "${removed[@]+"${removed[@]}"}";    do printf '  - %s (removed — no longer in harness)\n' "$s"; done
 for s in "${skipped[@]+"${skipped[@]}"}";    do printf '  · %s (optional — request with --with %s)\n' "$s" "$s"; done
 
-# ── 2. context files (AGENTS.md + CLAUDE.md) ─────────────────────────────────
-
-HARNESS_REL="$(python3 -c "import os; print(os.path.relpath('$HARNESS_DIR', '$USER_CLAUDE_DIR'))" 2>/dev/null || echo "$HARNESS_DIR")"
-
-skills_table() {
-  cat <<EOF
-| Skill | Invoke | SKILL.md |
-|---|---|---|
-| initialize | \`/initialize\` | [→]($HARNESS_REL/skills/initialize/SKILL.md) |
-| problem-spec | \`/problem-spec\` | [→]($HARNESS_REL/skills/problem-spec/SKILL.md) |
-| plan | \`/plan\` | [→]($HARNESS_REL/skills/plan/SKILL.md) |
-| verify | \`/verify\` | [→]($HARNESS_REL/skills/verify/SKILL.md) |
-| clean-code | \`/clean-code\` | [→]($HARNESS_REL/skills/clean-code/SKILL.md) |
-| refactor | \`/refactor\` | [→]($HARNESS_REL/skills/refactor/SKILL.md) |
-| review-comprehensive | \`/review-comprehensive\` | [→]($HARNESS_REL/skills/review-comprehensive/SKILL.md) |
-| pr-interactive-walkthrough | \`/pr-interactive-walkthrough\` | [→]($HARNESS_REL/skills/pr-interactive-walkthrough/SKILL.md) |
-| frontend-design | \`/frontend-design\` | [→]($HARNESS_REL/skills/frontend-design/SKILL.md) |
-| systematic-debugging | \`/systematic-debugging\` | [→]($HARNESS_REL/skills/systematic-debugging/SKILL.md) |
-| dispatching-parallel-agents | \`/dispatching-parallel-agents\` | [→]($HARNESS_REL/skills/dispatching-parallel-agents/SKILL.md) |
-| tone | \`/tone\` | [→]($HARNESS_REL/skills/tone/SKILL.md) |
-| skill-creator | \`/skill-creator\` | [→]($HARNESS_REL/skills/skill-creator/SKILL.md) |
-| btw-pull-request | \`/btw-pull-request\` | [→]($HARNESS_REL/skills/btw-pull-request/skill.md) |
-EOF
-  for s in "${REQUESTED_OPTIONAL[@]+"${REQUESTED_OPTIONAL[@]}"}"; do
-    printf '| %s | \`/%s\` | [→](%s/skills/%s/SKILL.md) |\n' "$s" "$s" "$HARNESS_REL" "$s"
-  done
-}
-
-workflow_block() {
-  printf '```\n'
-  cat <<'EOF'
-/initialize     →  write or update context files in a target project
-/problem-spec   →  define the problem, produce docs/<feature>/spec.md
-/plan           →  break into TDD chunks, produce docs/<feature>/plan.md
-
-  For each step:
-    write tests (red) → write code (green) → refactor → commit
-    /verify              →  E2E check against live system
-    /clean-code          →  clean up staged code
-    /review-comprehensive →  comprehensive correctness and edge case check
-    /pr-interactive-walkthrough  →  cognitive understanding check
-    human                →  sign off
-EOF
-  printf '```\n'
-}
-
-# write_context_file <path> <title>
-write_context_file() {
-  local file="$1"
-  local title="$2"   # e.g. "AGENTS.md" or "CLAUDE.md"
-  local nested_label="$title"
-
-  cat > "$file" <<EOF
-# $title
-
-Read by Claude at the start of every session. Links to skill files rather than
-duplicating them. For full instructions, read the linked SKILL.md.
-
----
-
-## Nested $nested_label
-
-Check for $nested_label in subdirectories before starting work in them.
-
-<!-- nested-agents-index -->
-<!-- nested-agents-index-end -->
-
----
-
-## Workflow
-
-For non-trivial features, follow this order:
-
-$(workflow_block)
-
----
-
-## Skills
-
-$(skills_table)
-
----
-
-## Behavioral Rules
-
-Rules added when a pattern of mistakes recurs 3+ times.
-
-<!-- learned-rules -->
-<!-- learned-rules-end -->
-EOF
-}
-
-# update_context_file <path> <label>
-update_context_file() {
-  local file="$1"
-  local label="$2"
-  local changed=false
-
-  if ! grep -q '## Skills' "$file"; then
-    printf '\n---\n\n## Skills\n\n%s\n' "$(skills_table)" >> "$file"
-    green "  + added ## Skills"
-    changed=true
-  fi
-
-  if ! grep -q '## Workflow' "$file"; then
-    printf '\n---\n\n## Workflow\n\nFor non-trivial features, follow this order:\n\n%s\n' "$(workflow_block)" >> "$file"
-    green "  + added ## Workflow"
-    changed=true
-  fi
-
-  if ! grep -q 'nested-agents-index' "$file"; then
-    printf '\n---\n\n## Nested %s\n\nCheck for %s in subdirectories before starting work in them.\n\n<!-- nested-agents-index -->\n<!-- nested-agents-index-end -->\n' "$label" "$label" >> "$file"
-    green "  + added nested index"
-    changed=true
-  fi
-
-  if ! grep -q 'learned-rules' "$file"; then
-    printf '\n---\n\n## Behavioral Rules\n\nRules added when a pattern of mistakes recurs 3+ times.\n\n<!-- learned-rules -->\n<!-- learned-rules-end -->\n' >> "$file"
-    green "  + added learned-rules block"
-    changed=true
-  fi
-
-  if $changed; then
-    green "Updated $file"
-  else
-    yellow "$file already complete — no changes"
-  fi
-}
-
-# ── process each context file ─────────────────────────────────────────────────
-
-printf '\n'
-bold "Context files → $USER_CLAUDE_DIR"
-
-for fname in AGENTS.md CLAUDE.md; do
-  target_file="$USER_CLAUDE_DIR/$fname"
-  if [[ ! -f "$target_file" ]]; then
-    write_context_file "$target_file" "$fname"
-    green "Created $target_file"
-  else
-    update_context_file "$target_file" "$fname"
-  fi
-done
-
-# ── 3. hooks + settings ───────────────────────────────────────────────────────
-# Install the verify-evidence PostToolUse hook: it blocks marking a step verified
-# unless the verify report shows real evidence (curl / Playwright / DB check).
+# ── 2. hooks + settings ───────────────────────────────────────────────────────
+# verify-evidence.sh (PostToolUse) blocks marking a step verified without real evidence.
+# tone-hooks.sh (SessionStart + UserPromptSubmit) injects the house tone / coding standards.
 
 printf '\n'
 bold "Hooks → $USER_CLAUDE_DIR/hooks"
@@ -365,12 +223,13 @@ fi
 # ── done ──────────────────────────────────────────────────────────────────────
 
 printf '\n'
-bold "Done. Next steps:"
-echo "  claude          # start a session in any project — skills are active"
+bold "Done. Skills installed un-namespaced at the user level ($USER_CLAUDE_DIR)."
+echo "  claude          # start a session in any project — skills are active as /verify, /plan, …"
+echo "  /initialize     # add the workflow + routing context to a project"
 echo "  /problem-spec   # begin your first feature"
 printf '\n'
-yellow "Note: skills and context are installed at the user level ($USER_CLAUDE_DIR)."
-yellow "They apply to every project automatically. No per-repo install needed."
+yellow "Prefer the plugin? Uninstall these (rm -rf $SKILLS_DST/<harness skills>) and use:"
+yellow "  /plugin marketplace add rolopez23/agent-harness && /plugin install rl-as@agent-harness"
 
 if [[ ${#skipped[@]} -gt 0 ]]; then
   printf '\n'

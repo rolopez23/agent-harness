@@ -1,0 +1,16 @@
+{
+  "name": "agent-harness",
+  "description": "Rob Lopez's agent development harness: a spec→plan→TDD→verify→clean-code→review workflow packaged as Claude Code skills.",
+  "owner": {
+    "name": "Rob Lopez",
+    "email": "rob.lopez@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "rl-as",
+      "source": ".",
+      "description": "Spec→plan→TDD→verify→clean-code→review workflow skills + verify hook + house tone/coding-standards.",
+      "category": "workflow"
+    }
+  ]
+}

@@ -6,6 +6,23 @@ past mistakes. It does not repeat what is in Readme.md or the individual skill f
 
 ---
 
+## This repo is a Claude Code plugin
+
+The repo root is both the `rl-as` plugin and its `agent-harness` marketplace:
+
+- `.claude-plugin/plugin.json` — the `rl-as` plugin manifest.
+- `.claude-plugin/marketplace.json` — the `agent-harness` marketplace (one plugin, `source: "."`).
+- `skills/<name>/SKILL.md` — auto-discovered skills. When a user installs the plugin they are
+  invoked namespaced (`/rl-as:plan`); the `install.sh` fallback installs them un-namespaced (`/plan`).
+- `hooks/hooks.json` — auto-loaded; wires `verify-evidence.sh` (PostToolUse) and
+  `tone-hooks.sh` (SessionStart + UserPromptSubmit) via `${CLAUDE_PLUGIN_ROOT}`.
+- `tone/` — canonical tone + coding-standards source, read by the tone hook at runtime.
+
+Slash commands written below use the bare form for readability; add the `/rl-as:` prefix when
+working against a plugin install.
+
+---
+
 ## Nested AGENTS.md
 
 Before starting any task, check whether an AGENTS.md exists in the directory you're working

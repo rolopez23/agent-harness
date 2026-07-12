@@ -1,0 +1,13 @@
+{
+  "name": "rl-as",
+  "version": "1.0.0",
+  "description": "Spec→plan→TDD→verify→clean-code→review workflow as Claude Code skills, with an evidence-gated verify hook and a house tone/coding-standards injector.",
+  "author": {
+    "name": "Rob Lopez",
+    "email": "rob.lopez@gmail.com",
+    "url": "https://github.com/rolopez23/agent-harness"
+  },
+  "homepage": "https://github.com/rolopez23/agent-harness",
+  "repository": "https://github.com/rolopez23/agent-harness",
+  "license": "MIT"
+}

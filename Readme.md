@@ -1,57 +1,74 @@
 # Harness
 
-Skills and workflows for a standard agent development harness.
+Skills and workflows for a standard agent development harness, packaged as a **Claude Code plugin**.
 
-## Install
+## Install (plugin — recommended)
 
-Run the install script once — it installs at the **user level** (`~/.claude`), so the skills
-apply to every project automatically:
+Add the marketplace, then install the plugin:
+
+```
+/plugin marketplace add rolopez23/agent-harness
+/plugin install rl-as@agent-harness
+```
+
+Skills are then available **namespaced** — `/rl-as:plan`, `/rl-as:verify`, `/rl-as:initialize`,
+… — in every project. The plugin also installs two hooks automatically:
+
+- **verify-evidence** (PostToolUse) — blocks marking a step verified without real evidence
+  (a curl command, a Playwright screenshot/video, or a DB check).
+- **tone** (SessionStart + UserPromptSubmit) — injects the house tone every turn and the
+  coding standards on coding-intent prompts. Toggle with `/rl-as:tone`.
+
+Update or remove later with `/plugin update rl-as` / `/plugin uninstall rl-as@agent-harness`.
+
+## Install (fallback — no plugin system)
+
+If you don't use the plugin system, `install.sh` copies skills into `~/.claude/skills/` at the
+user level, where they're invoked **un-namespaced** (`/plan`, `/verify`, …), and installs the
+same hooks:
 
 ```bash
 /path/to/harness/install.sh
-```
-
-Options:
-
-```bash
-/path/to/harness/install.sh --dir <path>      # install into an alternate Claude dir (testing)
+/path/to/harness/install.sh --dir <path>      # alternate Claude dir (testing)
 /path/to/harness/install.sh --with <skill>    # also install an optional skill (repeatable)
 /path/to/harness/install.sh --with all        # install every optional skill
 ```
 
-This will:
-
-- Copy all skills into `~/.claude/skills/` (pruning any that no longer exist in the harness)
-- Create `~/.claude/AGENTS.md` and `~/.claude/CLAUDE.md`, or add missing sections if they exist
-- Install the `verify-evidence` hook into `~/.claude/hooks/` and register it in
-  `~/.claude/settings.json` (blocks marking a step verified without real evidence)
-
-Then start a Claude Code session — the skills are immediately available as `/commands`. No
-per-repo install needed.
+The fallback does not write global context files — run `/initialize` inside a project to add
+the workflow + routing context there. Use one path or the other, not both (the hooks would
+double-fire).
 
 ## Skills
 
-| Skill                       | Invoke                         | Purpose                                                 |
-| --------------------------- | ------------------------------ | ------------------------------------------------------- |
-| initialize                  | `/initialize`                  | Write or update context files with skills reference     |
-| problem-spec                | `/problem-spec`                | Define what is and isn't being solved                   |
-| plan                        | `/plan`                        | Break a spec into testable steps with readiness gate    |
-| verify                      | `/verify`                      | E2E check against a live system                         |
-| clean-code                  | `/clean-code`                  | Clean up staged code                                    |
-| review-comprehensive        | `/review-comprehensive`        | Comprehensive review — bugs and missed edge cases       |
-| pr-interactive-walkthrough  | `/pr-interactive-walkthrough`  | File-by-file walkthrough with understanding assessment  |
-| frontend-design             | `/frontend-design`             | Build distinctive, production-grade frontend UI         |
-| systematic-debugging        | `/systematic-debugging`        | Root-cause-first 4-phase debugging process              |
-| dispatching-parallel-agents | `/dispatching-parallel-agents` | Split independent tasks across parallel subagents       |
-| skill-creator               | `/skill-creator`               | Create, test, and iterate on new skills                 |
-| next-react-boot             | `/next-react-boot`             | Scaffold a Next.js 16 / React 19 / Tailwind v4 frontend |
-| python-psql-boot            | `/python-psql-boot`            | Scaffold a Python / FastAPI / PostgreSQL backend        |
+Invoke with the `/rl-as:` prefix under the plugin (e.g. `/rl-as:plan`), or bare (`/plan`)
+under the fallback install.
+
+| Skill                       | Purpose                                                 |
+| --------------------------- | ------------------------------------------------------- |
+| initialize                  | Write or update a project's AGENTS.md/CLAUDE.md context |
+| problem-spec                | Define what is and isn't being solved                   |
+| plan                        | Break a spec into testable steps with readiness gate    |
+| verify                      | E2E check against a live system                         |
+| clean-code                  | Clean up staged code                                    |
+| refactor                    | Restructure existing code with Fowler's catalog         |
+| review-comprehensive        | Comprehensive review — bugs and missed edge cases       |
+| pr-interactive-walkthrough  | File-by-file walkthrough with understanding assessment  |
+| frontend-design             | Build distinctive, production-grade frontend UI         |
+| systematic-debugging        | Root-cause-first 4-phase debugging process              |
+| dispatching-parallel-agents | Split independent tasks across parallel subagents       |
+| tone                        | Toggle the house tone / coding standards on or off      |
+| skill-creator               | Create, test, and iterate on new skills                 |
+| btw-pull-request            | Split unrelated changes into a clean PR                 |
+| next-react-boot             | Scaffold a Next.js 16 / React 19 / Tailwind v4 frontend |
+| python-psql-boot            | Scaffold a Python / FastAPI / PostgreSQL backend        |
 
 ## Workflow
 
 ```
-/problem-spec  →  /plan  →  TDD loop  →  /verify  →  /clean-code  →  /review-comprehensive  →  /pr-interactive-walkthrough  →  human sign-off
+/initialize  →  /problem-spec  →  /plan  →  TDD loop  →  /verify  →  /clean-code  →  /review-comprehensive  →  /pr-interactive-walkthrough  →  human sign-off
 ```
+
+(Prefix each with `/rl-as:` when installed as a plugin.)
 
 ## Acknowledgements
 

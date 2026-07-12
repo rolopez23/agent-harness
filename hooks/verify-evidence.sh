@@ -21,7 +21,7 @@ set -euo pipefail
 payload="$(cat)"
 
 # Act only on the verify skill; no-op for all other tool/skill calls.
-grep -Eq '"(skill|command|name)"[[:space:]]*:[[:space:]]*"/?verify"' <<<"$payload" || exit 0
+grep -Eq '"(skill|command|name)"[[:space:]]*:[[:space:]]*"/?(rl-as:)?verify"' <<<"$payload" || exit 0
 
 # Determine the project dir the tool ran in (fall back to CWD).
 proj=""

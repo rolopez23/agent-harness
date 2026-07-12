@@ -20,17 +20,20 @@ file(s) the project needs.
 The goal is minimal files that link out to canonical skill files rather than duplicating their
 contents. Less is more.
 
-## Step 1: Locate the harness
+## Step 1: Locate the tone source files
 
-The harness root is the directory containing `skills/`. Confirm the following exist:
+The workflow, skills, and behavioral-rules blocks below are self-contained templates — you
+don't need the harness on disk to write them. You only need the harness's `tone/` directory
+to embed the tone + coding-standards sections verbatim (Step: Conversation Tone).
 
-- `skills/problem-spec/SKILL.md`
-- `skills/plan/SKILL.md`
-- `skills/verify/SKILL.md`
-- `skills/clean-code/SKILL.md`
-- `skills/review-comprehensive/SKILL.md`
+Find the first `tone/` that exists, in order:
 
-Record the absolute path to the harness root. You'll use it to compute relative links.
+1. `${CLAUDE_PLUGIN_ROOT}/tone` — when the harness is installed as the `rl-as` plugin
+2. `$HOME/.claude/tone` — when installed via the `install.sh` fallback
+3. `./tone` — when running inside the harness checkout itself
+
+If none exists, write the other sections and tell the user the tone sections were skipped
+(harness source not found).
 
 ## Step 2: Identify the target project
 
@@ -73,36 +76,40 @@ Check for context files in subdirectories before starting work in them.
 
 ### Workflow
 
+Commands below use the `/rl-as:` plugin prefix. If the harness was installed via the
+`install.sh` fallback instead, drop the prefix (`/plan`, `/verify`, …).
+
 ```
-/initialize     →  write or update context files in a target project
-/problem-spec   →  define the problem, produce docs/<feature>/spec.md
-/plan           →  break into TDD chunks, produce docs/<feature>/plan.md
+/rl-as:initialize     →  write or update context files in a target project
+/rl-as:problem-spec   →  define the problem, produce docs/<feature>/spec.md
+/rl-as:plan           →  break into TDD chunks, produce docs/<feature>/plan.md
 
   For each step:
     write tests (red) → write code (green) → refactor → commit
-    /verify              →  E2E check against live system
-    /clean-code          →  clean up staged code
-    /review-comprehensive →  comprehensive correctness and edge case check
-    /pr-interactive-walkthrough  →  cognitive understanding check
-    human                →  sign off
+    /rl-as:verify               →  E2E check against live system
+    /rl-as:clean-code           →  clean up staged code
+    /rl-as:review-comprehensive →  comprehensive correctness and edge case check
+    /rl-as:pr-interactive-walkthrough  →  cognitive understanding check
+    human                       →  sign off
 ```
 
 ### Skills table
 
-Replace `<harness-path>` with the actual relative or absolute path from the target project
-to the harness root. Prefer relative paths when they share a common parent.
+Skills ship with the `rl-as` plugin (or the `install.sh` fallback), so there's no on-disk
+path to link — reference them by their invocation command. The plugin namespaces them as
+`/rl-as:<skill>`; the fallback install uses the bare `/<skill>` form.
 
 ```markdown
 ## Skills
 
-| Skill | Invoke | SKILL.md |
-|---|---|---|
-| initialize | `/initialize` | [→](<harness-path>/skills/initialize/SKILL.md) |
-| problem-spec | `/problem-spec` | [→](<harness-path>/skills/problem-spec/SKILL.md) |
-| plan | `/plan` | [→](<harness-path>/skills/plan/SKILL.md) |
-| verify | `/verify` | [→](<harness-path>/skills/verify/SKILL.md) |
-| clean-code | `/clean-code` | [→](<harness-path>/skills/clean-code/SKILL.md) |
-| review-comprehensive | `/review-comprehensive` | [→](<harness-path>/skills/review-comprehensive/SKILL.md) |
+| Skill | Invoke |
+|---|---|
+| initialize | `/rl-as:initialize` |
+| problem-spec | `/rl-as:problem-spec` |
+| plan | `/rl-as:plan` |
+| verify | `/rl-as:verify` |
+| clean-code | `/rl-as:clean-code` |
+| review-comprehensive | `/rl-as:review-comprehensive` |
 ```
 
 ### Behavioral rules block
@@ -119,8 +126,8 @@ Rules added when a pattern of mistakes recurs 3+ times.
 ### Conversation Tone and Coding Standards
 
 Copy these two sections in verbatim from the harness's canonical source files — do not
-rewrite them. Read `tone/tone.md` and `tone/coding-standards.md` from the harness root and
-paste each file's content (including its `<!-- tone -->` / `<!-- coding-standards -->`
+rewrite them. Read `tone.md` and `coding-standards.md` from the `tone/` directory located in
+Step 1 and paste each file's content (including its `<!-- tone -->` / `<!-- coding-standards -->`
 anchors) under the matching heading:
 
 ```markdown

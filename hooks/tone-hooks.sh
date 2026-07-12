@@ -35,10 +35,10 @@ standards_enabled() {
   return 0
 }
 
-# Locate source files: project checkout first, then the global install.
+# Locate source files: project checkout first, then the plugin install, then the global install.
 find_tone_dir() {
   local d
-  for d in "${CLAUDE_PROJECT_DIR:-}/tone" "$HOME/.claude/tone"; do
+  for d in "${CLAUDE_PROJECT_DIR:-}/tone" "${CLAUDE_PLUGIN_ROOT:-}/tone" "$HOME/.claude/tone"; do
     [ -f "$d/tone.md" ] && { printf '%s' "$d"; return 0; }
   done
   return 1

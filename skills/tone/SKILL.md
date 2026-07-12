@@ -19,8 +19,23 @@ hooks every turn, so a change sticks until reversed.
 
 Use the first that exists:
 
-1. `$HOME/.claude/hooks/tone-hooks.sh` (global install)
-2. `$CLAUDE_PROJECT_DIR/hooks/tone-hooks.sh` or `./hooks/tone-hooks.sh` (harness checkout)
+1. `${CLAUDE_PLUGIN_ROOT}/hooks/tone-hooks.sh` (rl-as plugin install)
+2. `$HOME/.claude/hooks/tone-hooks.sh` (install.sh fallback)
+3. `$CLAUDE_PROJECT_DIR/hooks/tone-hooks.sh` or `./hooks/tone-hooks.sh` (harness checkout)
+
+If no script is found (e.g. `${CLAUDE_PLUGIN_ROOT}` didn't resolve), manage the flag files
+directly — that's the actual contract the hook reads each turn. State dir is
+`${HARNESS_TONE_STATE:-$HOME/.claude/tone}`:
+
+| Toggle | Flag file action |
+|---|---|
+| tone off | `touch $STATE_DIR/.tone-off` |
+| tone on | `rm -f $STATE_DIR/.tone-off` |
+| standards off | `touch $STATE_DIR/.standards-off` |
+| standards on | `rm -f $STATE_DIR/.standards-off` |
+
+Status = a flag file present means OFF; absent means ON. (`HARNESS_TONE=off` in the
+environment forces both OFF regardless.)
 
 ## Step 2: Map the request to a command
 
