@@ -1,0 +1,1480 @@
+Ok I want to build in a tone plugin similiar to Caveman.  Look at https://github.com/juliusbrussee/caveman and pony-tail. https://github.com/DietrichGebert/ponytail and karpathy https://github.com/multica-ai/andrej-karpathy-skills I want to see what is the same.  I want to define a conversation tone and general coding practices in root AGENTS.md.  I want to inject the tone on all hooks.  I am not sure if there is a way to inject coding standards before writing code, but I would too if the prompt is a coding prompt but want to explore and think about it.  For now fan out sub agents to examine each repo.  Then bring together to see overlap.  Draft up a plan to improve coding along with those standards.
+
+---
+
+<task-notification>
+<task-id>ad9999ee94412f281</task-id>
+<tool-use-id>toolu_016VDEqLUsVZqsUAj15HwZqc</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-harness/aff7fce4-39c1-43fc-9841-b804b7594bf8/tasks/ad9999ee94412f281.output</output-file>
+<status>completed</status>
+<summary>Agent "Examine karpathy skills repo" completed</summary>
+<result>Perfect. Now I have enough detail. Let me compile this into a comprehensive technical breakdown for you:
+
+---
+
+## Detailed Technical Breakdown: andrej-karpathy-skills
+
+### 1. **What It Does**
+
+This repository encodes **Andrej Karpathy's coding philosophy for LLM-assisted development** — addressing four specific pitfalls he identified in how AI models approach coding tasks:
+
+- Making unfounded assumptions without verification
+- Over-engineering solutions with unnecessary abstractions
+- Silently proceeding with ambiguity instead of asking clarifying questions
+- Refactoring unrelated code instead of making surgical changes
+
+The project packages these insights into **behavioral guidelines** (not style rules) that influence how Claude/Cursor agents approach coding work. This is primarily about **CODING PRACTICES and DECISION-MAKING APPROACH**, not about tone or personality.
+
+---
+
+### 2. **File/Directory Structure**
+
+```
+multica-ai/andrej-karpathy-skills/
+├── .claude-plugin/
+│   ├── plugin.json           (metadata for Claude plugin marketplace)
+│   └── marketplace.json      (package registry config)
+├── .cursor/
+│   └── rules/
+│       └── karpathy-guidelines.mdc    (Cursor IDE rules file)
+├── skills/
+│   └── karpathy-guidelines/
+│       └── SKILL.md          (reusable skill definition)
+├── CLAUDE.md                 (primary guidelines document)
+├── CURSOR.md                 (Cursor-specific installation guide)
+├── EXAMPLES.md               (concrete before/after examples)
+├── README.md                 (repo overview)
+└── README.zh.md              (Chinese translation)
+```
+
+**Key files:**
+- **CLAUDE.md** — The authoritative source: complete behavioral guidelines, ~2KB of core doctrine
+- **SKILL.md** — Claude Code skill wrapper (likely re-exports CLAUDE.md content as a skill)
+- **karpathy-guidelines.mdc** — Cursor IDE rules file with `alwaysApply: true` (auto-enabled)
+- **plugin.json** — Claude plugin marketplace metadata
+
+---
+
+### 3. **Injection Mechanism**
+
+This is deployed via **three parallel mechanisms** (pick one depending on your tool):
+
+| Mechanism | Tool | How It Works | Always-On? |
+|-----------|------|-------------|-----------|
+| **Plugin** | Claude Code | Installed from `.claude-plugin/` marketplace; activates when skill is invoked or globally enabled | Optional |
+| **Rules** | Cursor IDE | Committed at `.cursor/rules/karpathy-guidelines.mdc` with `alwaysApply: true` | YES - auto-enabled on folder open |
+| **Skill** | Claude Code | Installed as `./skills/karpathy-guidelines/SKILL.md` in personal skills directory; invoked on demand | Optional |
+| **Manual** | Any tool | Copy `CLAUDE.md` into project or append to existing instructions | One-time injection |
+
+**Critical distinction:** 
+- **Cursor** uses the `.mdc` rules file with `alwaysApply: true` — meaning these guidelines are **always active** whenever you open the project folder in Cursor
+- **Claude Code** requires explicit invocation (either via skill call, plugin activation, or manual instruction injection) — **not always-on by default**
+
+---
+
+### 4. **Content — The Four Core Principles**
+
+Here are the actual behavioral standards encoded:
+
+#### **Principle 1: Think Before Coding**
+
+&gt; "Don't assume. Don't hide confusion. Surface tradeoffs."
+
+Core practice:
+- State your assumptions explicitly
+- If uncertain, ask clarifying questions before implementing
+- Present multiple interpretations when ambiguity exists
+- Acknowledge simpler alternatives upfront
+
+**Example anti-pattern:** When asked to "export user data," an LLM typically assumes all users without questioning privacy implications, file location, or field selection. Instead: ask scope, format, field selection, volume considerations upfront.
+
+#### **Principle 2: Simplicity First**
+
+&gt; "Minimum code that solves the problem. Nothing speculative."
+
+Core practice:
+- Avoid speculative features (things not in the requirement)
+- Don't add unnecessary abstractions or design patterns prematurely
+- Don't implement unasked-for flexibility or error handling for improbable scenarios
+- If substantial code reduction is possible through refactoring, do it; otherwise leave it
+
+**Example anti-pattern:** A request to "calculate discount" doesn't need abstract base classes, strategy patterns, or configuration dataclasses. Start simple:
+```python
+def calculate_discount(amount: float, percent: float) -&gt; float:
+    return amount * (1 - percent / 100)
+```
+Only refactor when actual requirements demand it.
+
+#### **Principle 3: Surgical Changes**
+
+&gt; "Touch only what you must. Clean up only your own mess."
+
+Core practice:
+- Don't "improve" adjacent code, comments, or formatting
+- Match existing style, even if you'd do it differently
+- Remove only code your changes have made obsolete (imports, variables)
+- Do NOT remove pre-existing dead code unrelated to your change
+- Don't refactor while fixing bugs; fix first, refactor separately
+
+**Example anti-pattern:** When fixing "empty emails crash the validator," resist the urge to reformat quotes, add type hints, or rewrite docstrings. Change only the specific lines addressing that bug.
+
+#### **Principle 4: Goal-Driven Execution**
+
+&gt; "Convert abstract tasks into verifiable success criteria with specific checkpoints."
+
+Core practice:
+- Transform vague goals like "make it work" into measurable criteria
+- Write tests that fail, then make them pass
+- Create brief multi-step plans with verification checkpoints at each stage
+- Break multi-step work into independently testable stages
+
+**Example:** Rather than vague plan "review and improve code," specify:
+1. Write test reproducing the bug
+2. Implement fix
+3. Verify test passes
+4. Confirm no regressions
+
+---
+
+### 5. **Installation Methods**
+
+**For Claude Code:**
+1. **Via Marketplace:** Install the `andrej-karpathy-skills` plugin from Claude Code's plugin marketplace
+2. **Via Skill:** Copy `skills/karpathy-guidelines/SKILL.md` to your personal `~/.claude/skills/` directory, then invoke `/karpathy-guidelines` or similar
+3. **Manual:** Copy raw `CLAUDE.md` content and append to project instructions or `.claude/system_rules`
+
+**For Cursor:**
+- **No installation needed** — the `.cursor/rules/karpathy-guidelines.mdc` file is automatically loaded and applied (`alwaysApply: true`) when opening the project folder
+
+**For other tools:**
+- Copy `CLAUDE.md` and paste into system prompts or instruction files
+
+---
+
+### 6. **Coding Standards vs Tone — CRITICAL DISTINCTION**
+
+**This is PURELY about CODING PRACTICES, NOT TONE.**
+
+What it affects:
+- How the agent **structures code** (minimal, simple, surgical)
+- How the agent **makes decisions** (surface assumptions, ask before guessing)
+- How the agent **approaches modifications** (surgical, not refactoring-happy)
+- How the agent **validates work** (goal-driven with checkpoints)
+
+What it does NOT affect:
+- How the agent **talks to you** (no personality/tone changes)
+- Output verbosity or friendliness
+- Explanatory style or communication patterns
+
+This is a **decision-making and implementation framework**, not a style guide for prose or personality. It says "write simpler code" and "ask questions before coding," not "be brief when talking" or "adopt Karpathy's writing voice."
+
+---
+
+### 7. **Key Underlying Philosophy**
+
+The document explicitly acknowledges a **caution-over-speed tradeoff**:
+
+&gt; "These guidelines prioritize caution and clarity over speed, with acknowledgment that judgment applies for trivial tasks. Success means fewer unnecessary changes, fewer rewrites from overcomplication, and questions posed before implementation rather than after mistakes."
+
+This is intentionally conservative — designed for **non-trivial coding work** where overcomplication or wrong assumptions are costly. The author notes that this approach can be overkill for simple, straightforward tasks, but is essential for complex features.
+
+---
+
+### 8. **Metadata**
+
+- **Author:** forrestchang
+- **Version:** 1.0.0
+- **License:** MIT
+- **Marketplace Category:** workflow
+- **Repository:** https://github.com/multica-ai/andrej-karpathy-skills
+- **Keywords:** guidelines, best-practices, coding, karpathy
+
+---
+
+## Summary
+
+This is a **focused, opinionated set of coding practices** derived from Andrej Karpathy's published observations about LLM-driven coding pitfalls. It's deployed as a reusable skill/plugin/ruleset that injects four core principles into agent decision-making: assume less, simplify relentlessly, change surgically, and verify everything. It's about **how the agent approaches problems**, not how it talks or what persona it adopts.</result>
+<usage><subagent_tokens>15361</subagent_tokens><tool_uses>11</tool_uses><duration_ms>61439</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>ae7a07c83d3c32c03</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-harness/aff7fce4-39c1-43fc-9841-b804b7594bf8/tasks/ae7a07c83d3c32c03.output</output-file>
+<status>completed</status>
+<summary>Agent "Explore local harness structure" completed</summary>
+<result>Perfect! Now I have enough information. Let me compile my findings into a comprehensive report.
+
+---
+
+## HARNESS STRUCTURE EXPLORATION REPORT
+
+I've completed a thorough exploration of `/Users/robertlopez/repos/harness` — your personal Claude Code skills harness. Here are my findings, structured to help you plan the tone plugin:
+
+### 1. ROOT AGENTS.md — Full Contents
+
+**Location:** `/Users/robertlopez/repos/harness/AGENTS.md`
+
+The root AGENTS.md exists and is well-structured. It serves as the orchestration document for the harness. Here's the exact structure:
+
+```markdown
+# AGENTS.md
+
+This file is read by Claude at the start of every session. It describes how to work in this
+repo — the skills available, the canonical workflow, and behavioral rules accumulated from
+past mistakes. It does not repeat what is in Readme.md or the individual skill files.
+
+---
+
+## Nested AGENTS.md
+
+Before starting any task, check whether an AGENTS.md exists in the directory you're working
+in or any of its parent directories (up to this root). If one exists, read it — it contains
+context specific to that part of the codebase. Known nested files:
+
+&lt;!-- nested-agents-index --&gt;
+&lt;!-- Add entries here as nested AGENTS.md files are created, e.g.:             --&gt;
+&lt;!-- - [skills/plan/AGENTS.md](skills/plan/AGENTS.md) — plan skill conventions --&gt;
+&lt;!-- nested-agents-index-end --&gt;
+
+---
+
+## Canonical Workflow
+
+For any non-trivial feature, work proceeds in this order. Do not skip steps — each one is a
+skill that can be invoked explicitly.
+
+[workflow table with /initialize → /problem-spec → /plan → for each step: tests/code/refactor/commit with /verify, /clean-code, /review-comprehensive, /pr-interactive-walkthrough, human sign-off]
+
+---
+
+## Skills Reference
+
+[Table listing all skills: initialize, problem-spec, plan, verify, clean-code, refactor, review-comprehensive, pr-interactive-walkthrough, frontend-design, systematic-debugging, dispatching-parallel-agents]
+
+---
+
+## Skill Routing
+
+When the user makes a request, route it through this table before responding...
+
+[Comprehensive routing table mapping user phrases to skills]
+
+---
+
+## Behavioral Rules
+
+Rules added here by `/learn-from-mistakes` when a pattern occurs 3+ times. Starts empty.
+
+&lt;!-- learned-rules --&gt;
+&lt;!-- learned-rules-end --&gt;
+```
+
+**Key insight:** The AGENTS.md file has a `Behavioral Rules` section with an HTML-comment wrapper (`&lt;!-- learned-rules --&gt;`) designed to accumulate behavioral patterns from the `/learn-from-mistakes` skill. This is where you'd want to inject tone and coding practice rules — it's already structured to receive them.
+
+---
+
+### 2. HOOKS / SETTINGS.JSON CONFIGURATION
+
+**Harness-level hooks** (`/Users/robertlopez/repos/harness/.claude/settings.json`):
+
+The harness has hooks configured via the `entire` system (which appears to be a system-level harness runner). The hook format is:
+
+```json
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "entire hooks claude-code post-task"
+          }
+        ]
+      },
+      {
+        "matcher": "TodoWrite",
+        "hooks": [...]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [...]
+      }
+    ],
+    "SessionEnd": [...],
+    "SessionStart": [...],
+    "Stop": [...],
+    "UserPromptSubmit": [...]
+  },
+  "permissions": {
+    "deny": ["Read(./.entire/metadata/**)"]
+  }
+}
+```
+
+**Available hook points:**
+- `SessionStart` — fires at session start
+- `SessionEnd` — fires at session end
+- `UserPromptSubmit` — fires when user submits a prompt
+- `PreToolUse` — fires before tool execution (matcher for specific tools like Task, TodoWrite)
+- `PostToolUse` — fires after tool execution
+- `Stop` — fires on stop command
+
+**Global user settings** (`/Users/robertlopez/.claude/settings.json`):
+```json
+{
+  "statusLine": { "type": "command", "command": "..." },
+  "enabledPlugins": {...},
+  "skipDangerousModePermissionPrompt": true,
+  "skipAutoPermissionPrompt": true,
+  "voiceEnabled": true,
+  "tui": "fullscreen"
+}
+```
+
+**Critical insight:** There are NO tone/conversation-style hooks currently configured at either the harness or user level. The `.entire` system is running shell command hooks, but they're tied to system-level operations (tasks, todos), not to conversation tone injection.
+
+---
+
+### 3. SKILLS STRUCTURE — ORGANIZATION &amp; SKILL.MD FORMAT
+
+**Skills directory layout:**
+```
+skills/
+├── initialize/SKILL.md
+├── problem-spec/SKILL.md
+├── plan/SKILL.md (+ sub-skills/)
+├── verify/SKILL.md (+ sub-skills/webapp-testing/)
+├── clean-code/SKILL.md (+ sub-skills/frontend-cleanup.md)
+├── refactor/SKILL.md
+├── review-comprehensive/SKILL.md (+ sub-skills: standard.md, edge-case-hunter.md, adversarial.md, prior-art.md)
+├── pr-interactive-walkthrough/SKILL.md
+├── systematic-debugging/SKILL.md (+ sub-skills/)
+├── frontend-design/SKILL.md
+├── dispatching-parallel-agents/SKILL.md
+├── skill-creator/SKILL.md (+ agents/, references/)
+├── next-react-boot/SKILL.md (optional)
+├── python-psql-boot/SKILL.md (optional)
+└── btw-pull-request/SKILL.md
+```
+
+**SKILL.md Front Matter Format (standard across all skills):**
+
+```yaml
+---
+name: &lt;skill-name&gt;
+description: &gt;
+  One-paragraph description that appears in Claude's skill list.
+  Includes trigger phrases and activation conditions.
+  Should mention when to invoke this skill.
+---
+```
+
+**Example from plan/SKILL.md:**
+```yaml
+---
+name: plan
+description: &gt;
+  Creates a structured implementation plan from a problem spec, breaking work into independently
+  testable steps with dependency tracking and a living status dashboard.
+  ONLY trigger this skill when a problem spec already exists at docs/&lt;feature&gt;/spec.md — if no spec
+  is present, simpler ad-hoc planning suffices and this skill should not be used.
+  Trigger on: "make a plan", "plan this out", "how should we implement this", "create an
+  implementation plan", "break this into tasks", "what order should we build this in" — but only
+  when a spec.md exists. If the user asks to plan something and there is no spec, tell them to run
+  /problem-spec first.
+---
+```
+
+**SKILL.md Body Structure (all skills follow this pattern):**
+1. Heading with skill name (e.g., `# Plan Skill`)
+2. "Before You Start" section (pre-conditions)
+3. Sequential step sections (Step 1, Step 2, etc.)
+4. Output format / delivery section at the end
+5. Often includes templates (markdown, code, JSON, etc.)
+
+There are also sub-skills in some directories (e.g., `review-comprehensive/sub-skills/standard.md`, `plan/sub-skills/tdd.md`) that contain focused instruction sets dispatched to subagents.
+
+**Key insight:** SKILL.md files are NOT code — they are pure instruction/documentation. They describe the algorithm, reasoning, and checks to perform. Skills are invoked via `/skill-name` slash commands in Claude Code, not installed as scripts.
+
+---
+
+### 4. EXISTING PLUGIN STRUCTURE
+
+**Plugin infrastructure found:**
+
+1. **Claude Code plugin system** (marketplace-based):
+   - Location: `/Users/robertlopez/.claude/plugins/`
+   - Two plugins currently installed:
+     - `session-share@session-share-marketplace` (v0.1.13)
+     - `typescript-lsp@claude-plugins-official` (v1.0.0)
+   - Config: `/Users/robertlopez/.claude/plugins/installed_plugins.json`
+
+2. **.claude-plugin directories** in harness:
+   - `/Users/robertlopez/repos/harness/skills/skill-creator/.claude-plugin/plugin.json`
+   - The `plugin.json` format:
+     ```json
+     {
+       "name": "skill-creator",
+       "description": "Create new skills, modify and improve existing skills...",
+       "author": {
+         "name": "Anthropic",
+         "email": "support@anthropic.com"
+       }
+     }
+     ```
+
+3. **.entire system** (special harness runner):
+   - Location: `/Users/robertlopez/repos/harness/.entire/`
+   - Config: `/Users/robertlopez/repos/harness/.entire/settings.json` (minimal, just `{"enabled": true, "telemetry": true}`)
+   - This appears to be a meta-system that runs pre/post hooks for Claude Code operations
+   - Hook commands invoke `entire hooks claude-code &lt;hook-name&gt;` (e.g., `entire hooks claude-code session-start`)
+
+**Critical insight:** The `.entire` system is the hook infrastructure, but there are NO tone-injection scripts currently. The hooks exist but aren't being used for conversation tone or coding practice injection yet. This is where your tone plugin would naturally fit.
+
+---
+
+### 5. INSTALLATION &amp; SKILL REFERENCE MODEL
+
+**How skills are installed** (`install.sh`):
+
+```bash
+/path/to/harness/install.sh
+# or
+/path/to/harness/install.sh ~/repos/my-project
+# or  
+/path/to/harness/install.sh --with &lt;skill&gt; --with &lt;skill&gt;
+```
+
+The script:
+1. Copies all skills into `.claude/skills/` at the user level or in a target project
+2. Creates or updates `AGENTS.md` and `CLAUDE.md` with links to skill files
+3. Skills remain linked back to the harness, not duplicated
+
+**initialize/ skill** does this at the project level:
+- Reads target project root
+- Creates/updates `CLAUDE.md` and/or `AGENTS.md`
+- Writes a skills table with relative/absolute paths to harness skills
+- Includes Workflow section and Behavioral Rules anchor
+- Minimal approach — links out rather than duplicates content
+
+**Key insight:** The harness model is link-based, not fork-based. Projects reference harness skills via paths, and the root harness AGENTS.md is the canonical source of truth. Your tone plugin would need to follow this pattern — either as a hook in `.entire/`, or as a skill that injects tone instructions into AGENTS.md / CLAUDE.md when projects are initialized.
+
+---
+
+### 6. README &amp; TOP-LEVEL DOCS
+
+**Readme.md** documents:
+- Installation via `install.sh`
+- All 14 skills with brief descriptions
+- The workflow (`/problem-spec → /plan → TDD → /verify → /simplify → /review → /pr-interactive-walkthrough → human sign-off → /learn-from-mistakes`)
+- Acknowledgements to BMAD-METHOD, superpowers, and agent-skills
+
+**skills-inventory.md** (intentionally untracked working document):
+- Tracks what's been folded in from reference repos vs. what's available to pull
+- Shows backlog items for future enhancements
+- Cross-references `improvements.md`
+
+**improvements.md** (7041 bytes):
+- Completed items ✅ (TDD sub-skill, verification-before-completion, dispatching-parallel-agents, etc.)
+- From BMAD Analysis section (multi-layer adversarial review, stress-test pass, readiness gates — all done)
+- Future Consideration (subagent-driven-development, using-git-worktrees, mcp-builder)
+- From Learnings Log Analysis (20 detailed items: workflow gates, simplify gaps, review gaps, verify gaps)
+
+**Key insight:** The improvements.md shows that behavioral rules and practice guidelines accumulate via `/learn-from-mistakes` when patterns recur 3+ times. The harness is designed to learn and evolve. A tone plugin would be a "front-loaded" way to inject known practices upfront, rather than waiting for them to be learned.
+
+---
+
+### 7. SUMMARY: WHERE YOUR TONE PLUGIN FITS
+
+Based on this exploration, here's the architecture for your tone plugin:
+
+**Option A: Hook-based tone injection (recommended for immediate effect)**
+- Create shell or Python hook scripts in `.entire/` that:
+  - Fire on `SessionStart` or `UserPromptSubmit`
+  - Inject tone/coding-practice instructions into the context window
+  - Examples: "Speak tersely, use active voice", "Always assert 3 edge cases before code review"
+- Register these in `.entire/settings.json` (which currently has minimal config)
+- This mirrors the Caveman plugin model — it runs at session boundaries
+
+**Option B: Skill + AGENTS.md integration (recommended for long-term maintainability)**
+- Create a new skill: `skills/tone/SKILL.md` or `skills/tone-injector/SKILL.md`
+- Front matter:
+  ```yaml
+  ---
+  name: tone
+  description: &gt;
+    Sets the conversation tone and coding practice standards for this session.
+    Injects guidelines about directness, error handling, testing discipline, and code style.
+    Fire automatically on session start via hook, or invoke manually with /tone to recalibrate.
+  ---
+  ```
+- Update root `AGENTS.md` to include a Tone &amp; Practice Standards section
+- Update `initialize/SKILL.md` to also initialize tone guidelines in target projects' AGENTS.md
+- Use the same pattern as Behavioral Rules: HTML-comment wrappers for hook-driven updates
+
+**Option C: Hybrid (most powerful)**
+- Create both a hook-based system (for immediate, ambient tone) and a skill (for user-facing recalibration)
+- The hook fires on SessionStart with tone defaults
+- The `/tone` skill allows mid-session adjustments
+- Both feed into a `.claude/tone.json` or similar config that AGENTS.md reads
+
+**The harness already has the infrastructure:**
+- ✅ Hook system (via `.entire/settings.json`)
+- ✅ AGENTS.md with extension points (`&lt;!-- learned-rules --&gt;`)
+- ✅ SKILL.md front matter and registration model
+- ✅ initialize/ skill to propagate tone to target projects
+- ✅ install.sh to copy tone-related files
+
+**Files you'll create/modify:**
+1. **Create:** `skills/tone/SKILL.md` (or `.entire/hooks/tone.sh`)
+2. **Modify:** `/Users/robertlopez/repos/harness/AGENTS.md` — add a "Tone &amp; Practice Standards" section below Behavioral Rules
+3. **Modify:** `.claude/settings.json` — register hook(s) for SessionStart or UserPromptSubmit
+4. **Modify:** `skills/initialize/SKILL.md` — update to copy tone guidelines into target projects
+5. **Consider:** `.entire/tone.json` or similar to store tone config (if going hook-based)
+
+---
+
+This harness is well-architected for your use case. The precedent already exists (learn-from-mistakes updates AGENTS.md via hooks), and the extension points are designed for exactly this kind of meta-instruction injection.</result>
+<usage><subagent_tokens>40170</subagent_tokens><tool_uses>32</tool_uses><duration_ms>95386</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a3cf5ccaadf593b58</task-id>
+<tool-use-id>toolu_016yWGkcWABDEXP6BH76au82</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-harness/aff7fce4-39c1-43fc-9841-b804b7594bf8/tasks/a3cf5ccaadf593b58.output</output-file>
+<status>completed</status>
+<summary>Agent "Examine caveman repo" completed</summary>
+<result>Excellent! Now I have comprehensive information. Let me compile a detailed technical breakdown report.
+
+---
+
+## Caveman: Comprehensive Technical Breakdown
+
+Based on my research of the juliusbrussee/caveman GitHub repository, here's a detailed technical analysis:
+
+### 1. **What It Does — Core Function**
+
+**Caveman** is a "tone" plugin/skill system for Claude Code and 40+ other AI coding agents that **reduces output token usage by approximately 65%** through terse, caveman-dialect speech while preserving all technical accuracy.
+
+**Transformation Applied:**
+- **To:** Assistant output (model responses only, not prompts)
+- **What:** Eliminates filler, pleasantries, and structural verbosity while keeping code, commands, error messages, and technical terms intact
+- **Activation:** Via `/caveman` command or natural language ("activate caveman", "be brief", "less tokens")
+- **Persistence:** Remains active across turns until user issues deactivation command ("stop caveman", "normal mode")
+
+**Example transformation:**
+```
+❌ Before: "Sure! I'd be happy to help you with that. The issue you're experiencing is likely caused by..."
+✅ After: "Bug in auth middleware. Token expiry check use `&lt;` not `&lt;=`. Fix:"
+```
+
+---
+
+### 2. **File/Directory Structure**
+
+**Complete repository layout:**
+
+```
+caveman/
+├── README.md                          # User-facing pitch (caveman-speak voice)
+├── CLAUDE.md                          # Maintainer architecture docs
+├── INSTALL.md                         # Installation matrix for 30+ agents
+├── package.json                       # Project metadata, entry point: bin/install.js
+├── install.sh                         # macOS/Linux installer wrapper
+├── install.ps1                        # Windows PowerShell installer wrapper
+├── LICENSE                            # MIT
+├── gemini-extension.json              # Gemini integration config
+│
+├── bin/
+│   ├── install.js                     # UNIFIED INSTALLER (single source of truth)
+│   └── lib/
+│       ├── settings.js                # Settings.json hook merger (idempotent)
+│       ├── openclaw.js                # OpenClaw agent integration
+│       └── opencode-agent.js          # Opencode agent integration
+│
+├── src/
+│   ├── hooks/                         # Claude Code lifecycle hooks
+│   │   ├── install.sh                 # Hook deployment script
+│   │   ├── caveman-activate.js        # SessionStart hook (injects rules + tone)
+│   │   ├── caveman-mode-tracker.js    # UserPromptSubmit hook (tracks `/caveman` cmds)
+│   │   ├── caveman-config.js          # Config resolution + secure flag I/O
+│   │   ├── caveman-stats.js           # Token savings calculator
+│   │   ├── caveman-statusline.sh      # Statusline badge renderer (macOS/Linux)
+│   │   ├── caveman-statusline.ps1     # Statusline badge renderer (PowerShell)
+│   │   ├── package.json               # Hook dependencies
+│   │   └── cavecrew-model-overrides.js # Subagent delegation overrides
+│   │
+│   ├── rules/
+│   │   └── caveman-activate.md        # Authoritative ruleset (drops articles, filler, etc.)
+│   │
+│   ├── plugins/opencode/
+│   │   └── plugin.js                  # Opencode plugin entry point
+│   │
+│   ├── mcp-servers/caveman-shrink/    # MCP server (optional proxy middleware)
+│   │   ├── server.js
+│   │   └── package.json
+│   │
+│   └── tools/
+│       └── init.js                    # Initialization utilities
+│
+├── skills/                            # Skill implementations (markdown + metadata)
+│   ├── caveman/
+│   │   ├── SKILL.md                   # Authoritative tone rules (64 lines)
+│   │   ├── index.md                   # Skill description for CLI agents
+│   │   ├── README.md                  # Human explanation
+│   │   └── meta.toml                  # (404 in API, likely missing or internal)
+│   │
+│   ├── caveman-commit/
+│   │   ├── SKILL.md                   # Conventional Commits formatter
+│   │   └── README.md
+│   │
+│   ├── caveman-compress/
+│   │   ├── SKILL.md
+│   │   ├── compress.py                # Batch prose compression script
+│   │   ├── README.md
+│   │   └── requirements.txt
+│   │
+│   ├── caveman-help/
+│   │   └── index.md
+│   │
+│   ├── caveman-review/
+│   │   ├── SKILL.md                   # Code review one-liners
+│   │   └── README.md
+│   │
+│   ├── caveman-stats/
+│   │   └── README.md
+│   │
+│   └── cavecrew/                      # Subagent orchestrator
+│       ├── SKILL.md
+│       ├── agents/
+│       │   ├── cavecrew-builder.md
+│       │   ├── cavecrew-investigator.md
+│       │   └── cavecrew-reviewer.md
+│       └── README.md
+│
+├── agents/                            # Agent definitions for cavecrew
+│   ├── cavecrew-builder.md
+│   ├── cavecrew-investigator.md
+│   └── cavecrew-reviewer.md
+│
+├── commands/                          # CLI command definitions
+│   ├── caveman/
+│   │   ├── caveman.toml               # Slash command metadata
+│   │   └── index.md
+│   ├── caveman-init/
+│   ├── caveman-commit/
+│   ├── caveman-review/
+│   └── caveman-stats/
+│
+├── plugins/caveman/                   # Plugin distribution for Claude Code
+│   ├── skills/                        # Mirrored from skills/ via CI
+│   ├── agents/
+│   └── plugin.json
+│
+├── .claude-plugin/                    # Claude plugin metadata
+│   └── plugin.json
+│
+├── .github/
+│   ├── workflows/
+│   │   └── sync-skill.yml             # CI: mirrors SKILL.md → plugin/, builds dist/
+│   └── issue-templates/
+│
+├── tests/
+│   ├── installer/*.test.mjs           # E2E installer tests
+│   ├── compression-safety.py          # Python safety tests
+│   ├── hooks.test.mjs                 # Hook behavior tests
+│   └── mode-tracker.test.mjs
+│
+├── benchmarks/
+│   ├── results/                       # Committed benchmark output (real Claude API)
+│   └── measure.mjs                    # Token counting harness
+│
+├── evals/
+│   └── three-arm-comparison.mjs       # Baseline vs terse vs skill
+│
+├── dist/
+│   └── caveman.skill                  # ZIP distribution for Claude plugin marketplace
+│
+└── docs/
+    ├── architecture.md
+    ├── assets/
+    └── (documentation with SVGs/PNGs)
+```
+
+---
+
+### 3. **Hook Mechanism — How Tone Injection Works**
+
+Caveman uses **three Claude Code lifecycle hooks** that wire into `~/.claude/settings.json`:
+
+#### **Hook 1: `caveman-activate.js` (SessionStart)**
+**When:** Fires at the beginning of every Claude Code session
+**What it does:**
+1. Reads current mode from flag file at `~/.claude/.caveman-active`
+2. Fetches the authoritative ruleset from `skills/caveman/SKILL.md` (or hardcoded fallback)
+3. **Filters ruleset by intensity level** (lite/full/ultra/wenyan variant)
+4. Injects filtered rules as **system context** to the model on every turn
+
+**Code flow (simplified):**
+```javascript
+// From caveman-activate.js
+const mode = readFlag(flagPath); // reads ~/.claude/.caveman-active
+const ruleset = loadRuleset(); // reads SKILL.md or uses fallback
+const filtered = filterByLevel(ruleset, mode); // e.g., full mode strips articles
+// Then emits context to Claude's SessionStart hook
+```
+
+**Safety hardening:**
+- Symlink-safe flag reading (O_NOFOLLOW flag)
+- File size cap (64 bytes) to prevent exfiltration
+- Silent fail on all filesystem errors (never blocks session)
+- VALID_MODES whitelist prevents injection
+
+#### **Hook 2: `caveman-mode-tracker.js` (UserPromptSubmit)**
+**When:** Fires after user submits every prompt
+**What it does:**
+1. Parses user input with regex patterns to detect activation/deactivation commands
+2. Recognizes both slash commands (`/caveman lite`, `/caveman-commit`) and natural language ("activate caveman", "be brief")
+3. **Updates mode state** by writing to `~/.claude/.caveman-active` flag file
+4. For one-shot commands (`/caveman-commit`), **saves previous mode**, executes one-shot, then **restores previous mode**
+
+**Activation patterns matched:**
+```regex
+/caveman\s*(lite|full|ultra|wenyan.*)?
+activate caveman
+be brief
+less tokens
+talk like caveman
+// ... and ~20 more natural language patterns
+```
+
+**Deactivation patterns:**
+```regex
+stop caveman
+normal mode
+disable caveman
+turn off caveman
+```
+
+**State machine:**
+- Prose modes (lite/full/ultra/wenyan) persist across turns
+- Independent modes (commit/review/compress) are one-shot with auto-restore
+- Per-turn reinforcement emits mode reminder to prevent model drift when multiple plugins compete for attention
+
+#### **Hook 3: `caveman-statusline.sh` (statusline badge)**
+**When:** Renders in Claude Code's statusline continuously
+**What it displays:**
+- `[CAVEMAN]` in orange (ANSI color code 172) if mode is "full"
+- `[CAVEMAN:LITE]`, `[CAVEMAN:ULTRA]`, etc. for other modes
+- Optional suffix with lifetime token savings (e.g., `[CAVEMAN] -65%`)
+
+**Security hardening:**
+- Refuses symlinks
+- Strips control characters (blocks terminal-escape injection)
+- Validates against whitelist of recognized modes
+- Reads pre-rendered stats file to avoid expensive subprocess calls per keystroke
+
+#### **Configuration in settings.json**
+The installer modifies `~/.claude/settings.json` to wire these hooks:
+
+```json
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "command": "node ~/.claude/hooks/caveman-activate.js",
+        "runMode": "terminal"
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "command": "node ~/.claude/hooks/caveman-mode-tracker.js",
+        "runMode": "terminal"
+      }
+    ]
+  },
+  "statusline": {
+    "left": ["~/.claude/hooks/caveman-statusline.sh"],
+    "right": []
+  }
+}
+```
+
+---
+
+### 4. **Prompt/Instruction Content — The Exact Tone Rules**
+
+**Source file:** `skills/caveman/SKILL.md` (authoritative ruleset, ~64 lines)
+
+**Core rules (EXACT TEXT):**
+
+```
+# Drop: articles (a/an/the), filler (just/really/basically/actually/simply), 
+  pleasantries (sure/certainly/of course/happy to), hedging
+
+# Fragments OK. Short synonyms (big not extensive).
+
+# Pattern: [thing] [action] [reason]. [next step].
+
+# Keep: all technical substance. Standard acronyms (DB/API/HTTP). Code blocks, 
+  exact error strings verbatim. User's original language.
+
+# Activation triggers:
+  - /caveman
+  - activate caveman
+  - talk like caveman
+  - less tokens
+  - be brief
+  - (+ ~17 other natural language variants)
+
+# Deactivation triggers:
+  - stop caveman
+  - normal mode
+  - disable caveman
+
+# Intensity Levels:
+
+  lite:  Drop filler/hedging but keep articles and full sentences
+  full:  Articles gone, fragments allowed, short synonyms [DEFAULT]
+  ultra: Strip conjunctions when meaning stays clear; one word when sufficient
+  
+  wenyan-lite:   Classical Chinese compression (lite intensity)
+  wenyan-full:   Classical Chinese compression (full intensity)
+  wenyan-ultra:  Classical Chinese compression (ultra intensity)
+
+# Auto-Clarity Exception:
+  Revert to normal speech for:
+  - Security warnings
+  - Irreversible action confirmations
+  - Multi-step sequences where fragment order risks misread
+  
+  Resume caveman after clarification.
+
+# DO NOT apply caveman to:
+  - Code blocks (keep exact)
+  - Commit messages (normal prose)
+  - Pull requests (normal prose)
+  - Technical terms &amp; exact API names (keep verbatim)
+  - Acronyms (DB/API/HTTP stay as-is)
+```
+
+**Fallback ruleset** (if file not found, embedded in `caveman-activate.js`):
+```javascript
+const FALLBACK_RULES = `
+Drop: articles (a/an/the), filler (just/really/basically/actually/simply), 
+pleasantries, hedging. Fragments OK. Short synonyms (big not extensive).
+Pattern: [thing] [action] [reason]. [next step].
+Keep: technical substance, standard acronyms (DB/API/HTTP), code, error strings.
+`;
+```
+
+**Per-level filtering example:**
+- **lite mode:** "The issue is actually a bug in the middleware." → "Issue is bug in middleware."
+- **full mode:** "The issue is actually a bug in the middleware." → "Bug in middleware."
+- **ultra mode:** "The issue is actually a bug in the middleware." → "Bug middleware."
+
+---
+
+### 5. **Installation — How Users Install It**
+
+**Three installation methods:**
+
+#### **Method 1: One-liner (Recommended)**
+```bash
+# macOS/Linux/WSL/Git Bash
+curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh | bash
+
+# Windows PowerShell 5.1+
+irm https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.ps1 | iex
+```
+
+Both wrappers download and execute `bin/install.js`, the unified Node.js installer.
+
+#### **Method 2: Manual (Review-first)**
+```bash
+curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh -o install.sh
+# Review install.sh, then:
+bash install.sh
+```
+
+#### **Method 3: Per-agent CLI**
+```bash
+# For Claude Code (native plugin install)
+claude plugin marketplace add JuliusBrussee/caveman &amp;&amp; claude plugin install caveman@caveman
+
+# For Cursor, Windsurf, Cline, Continue (via npx skills)
+npx skills add JuliusBrussee/caveman -a cursor
+npx skills add JuliusBrussee/caveman -a windsurf
+
+# Other 30+ agents
+npx skills add JuliusBrussee/caveman -a &lt;agent-id&gt;
+```
+
+---
+
+### 6. **Installation Process — What Gets Configured**
+
+The installer (`bin/install.js`) is a **unified Node.js script** that:
+
+1. **Detects all installed agents** on your system:
+   - Scans PATH for binaries (claude, cursor, cline)
+   - Checks IDE extension directories (.vscode/extensions, .cursor/extensions)
+   - Scans JetBrains plugin caches
+   - Checks macOS application bundles
+   - Checks Linux/Windows configuration directories
+
+2. **Installs per-platform:**
+
+   **For Claude Code (Tier 1 — Full auto-activation):**
+   - Runs `claude plugin install caveman` (native plugin marketplace integration)
+   - Copies hook files to `~/.claude/hooks/`:
+     - `caveman-activate.js`
+     - `caveman-mode-tracker.js`
+     - `caveman-config.js`
+     - `caveman-stats.js`
+     - `caveman-statusline.sh` / `.ps1`
+     - `cavecrew-model-overrides.js`
+     - `package.json` (hook dependencies)
+   - Modifies `~/.claude/settings.json` to wire SessionStart, UserPromptSubmit, and statusline hooks
+   - **Integrity check:** Downloads hooks from pinned release, validates SHA-256 against manifest
+   - Backs up existing settings.json before modification
+   - Uses Node.js stdlib for safe JSON merging (handles JSONC comments)
+
+   **For Cursor, Windsurf, Cline, Continue (Tier 2):**
+   - Delegates to `npx skills add` upstream ecosystem
+   - Optionally writes per-repo rule files from `src/rules/caveman-activate.md` to `.cursor/`, `.windsurf/`, etc.
+
+   **For Hermes, Opencode, OpenClaw (Tier 3):**
+   - Copies skills and configuration files directly to agent-specific directories
+   - Writes subagent rules to `AGENTS.md` with begin/end markers for clean removal
+
+3. **Idempotent design:**
+   - Re-running installer is safe; hooks detected and not duplicated
+   - Checks for existing hook entries before adding
+   - Returns early if already installed (unless `--force` flag)
+
+4. **Features:**
+   - Zero external npm dependencies (uses Node.js stdlib only)
+   - Cross-platform: handles Windows CMD, PowerShell, macOS, Linux with proper escaping
+   - Dry-run mode: `--dry-run` previews changes without executing
+   - Graceful degradation: falls back to npx-skills if native installs unavailable
+   - Silent fail: filesystem errors don't block session start
+
+---
+
+### 7. **Coding-Standards Injection — Does It Affect Code Writing?**
+
+**Short answer:** NO. Caveman is **output-tone only**. It does NOT:
+- Inject code style guidelines before code is written
+- Modify coding standards or linter rules
+- Change the model's code generation patterns
+- Add pre-commit hooks or AST transforms
+
+**What it DOES:**
+- Applies tone transformation to the **assistant's explanatory text**
+- Leaves code blocks, commits, and PRs in **normal prose** (untouched)
+- Preserves all technical terms, error messages, and command outputs exactly
+- Never modifies the user's prompts
+
+**Example:**
+```
+User: "Write a function to validate emails"
+
+Before caveman:
+"Sure! I'd be happy to help. Here's a function that validates email addresses 
+using a regular expression..."
+[code block - unchanged]
+
+After caveman:
+"Email validator:"
+[code block - unchanged]
+```
+
+The code output is identical; only the narration is compressed.
+
+---
+
+### 8. **Configuration Hierarchy**
+
+Caveman respects a **layered configuration system** (resolution order):
+
+1. **Environment variable:** `CAVEMAN_DEFAULT_MODE` (highest priority, short-circuits all)
+2. **Repo-local config:** `.caveman/config.json` or `.caveman.json` (enables team standardization)
+3. **User config:** `$XDG_CONFIG_HOME/caveman/config.json`, `~/.config/caveman/config.json`, or Windows equivalent
+4. **Hardcoded default:** `'full'` mode
+
+Valid modes: `off`, `lite`, `full`, `ultra`, `wenyan-lite`, `wenyan-full`, `wenyan-ultra`, `commit`, `review`, `compress`
+
+---
+
+### 9. **Validation &amp; Measurement**
+
+**Benchmarking:**
+- Real Claude API calls (not CLI simulation) measure actual token counts
+- Three-arm evaluation harness: baseline vs terse vs skill
+- Results committed to repo; README regenerated automatically from `benchmarks/results/`
+- Honest delta measured as (skill vs terse), not (skill vs baseline) to prevent false attribution
+
+**Architecture validation:**
+- E2E installer tests (`tests/installer/*.test.mjs`)
+- Hook behavior tests (`tests/hooks.test.mjs`)
+- Mode tracker state machine tests
+- Compression safety tests (`tests/compression-safety.py`)
+
+---
+
+### 10. **Related Skills in Ecosystem**
+
+Caveman is part of a larger toolkit:
+
+| Skill | Purpose |
+|-------|---------|
+| `caveman` | Main style compression (6 intensity levels) |
+| `caveman-commit` | Conventional Commits formatter in caveman style |
+| `caveman-review` | One-line code review summaries |
+| `caveman-compress` | Batch prose compression for documentation (Python 3.10+) |
+| `cavecrew` | Subagent delegation orchestrator with builder, investigator, reviewer agents |
+
+---
+
+### 11. **CI/CD Distribution**
+
+**Workflow:** `.github/workflows/sync-skill.yml`
+
+On push to main (when skill files change):
+1. Mirrors `skills/*/SKILL.md` into `plugins/caveman/skills/` (for Claude Code plugin marketplace)
+2. Copies agent definitions into plugin distribution
+3. Removes Python bytecode cache
+4. Rebuilds `dist/caveman.skill` ZIP artifact
+5. Commits changes with `[skip ci]` tag to prevent recursive triggers
+6. Pushes to repository
+
+This ensures Claude Code plugin distribution always mirrors the source-of-truth `skills/` directory.
+
+---
+
+## Summary
+
+Caveman is a **sophisticated, multi-agent tone-compression plugin** that:
+- **Reduces output tokens by ~65%** through terse caveman-dialect speech
+- **Injects tone via three Claude Code hooks** (SessionStart, UserPromptSubmit, statusline badge)
+- **Maintains technical accuracy** by preserving code, commands, and error messages exactly
+- **Distributes across 40+ agent platforms** via a unified Node.js installer
+- **Configures via settings.json hooks** that emit ruleset-based system context on every turn
+- **Is purely output-focused** — does not inject coding standards or modify code generation
+- **Uses secure flag-based state management** (symlink-safe, size-capped, validation-heavy)
+- **Maintains single source of truth** in `skills/caveman/SKILL.md` with CI auto-sync to plugin distributions
+
+All core instruction text is available in the repo; the key tone ruleset can be found in `/skills/caveman/SKILL.md`.</result>
+<usage><subagent_tokens>20840</subagent_tokens><tool_uses>21</tool_uses><duration_ms>163225</duration_ms></usage>
+</task-notification>
+
+---
+
+<task-notification>
+<task-id>a9878a91577121017</task-id>
+<tool-use-id>toolu_01MUKFQUiHsCMG6SW9Q8MwRK</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-harness/aff7fce4-39c1-43fc-9841-b804b7594bf8/tasks/a9878a91577121017.output</output-file>
+<status>completed</status>
+<summary>Agent "Examine ponytail repo" completed</summary>
+<result>Perfect! Now let me compile all this information into a structured technical breakdown. Based on my research, here's what I've discovered:
+
+---
+
+## Ponytail Technical Breakdown
+
+### 1. **What It Does**
+
+Ponytail is a **tone/personality plugin for AI coding agents** that enforces a "lazy senior developer" philosophy. It transforms agent behavior to prioritize **minimal, efficient code generation** by applying a hierarchical decision ladder *before* code is written.
+
+**Philosophy**: "The best code is the code you never wrote." — Lazy means **efficient, not careless**.
+
+**Impact Target**: It injects tone into **both user prompts and system instructions**, influencing the model's approach to code generation and problem-solving.
+
+**Personality**: Adopts the archetype of a lazy senior developer who "says nothing, writes one line, it works" — emphasizing reuse, deletion over addition, and ruthless elimination of unnecessary code.
+
+---
+
+### 2. **File/Directory Structure**
+
+```
+ponytail/
+├── .agents/                    # Hermes Agent plugin
+│   ├── plugins/
+│   ├── rules/                 # Agent-specific rules
+├── .claude-plugin/            # Claude Code plugin (settings.json, hooks)
+├── .clinerules/               # Cline editor rules
+├── .codex-plugin/             # Codex plugin
+├── .cursor/rules/             # Cursor editor rules
+├── .devin-plugin/             # Devin CLI plugin
+├── .github/
+│   ├── FUNDING.yml
+│   ├── copilot-instructions.md  # GitHub Copilot integration
+├── .kiro/steering/            # Kiro agent steering rules
+├── .opencode/
+│   ├── plugins/ponytail.mjs    # OpenCode plugin implementation
+├── .openclaw/                  # OpenClaw plugin
+├── .qoder/
+│   ├── rules/ponytail.md
+│   └── plugin/
+├── .windsurf/rules/           # Windsurf editor rules
+├── pi-extension/
+│   └── index.js               # Pi agent extension (session state mgmt)
+├── ponytail-mcp/              # Model Context Protocol server
+│   └── index.js               # MCP implementation (prompts + tools)
+├── scripts/
+│   └── check-rule-copies.js   # Validates rule consistency across platforms
+├── skills/                    # Slash command implementations
+├── benchmarks/results/        # Performance metrics (54% LOC reduction proven)
+├── commands/                  # Command definitions
+├── docs/                      # Documentation
+├── examples/                  # Usage examples
+├── hooks/                     # Hook implementations
+├── tests/                     # Test suite
+├── AGENTS.md                  # Main rule source document
+├── plugin.yaml                # Hermes plugin metadata
+├── package.json               # npm package config
+├── opencode.json              # OpenCode plugin config
+├── gemini-extension.json      # Gemini CLI extension
+├── after-install.md           # Installation &amp; setup guide
+├── README.md                  # Main documentation
+└── LICENSE (MIT)
+```
+
+**Key structural patterns**:
+- **Rules are canonicalized**: `AGENTS.md` is the single source of truth; a script (`check-rule-copies.js`) ensures all platform-specific rule files stay synchronized
+- **Multi-platform support**: Separate configuration for each agent (Claude Code, Cursor, Cline, Windsurf, Codex, Devin, Kiro, OpenCode, Qoder, Pi, Gemini, etc.)
+- **Two injection approaches**:
+  - **Rules files** (.md) for direct prompt injection (Cursor, Windsurf, Cline)
+  - **Plugins** (.yaml, .mjs, .js) with hooks for hook-based injection (Claude Code, OpenCode, Pi, MCP)
+
+---
+
+### 3. **Hook Mechanism — How It Injects Tone**
+
+Ponytail uses **multiple injection strategies** depending on the agent platform:
+
+#### **A. Claude Code / Hermes Plugin Hooks**
+
+From `plugin.yaml`:
+```yaml
+name: ponytail
+version: 4.8.4
+provides_hooks:
+  - pre_llm_call
+  - pre_gateway_dispatch
+provides_commands:
+  - ponytail
+  - ponytail-review
+  - ponytail-audit
+  - ponytail-debt
+  - ponytail-gain
+  - ponytail-help
+```
+
+**Hooks Used**:
+- **`pre_llm_call`**: Injects ponytail instructions into the system prompt before the LLM is called
+- **`pre_gateway_dispatch`**: Intercepts requests before gateway processing
+
+#### **B. OpenCode Plugin System** (`ponytail.mjs`)
+
+Hook mechanism via OpenCode's plugin API:
+```
+experimental.chat.system.transform:
+  - Appends ponytail instructions to system prompt each turn
+  - Respects mode setting (off disables injection)
+  - Persists mode state to .ponytail-active file
+
+command.execute.before:
+  - Intercepts /ponytail command
+  - Parses mode argument (lite/full/ultra/off)
+  - Persists mode choice
+```
+
+#### **C. Pi Agent Extension** (`pi-extension/index.js`)
+
+Session-based hook mechanism:
+```
+Events monitored:
+  - Session initialization: Loads persisted mode settings
+  - Pre-agent-start: Injects mode-specific instructions into system prompt
+  - Agent startup/shutdown: Toggles status indicator
+  - User input: Detects deactivation commands
+
+Mode resolution:
+  - Retrieves current mode from session history
+  - Falls back to default if needed
+  - Maintains local state variables for mode, status, context
+```
+
+#### **D. MCP Server** (`ponytail-mcp/index.js`)
+
+Model Context Protocol integration (two interfaces):
+```
+Prompt Registration:
+  - Registers prompt called "ponytail"
+  - Accepts optional 'mode' parameter (lite, full, ultra)
+  - Returns instructions as user message
+
+Tool Registration:
+  - Tool "ponytail_instructions"
+  - Provides ruleset programmatically
+  - Returns structured output (mode + instruction text)
+  - Marked as read-only, closed-world
+
+Shared functions:
+  - resolveMode(): Normalizes mode parameter
+  - buildInstructions(): Generates actual guidance text per mode
+```
+
+#### **E. Editor Integration** (Cursor, Windsurf, Cline, Qoder, Kiro)
+
+**No hooks** — uses direct `.md` rules files:
+- `.cursor/rules/ponytail.md`
+- `.windsurf/rules/ponytail.md`
+- `.clinerules/ponytail.md`
+- `.qoder/rules/ponytail.md`
+- `.kiro/steering/ponytail.md`
+
+These are injected by the editor's native rules system (no explicit hook configuration needed).
+
+---
+
+### 4. **Prompt/Instruction Content — Actual Tone Text**
+
+The core instructions appear consistently across all platform variants. Here's the complete decision ladder and philosophy:
+
+#### **The Decision Ladder** (7 rungs, stop at first match):
+
+```
+1. Does this need to be built at all? (YAGNI principle)
+2. Does it already exist in this codebase? → Reuse existing helpers/patterns
+3. Does the standard library already do this?
+4. Does a native platform feature cover it?
+5. Does an already-installed dependency solve it?
+6. Can this be one line?
+7. Only then: Write the minimum code that works
+```
+
+#### **Full Instruction Set** (Canonical text from `.clinerules/ponytail.md` and others):
+
+```
+You are a lazy senior developer. Lazy means efficient, not careless. 
+The best code is the code never written.
+
+BEFORE CODING, address this ladder. Stop at the first rung that applies:
+
+1. Is it necessary? Apply YAGNI principle
+2. Already exists here? Reuse existing helpers/patterns
+3. Standard library covers it? Use built-in functionality
+4. Native platform feature? Leverage it
+5. Dependency installed? Use existing packages
+6. One-liner solution? Keep it minimal
+7. Only then: Write minimal working code
+
+CORE PRINCIPLES
+
+What to avoid:
+  - Unrequested abstractions
+  - New dependencies when avoidable
+  - Unnecessary boilerplate
+  - Deletion preferred over addition
+  - Simplicity over cleverness
+
+What matters:
+  - Full problem comprehension before coding
+  - Input validation at trust boundaries
+  - Error handling preventing data loss
+  - Security and accessibility
+  - Hardware calibration realities
+  - Explicit requirements
+
+QUALITY STANDARDS
+
+Bug fixes: Address root causes, not symptoms. Fix shared functions 
+once rather than patching individual call sites.
+
+Deliberate shortcuts: Mark known trade-offs with `ponytail:` comments 
+naming limitations and upgrade paths.
+
+Testing: Non-trivial logic requires one small runnable check—no frameworks 
+needed; trivial one-liners skip tests.
+```
+
+#### **By Intensity Mode**:
+
+Ponytail supports **4 modes** with varying strictness:
+- **`lite`**: Core principles only, minimal enforcement
+- **`full`** (default): Complete decision ladder + all guardrails
+- **`ultra`**: Aggressive minimalism, maximum reuse pressure
+- **`off`**: Disables the plugin entirely
+
+The actual instruction text adapts per mode (buildInstructions() generates mode-specific text).
+
+---
+
+### 5. **Installation Methods**
+
+#### **Claude Code (Plugin Marketplace)**
+```bash
+/plugin marketplace add DietrichGebert/ponytail
+/plugin install ponytail@ponytail
+```
+
+Then enable:
+```bash
+hermes plugins enable ponytail
+```
+
+#### **Cursor / Windsurf / Cline / VS Code / JetBrains**
+Copy the appropriate rules file to your project:
+- Cursor: `.cursor/rules/ponytail.md` → `.cursor/rules/`
+- Windsurf: `.windsurf/rules/ponytail.md` → `.windsurf/rules/`
+- Cline: `.clinerules/ponytail.md` → `.clinerules/`
+
+#### **OpenCode**
+```json
+{
+  "plugin": ["@dietrichgebert/ponytail"]
+}
+```
+
+Or: `opencode.json` → Add plugin reference
+
+#### **Pi Agent Harness**
+```bash
+pi install git:github.com/DietrichGebert/ponytail
+```
+
+#### **GitHub Copilot CLI**
+```bash
+copilot plugin marketplace add DietrichGebert/ponytail
+copilot plugin install ponytail@ponytail
+```
+
+#### **Other Platforms**
+- **Qoder**: Copy `.qoder/rules/ponytail.md`
+- **Devin CLI**: `devin plugins install DietrichGebert/ponytail`
+- **Gemini CLI**: `gemini extensions install https://github.com/DietrichGebert/ponytail`
+- **Kiro**: `.kiro/steering/ponytail.md`
+
+#### **Configuration**
+Default mode can be set via:
+- **Environment**: `PONYTAIL_DEFAULT_MODE=lite|full|ultra|off`
+- **Config file**: `~/.config/ponytail/config.json` with `defaultMode` field
+- **Command**: `/ponytail [lite|full|ultra|off]`
+
+---
+
+### 6. **Slash Commands (Plugin Features)**
+
+Available as both commands and callable skills:
+
+| Command | Function |
+|---------|----------|
+| `/ponytail [lite\|full\|ultra\|off]` | Adjust intensity level, check status |
+| `/ponytail-review` | Identifies over-engineering in current diff |
+| `/ponytail-audit` | Scans entire repository for unnecessary complexity |
+| `/ponytail-debt` | Catalogs deferred optimizations for later refactoring |
+| `/ponytail-gain` | Displays benchmark performance improvements |
+| `/ponytail-help` | Reference guide for all commands |
+
+These are implemented in the `skills/` directory and callable programmatically via `ponytail:&lt;skill-name&gt;` in multi-agent workflows.
+
+---
+
+### 7. **Coding-Standards Injection — Pre-Code vs. Post-Code**
+
+Ponytail injects instructions **BEFORE code generation** — not post-processing:
+
+**Injection Point**: System prompt / LLM context before the model generates code
+
+**Mechanism**: The ladder is presented *as part of the system message*, so the model evaluates necessity, reuse, and alternatives **before** writing a single line.
+
+**NOT applied post-generation**: No linter, no rewriting pass. The instruction shapes decision-making during generation.
+
+**Marked Code**: Shortcuts/known limitations are marked with `ponytail:` comments in the generated code itself:
+```python
+# ponytail: O(n²) scan but dataset &lt; 1000 rows, safe for now
+# upgrade path: add index if performance needed
+```
+
+---
+
+### 8. **Safety Guarantees** (Non-Negotiable)
+
+The plugin **never optimizes away**:
+- **Trust boundary validation**: Input validation at system/user boundaries
+- **Data loss prevention**: Error handling that prevents data loss
+- **Security practices**: No weakening of crypto, auth, or trust checks
+- **Accessibility standards**: WCAG compliance never sacrificed
+- **Explicitly requested features**: If the user asked for it, the ladder doesn't apply
+
+These are **invariant phrases** checked by the `check-rule-copies.js` validation script to prevent accidental regression.
+
+---
+
+### 9. **Performance Claims (Benchmarked)**
+
+Real-world testing on `tiangolo/full-stack-fastapi-template` (FastAPI + React):
+
+| Metric | Reduction |
+|--------|-----------|
+| **Lines of Code** | −54% (mean) |
+| **Token Usage** | −22% |
+| **Cost** | −20% |
+| **Execution Time** | −27% |
+| **Safety Rating** | 100% (security validation preserved) |
+
+**High-impact areas** (60–94% reduction): Date pickers, form components, UI wrappers
+**Minimal-code tasks** (convergence): Backend CRUD, already-lean code
+
+---
+
+### 10. **Key Implementation Files** (Summary)
+
+| File | Purpose |
+|------|---------|
+| `AGENTS.md` | Canonical rule source (single source of truth) |
+| `plugin.yaml` | Hermes plugin metadata &amp; hook declarations |
+| `.claude-plugin/settings.json` | Claude Code plugin configuration |
+| `ponytail-mcp/index.js` | MCP server (prompt + tool injection) |
+| `.opencode/plugins/ponytail.mjs` | OpenCode plugin with system prompt transform hook |
+| `pi-extension/index.js` | Pi agent session-based injection |
+| `scripts/check-rule-copies.js` | Validates rule consistency across platforms |
+| `.cursor/rules/ponytail.md` | Cursor editor rules (canonical copy) |
+| `.windsurf/rules/ponytail.md` | Windsurf editor rules |
+| `.clinerules/ponytail.md` | Cline editor rules |
+| `skills/ponytail/skill.md` | Skill implementation for slash commands |
+
+---
+
+### 11. **Architecture Patterns to Build Similar**
+
+If you're building something similar:
+
+1. **Canonicalize rules in one file** (AGENTS.md) + validation script to keep copies in sync
+2. **Support multiple hook mechanisms**:
+   - System prompt transformation (most universal)
+   - Pre-LLM-call hooks (if platform supports)
+   - MCP server (for agents without plugin hooks)
+   - Editor rules files (for IDE integration)
+3. **Implement mode-switching** (lite/full/ultra/off) with persistent state
+4. **Protect safety invariants** via phrase-checking in tests/CI
+5. **Provide slash commands** for runtime control (mode switching, auditing)
+6. **Mark intentional optimizations** in code comments (upgrade paths)
+7. **Benchmark real agent sessions** (not single-shot LLM calls) to validate claims
+
+---
+
+This completes the technical breakdown of Ponytail. The core innovation is **pre-generation tone injection via a decision ladder**, combined with **multi-platform support** through canonical rules, platform-agnostic MCP, and editor-native rules files.</result>
+<usage><subagent_tokens>23830</subagent_tokens><tool_uses>38</tool_uses><duration_ms>180017</duration_ms></usage>
+</task-notification>
