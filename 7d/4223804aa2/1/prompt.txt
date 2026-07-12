@@ -1076,3 +1076,405 @@ Caveman is a **sophisticated, multi-agent tone-compression plugin** that:
 All core instruction text is available in the repo; the key tone ruleset can be found in `/skills/caveman/SKILL.md`.</result>
 <usage><subagent_tokens>20840</subagent_tokens><tool_uses>21</tool_uses><duration_ms>163225</duration_ms></usage>
 </task-notification>
+
+---
+
+<task-notification>
+<task-id>a9878a91577121017</task-id>
+<tool-use-id>toolu_01MUKFQUiHsCMG6SW9Q8MwRK</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-harness/aff7fce4-39c1-43fc-9841-b804b7594bf8/tasks/a9878a91577121017.output</output-file>
+<status>completed</status>
+<summary>Agent "Examine ponytail repo" completed</summary>
+<result>Perfect! Now let me compile all this information into a structured technical breakdown. Based on my research, here's what I've discovered:
+
+---
+
+## Ponytail Technical Breakdown
+
+### 1. **What It Does**
+
+Ponytail is a **tone/personality plugin for AI coding agents** that enforces a "lazy senior developer" philosophy. It transforms agent behavior to prioritize **minimal, efficient code generation** by applying a hierarchical decision ladder *before* code is written.
+
+**Philosophy**: "The best code is the code you never wrote." — Lazy means **efficient, not careless**.
+
+**Impact Target**: It injects tone into **both user prompts and system instructions**, influencing the model's approach to code generation and problem-solving.
+
+**Personality**: Adopts the archetype of a lazy senior developer who "says nothing, writes one line, it works" — emphasizing reuse, deletion over addition, and ruthless elimination of unnecessary code.
+
+---
+
+### 2. **File/Directory Structure**
+
+```
+ponytail/
+├── .agents/                    # Hermes Agent plugin
+│   ├── plugins/
+│   ├── rules/                 # Agent-specific rules
+├── .claude-plugin/            # Claude Code plugin (settings.json, hooks)
+├── .clinerules/               # Cline editor rules
+├── .codex-plugin/             # Codex plugin
+├── .cursor/rules/             # Cursor editor rules
+├── .devin-plugin/             # Devin CLI plugin
+├── .github/
+│   ├── FUNDING.yml
+│   ├── copilot-instructions.md  # GitHub Copilot integration
+├── .kiro/steering/            # Kiro agent steering rules
+├── .opencode/
+│   ├── plugins/ponytail.mjs    # OpenCode plugin implementation
+├── .openclaw/                  # OpenClaw plugin
+├── .qoder/
+│   ├── rules/ponytail.md
+│   └── plugin/
+├── .windsurf/rules/           # Windsurf editor rules
+├── pi-extension/
+│   └── index.js               # Pi agent extension (session state mgmt)
+├── ponytail-mcp/              # Model Context Protocol server
+│   └── index.js               # MCP implementation (prompts + tools)
+├── scripts/
+│   └── check-rule-copies.js   # Validates rule consistency across platforms
+├── skills/                    # Slash command implementations
+├── benchmarks/results/        # Performance metrics (54% LOC reduction proven)
+├── commands/                  # Command definitions
+├── docs/                      # Documentation
+├── examples/                  # Usage examples
+├── hooks/                     # Hook implementations
+├── tests/                     # Test suite
+├── AGENTS.md                  # Main rule source document
+├── plugin.yaml                # Hermes plugin metadata
+├── package.json               # npm package config
+├── opencode.json              # OpenCode plugin config
+├── gemini-extension.json      # Gemini CLI extension
+├── after-install.md           # Installation &amp; setup guide
+├── README.md                  # Main documentation
+└── LICENSE (MIT)
+```
+
+**Key structural patterns**:
+- **Rules are canonicalized**: `AGENTS.md` is the single source of truth; a script (`check-rule-copies.js`) ensures all platform-specific rule files stay synchronized
+- **Multi-platform support**: Separate configuration for each agent (Claude Code, Cursor, Cline, Windsurf, Codex, Devin, Kiro, OpenCode, Qoder, Pi, Gemini, etc.)
+- **Two injection approaches**:
+  - **Rules files** (.md) for direct prompt injection (Cursor, Windsurf, Cline)
+  - **Plugins** (.yaml, .mjs, .js) with hooks for hook-based injection (Claude Code, OpenCode, Pi, MCP)
+
+---
+
+### 3. **Hook Mechanism — How It Injects Tone**
+
+Ponytail uses **multiple injection strategies** depending on the agent platform:
+
+#### **A. Claude Code / Hermes Plugin Hooks**
+
+From `plugin.yaml`:
+```yaml
+name: ponytail
+version: 4.8.4
+provides_hooks:
+  - pre_llm_call
+  - pre_gateway_dispatch
+provides_commands:
+  - ponytail
+  - ponytail-review
+  - ponytail-audit
+  - ponytail-debt
+  - ponytail-gain
+  - ponytail-help
+```
+
+**Hooks Used**:
+- **`pre_llm_call`**: Injects ponytail instructions into the system prompt before the LLM is called
+- **`pre_gateway_dispatch`**: Intercepts requests before gateway processing
+
+#### **B. OpenCode Plugin System** (`ponytail.mjs`)
+
+Hook mechanism via OpenCode's plugin API:
+```
+experimental.chat.system.transform:
+  - Appends ponytail instructions to system prompt each turn
+  - Respects mode setting (off disables injection)
+  - Persists mode state to .ponytail-active file
+
+command.execute.before:
+  - Intercepts /ponytail command
+  - Parses mode argument (lite/full/ultra/off)
+  - Persists mode choice
+```
+
+#### **C. Pi Agent Extension** (`pi-extension/index.js`)
+
+Session-based hook mechanism:
+```
+Events monitored:
+  - Session initialization: Loads persisted mode settings
+  - Pre-agent-start: Injects mode-specific instructions into system prompt
+  - Agent startup/shutdown: Toggles status indicator
+  - User input: Detects deactivation commands
+
+Mode resolution:
+  - Retrieves current mode from session history
+  - Falls back to default if needed
+  - Maintains local state variables for mode, status, context
+```
+
+#### **D. MCP Server** (`ponytail-mcp/index.js`)
+
+Model Context Protocol integration (two interfaces):
+```
+Prompt Registration:
+  - Registers prompt called "ponytail"
+  - Accepts optional 'mode' parameter (lite, full, ultra)
+  - Returns instructions as user message
+
+Tool Registration:
+  - Tool "ponytail_instructions"
+  - Provides ruleset programmatically
+  - Returns structured output (mode + instruction text)
+  - Marked as read-only, closed-world
+
+Shared functions:
+  - resolveMode(): Normalizes mode parameter
+  - buildInstructions(): Generates actual guidance text per mode
+```
+
+#### **E. Editor Integration** (Cursor, Windsurf, Cline, Qoder, Kiro)
+
+**No hooks** — uses direct `.md` rules files:
+- `.cursor/rules/ponytail.md`
+- `.windsurf/rules/ponytail.md`
+- `.clinerules/ponytail.md`
+- `.qoder/rules/ponytail.md`
+- `.kiro/steering/ponytail.md`
+
+These are injected by the editor's native rules system (no explicit hook configuration needed).
+
+---
+
+### 4. **Prompt/Instruction Content — Actual Tone Text**
+
+The core instructions appear consistently across all platform variants. Here's the complete decision ladder and philosophy:
+
+#### **The Decision Ladder** (7 rungs, stop at first match):
+
+```
+1. Does this need to be built at all? (YAGNI principle)
+2. Does it already exist in this codebase? → Reuse existing helpers/patterns
+3. Does the standard library already do this?
+4. Does a native platform feature cover it?
+5. Does an already-installed dependency solve it?
+6. Can this be one line?
+7. Only then: Write the minimum code that works
+```
+
+#### **Full Instruction Set** (Canonical text from `.clinerules/ponytail.md` and others):
+
+```
+You are a lazy senior developer. Lazy means efficient, not careless. 
+The best code is the code never written.
+
+BEFORE CODING, address this ladder. Stop at the first rung that applies:
+
+1. Is it necessary? Apply YAGNI principle
+2. Already exists here? Reuse existing helpers/patterns
+3. Standard library covers it? Use built-in functionality
+4. Native platform feature? Leverage it
+5. Dependency installed? Use existing packages
+6. One-liner solution? Keep it minimal
+7. Only then: Write minimal working code
+
+CORE PRINCIPLES
+
+What to avoid:
+  - Unrequested abstractions
+  - New dependencies when avoidable
+  - Unnecessary boilerplate
+  - Deletion preferred over addition
+  - Simplicity over cleverness
+
+What matters:
+  - Full problem comprehension before coding
+  - Input validation at trust boundaries
+  - Error handling preventing data loss
+  - Security and accessibility
+  - Hardware calibration realities
+  - Explicit requirements
+
+QUALITY STANDARDS
+
+Bug fixes: Address root causes, not symptoms. Fix shared functions 
+once rather than patching individual call sites.
+
+Deliberate shortcuts: Mark known trade-offs with `ponytail:` comments 
+naming limitations and upgrade paths.
+
+Testing: Non-trivial logic requires one small runnable check—no frameworks 
+needed; trivial one-liners skip tests.
+```
+
+#### **By Intensity Mode**:
+
+Ponytail supports **4 modes** with varying strictness:
+- **`lite`**: Core principles only, minimal enforcement
+- **`full`** (default): Complete decision ladder + all guardrails
+- **`ultra`**: Aggressive minimalism, maximum reuse pressure
+- **`off`**: Disables the plugin entirely
+
+The actual instruction text adapts per mode (buildInstructions() generates mode-specific text).
+
+---
+
+### 5. **Installation Methods**
+
+#### **Claude Code (Plugin Marketplace)**
+```bash
+/plugin marketplace add DietrichGebert/ponytail
+/plugin install ponytail@ponytail
+```
+
+Then enable:
+```bash
+hermes plugins enable ponytail
+```
+
+#### **Cursor / Windsurf / Cline / VS Code / JetBrains**
+Copy the appropriate rules file to your project:
+- Cursor: `.cursor/rules/ponytail.md` → `.cursor/rules/`
+- Windsurf: `.windsurf/rules/ponytail.md` → `.windsurf/rules/`
+- Cline: `.clinerules/ponytail.md` → `.clinerules/`
+
+#### **OpenCode**
+```json
+{
+  "plugin": ["@dietrichgebert/ponytail"]
+}
+```
+
+Or: `opencode.json` → Add plugin reference
+
+#### **Pi Agent Harness**
+```bash
+pi install git:github.com/DietrichGebert/ponytail
+```
+
+#### **GitHub Copilot CLI**
+```bash
+copilot plugin marketplace add DietrichGebert/ponytail
+copilot plugin install ponytail@ponytail
+```
+
+#### **Other Platforms**
+- **Qoder**: Copy `.qoder/rules/ponytail.md`
+- **Devin CLI**: `devin plugins install DietrichGebert/ponytail`
+- **Gemini CLI**: `gemini extensions install https://github.com/DietrichGebert/ponytail`
+- **Kiro**: `.kiro/steering/ponytail.md`
+
+#### **Configuration**
+Default mode can be set via:
+- **Environment**: `PONYTAIL_DEFAULT_MODE=lite|full|ultra|off`
+- **Config file**: `~/.config/ponytail/config.json` with `defaultMode` field
+- **Command**: `/ponytail [lite|full|ultra|off]`
+
+---
+
+### 6. **Slash Commands (Plugin Features)**
+
+Available as both commands and callable skills:
+
+| Command | Function |
+|---------|----------|
+| `/ponytail [lite\|full\|ultra\|off]` | Adjust intensity level, check status |
+| `/ponytail-review` | Identifies over-engineering in current diff |
+| `/ponytail-audit` | Scans entire repository for unnecessary complexity |
+| `/ponytail-debt` | Catalogs deferred optimizations for later refactoring |
+| `/ponytail-gain` | Displays benchmark performance improvements |
+| `/ponytail-help` | Reference guide for all commands |
+
+These are implemented in the `skills/` directory and callable programmatically via `ponytail:&lt;skill-name&gt;` in multi-agent workflows.
+
+---
+
+### 7. **Coding-Standards Injection — Pre-Code vs. Post-Code**
+
+Ponytail injects instructions **BEFORE code generation** — not post-processing:
+
+**Injection Point**: System prompt / LLM context before the model generates code
+
+**Mechanism**: The ladder is presented *as part of the system message*, so the model evaluates necessity, reuse, and alternatives **before** writing a single line.
+
+**NOT applied post-generation**: No linter, no rewriting pass. The instruction shapes decision-making during generation.
+
+**Marked Code**: Shortcuts/known limitations are marked with `ponytail:` comments in the generated code itself:
+```python
+# ponytail: O(n²) scan but dataset &lt; 1000 rows, safe for now
+# upgrade path: add index if performance needed
+```
+
+---
+
+### 8. **Safety Guarantees** (Non-Negotiable)
+
+The plugin **never optimizes away**:
+- **Trust boundary validation**: Input validation at system/user boundaries
+- **Data loss prevention**: Error handling that prevents data loss
+- **Security practices**: No weakening of crypto, auth, or trust checks
+- **Accessibility standards**: WCAG compliance never sacrificed
+- **Explicitly requested features**: If the user asked for it, the ladder doesn't apply
+
+These are **invariant phrases** checked by the `check-rule-copies.js` validation script to prevent accidental regression.
+
+---
+
+### 9. **Performance Claims (Benchmarked)**
+
+Real-world testing on `tiangolo/full-stack-fastapi-template` (FastAPI + React):
+
+| Metric | Reduction |
+|--------|-----------|
+| **Lines of Code** | −54% (mean) |
+| **Token Usage** | −22% |
+| **Cost** | −20% |
+| **Execution Time** | −27% |
+| **Safety Rating** | 100% (security validation preserved) |
+
+**High-impact areas** (60–94% reduction): Date pickers, form components, UI wrappers
+**Minimal-code tasks** (convergence): Backend CRUD, already-lean code
+
+---
+
+### 10. **Key Implementation Files** (Summary)
+
+| File | Purpose |
+|------|---------|
+| `AGENTS.md` | Canonical rule source (single source of truth) |
+| `plugin.yaml` | Hermes plugin metadata &amp; hook declarations |
+| `.claude-plugin/settings.json` | Claude Code plugin configuration |
+| `ponytail-mcp/index.js` | MCP server (prompt + tool injection) |
+| `.opencode/plugins/ponytail.mjs` | OpenCode plugin with system prompt transform hook |
+| `pi-extension/index.js` | Pi agent session-based injection |
+| `scripts/check-rule-copies.js` | Validates rule consistency across platforms |
+| `.cursor/rules/ponytail.md` | Cursor editor rules (canonical copy) |
+| `.windsurf/rules/ponytail.md` | Windsurf editor rules |
+| `.clinerules/ponytail.md` | Cline editor rules |
+| `skills/ponytail/skill.md` | Skill implementation for slash commands |
+
+---
+
+### 11. **Architecture Patterns to Build Similar**
+
+If you're building something similar:
+
+1. **Canonicalize rules in one file** (AGENTS.md) + validation script to keep copies in sync
+2. **Support multiple hook mechanisms**:
+   - System prompt transformation (most universal)
+   - Pre-LLM-call hooks (if platform supports)
+   - MCP server (for agents without plugin hooks)
+   - Editor rules files (for IDE integration)
+3. **Implement mode-switching** (lite/full/ultra/off) with persistent state
+4. **Protect safety invariants** via phrase-checking in tests/CI
+5. **Provide slash commands** for runtime control (mode switching, auditing)
+6. **Mark intentional optimizations** in code comments (upgrade paths)
+7. **Benchmark real agent sessions** (not single-shot LLM calls) to validate claims
+
+---
+
+This completes the technical breakdown of Ponytail. The core innovation is **pre-generation tone injection via a decision ladder**, combined with **multi-platform support** through canonical rules, platform-agnostic MCP, and editor-native rules files.</result>
+<usage><subagent_tokens>23830</subagent_tokens><tool_uses>38</tool_uses><duration_ms>180017</duration_ms></usage>
+</task-notification>
