@@ -126,3 +126,7 @@ Two things worth flagging for your cleanup: (a) `skills/btw-pull-request/skill.m
 ---
 
 For the hook I want to stop from marking as complete.  Lets have it run on the POST-TOOL-USE for verify and make sure that either 1] a playwright screen shot / video exists 2] a curl script exists or 3] a bash command to verify databse exists.
+
+---
+
+don't run.  Do commit.
