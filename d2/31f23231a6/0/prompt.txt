@@ -1,0 +1,136 @@
+Ok I want to plan up some clean up to this workflow 1. Change review => comprehensive review change simplify => clean-code.  Lets remove the learning-from mistakes in the workflow.  Lets add in how to verify to each plan and make the existance of verification ensured by a hook in settings, that gets installed.
+
+---
+
+<task-notification>
+<task-id>a0f4b4bb4e9a62722</task-id>
+<tool-use-id>REDACTED</tool-use-id>
+<output-file>/private/tmp/claude-501/-Users-robertlopez-repos-harness/34216458-52c1-4249-b314-6b116c261b7c/tasks/a0f4b4bb4e9a62722.output</output-file>
+<status>completed</status>
+<summary>Agent "Explore skills and workflow structure" finished</summary>
+<note>A task-notification fires each time this agent stops with no live background children of its own. The user can send it another message and resume it, so the same task-id may notify more than once.</note>
+<result>I have everything I need. Here is the complete map of the harness repo.
+
+## 1. Directory structure of `/Users/robertlopez/repos/harness`
+
+Top-level:
+- `AGENTS.md`, `Readme.md`, `improvements.md`, `skills-inventory.md`, `install.sh`
+- `scripts/` — empty directory
+- `.claude/` — `settings.json`, `settings.local.json`, and a `skills/` subdir containing installed copies of `problem-spec/` and `skill-creator/` (these are separate installed copies, not the source skills)
+- `.entire/` — tooling metadata/logs (not skill-related)
+
+`skills/` directory — every skill folder and its files:
+
+| Folder | Files |
+|---|---|
+| `btw-pull-request/` | `skill.md` (note: lowercase `skill.md`, not `SKILL.md`) |
+| `dispatching-parallel-agents/` | `SKILL.md` |
+| `frontend-design/` | `SKILL.md`, `LICENSE.txt` |
+| `initialize/` | `SKILL.md` |
+| `learn-from-mistakes/` | `SKILL.md` |
+| `next-react-boot/` | `SKILL.md` |
+| `plan/` | `SKILL.md`, `evals/evals.json`, `sub-skills/plan-step.md`, `sub-skills/tdd.md` |
+| `pr-interactive-walkthrough/` | `SKILL.md` |
+| `problem-spec/` | `SKILL.md`, `evals/evals.json`, `sub-skills/pre-mortem.md`, `sub-skills/red-team.md`, `sub-skills/socratic.md` |
+| `python-psql-boot/` | `SKILL.md` |
+| `refactor/` | `SKILL.md` |
+| `review/` | `SKILL.md`, `sub-skills/adversarial.md`, `sub-skills/edge-case-hunter.md`, `sub-skills/prior-art.md`, `sub-skills/security.md`, `sub-skills/standard.md` |
+| `simplify/` | `SKILL.md`, `sub-skills/frontend-cleanup.md` |
+| `skill-creator/` | `SKILL.md`, `LICENSE.txt`, `.claude-plugin/plugin.json`, `agents/{analyzer,comparator,grader}.md`, `assets/eval_review.html`, `eval-viewer/{generate_review.py,viewer.html}`, `references/schemas.md`, `scripts/*.py` (9 scripts) |
+| `systematic-debugging/` | `SKILL.md`, `CREATION-LOG.md`, plus `.ts`/`.md`/`.sh` supporting files |
+| `verify/` | `SKILL.md`, `sub-skills/webapp-testing/` (SKILL.md, LICENSE.txt, examples/, scripts/) |
+
+## 2. `review` and `simplify` skills
+
+Exact folder names: `skills/review/` and `skills/simplify/`. Both use uppercase `SKILL.md`.
+
+`review` — `/Users/robertlopez/repos/harness/skills/review/SKILL.md`
+- Frontmatter `name: review`
+- Description: "Reviews staged changes or a branch diff for bugs, missed edge cases, and unhandled error conditions. Runs three parallel reviewers — standard correctness, exhaustive path tracing, and adversarial — then merges findings and reports reviewer validity." Trigger phrases: "review this", "check for bugs", "what did I miss", "look for edge cases", or plan dashboard's Review column.
+- Content summary: Runs parallel reviewers against a diff. Note: the description says "three parallel reviewers" but the body (line 13) says "Four independent reviewers" and lists four sub-skills — `standard.md`, `edge-case-hunter.md`, `adversarial.md`, `prior-art.md` (plus a `security.md` sub-skill file exists that isn't listed in the body). Has two run modes (workflow vs standalone), a prior-step gate (Auto Tests → Verify → Simplify → **Review** → Understand → Human), a 4-step process (gather context, dispatch parallel, merge, triage), an output format saved to `docs/&lt;feature&gt;/reviews/&lt;step&gt;-&lt;date&gt;.md`, a Reviewer Validity table, and a mandatory plan.md update step.
+
+`simplify` — `/Users/robertlopez/repos/harness/skills/simplify/SKILL.md`
+- Frontmatter `name: simplify`
+- Description: "Reviews staged changes or a branch diff and simplifies the code following XP Simple Design, Clean Code, and Martin Fowler refactoring principles. Applies clear improvements directly and suggests uncertain ones for human review. Biases toward silence…" Trigger phrases: "simplify", "clean this up", "refactor this", "is this the simplest solution", subagent after staging, or plan dashboard's Simplify column.
+- Content summary: Conservative cleanup pass. Never touches tests. Two run modes and a prior-step gate (Auto Tests → Verify → **Simplify** → Review). "Re-run after subsequent fixes" rule. One sub-skill: `sub-skills/frontend-cleanup.md` (auto-run on `.tsx`). An 11-point "What to Look For" list, Fowler catalog, applied-vs-suggested distinction, output saved to `docs/&lt;feature&gt;/simplify/&lt;step&gt;-&lt;date&gt;.md`, commit step, mandatory plan.md update. Explicitly contrasted with `/refactor` (which lives in `skills/refactor/SKILL.md`).
+
+## 3. `learn-from-mistakes` skill
+
+`/Users/robertlopez/repos/harness/skills/learn-from-mistakes/SKILL.md`, frontmatter `name: learn-from-mistakes`.
+
+What it does: A lightweight retrospective that runs twice per step — pre-human (after Review, before sign-off) and post-human (after sign-off, the most important run). It logs (does not fix) human corrections, missed edge cases, implementation holes, bad assumptions, skill gaps, and test gaps. It appends entries to `.claude/learnings.md` with a category, an error class (Specification/Skill/Context/Prompt), and a kebab-case pattern tag. When a pattern tag recurs 3+ times it surfaces a suggested fix routed by error class (to `/problem-spec`, a specific skill, AGENTS.md, or the user's CLAUDE.md). Also writes per-step summaries to `docs/learnings/&lt;feature&gt;-&lt;step&gt;-&lt;date&gt;.md` and marks the Human column ✅ in plan.md.
+
+How it's referenced (as the last stage of the workflow, invoked as `/learn-from-mistakes`): see the cross-reference list in section 4.
+
+## 4. Every reference to the three skill names (for rename/removal impact)
+
+`learn-from-mistakes` references (invoked as `/learn-from-mistakes`):
+- `Readme.md:37` — inventory table row; `Readme.md:48` — workflow chain diagram (final stage)
+- `AGENTS.md:44` — workflow diagram; `AGENTS.md:68` — skills table row; `AGENTS.md:93` — trigger/routing table; `AGENTS.md:124` — "Behavioral Rules" section attribution
+- `install.sh:144` — skills table row; `install.sh:171` — workflow diagram; `install.sh:215` and `install.sh:247` — Behavioral Rules section text (the `:247` line actually writes this text into the target AGENTS.md/CLAUDE.md during install)
+- `skills/initialize/SKILL.md:32` — list of skill files to reference; `:90` — workflow diagram; `:109` — skills table row with path link `&lt;harness-path&gt;/skills/learn-from-mistakes/SKILL.md`; `:117` — Behavioral Rules attribution
+- `skills/plan/SKILL.md:246` — prior-step-gate list of workflow skills
+- `skills-inventory.md:83` and `:130` — inventory tables
+- `improvements.md:67` — workflow-chain change note
+- `.claude/settings.local.json:17` — a permission entry with a hardcoded `cp` path to `skills/learn-from-mistakes/SKILL.md`
+
+`review` references (invoked as `/review`; folder `skills/review/`):
+- `AGENTS.md` — lines 40 (workflow diagram), 47 (failure note), 66 (skills table), 91 (routing table), 105, 107–109, 113–114 (rules distinguishing review vs walkthrough and run modes)
+- `Readme.md:35` (table), `:48` (workflow chain)
+- `install.sh:167` (workflow diagram)
+- `skills/initialize/SKILL.md` — line 6 (workflow phrase "verify→simplify→review→learn"), line 31 (`skills/review/SKILL.md` in reference list), line 86 (workflow diagram)
+- `skills/plan/SKILL.md` — lines 222 (dashboard column header "Review"), 231 (workflow order), 236 (column definition), 245–246 (prior-step-gate skill list)
+- `skills/plan/evals/evals.json:13` — asserts a "Review" dashboard column exists
+- `skills/plan/sub-skills/plan-step.md` — lines 50, 66, 67, 70 (`/review` handoff steps)
+- `skills/simplify/SKILL.md` — lines 28, 40, 48–49, 52, 60–62, 324 (references Review as the next stage / gate)
+- `skills/verify/SKILL.md` — lines 136, 140, 172, 174 (downstream skills "simplify, review")
+- `skills/learn-from-mistakes/SKILL.md` — lines 22, 23, 35, 95 (reads `docs/&lt;feature&gt;/reviews/…`, "review/simplify/verify skills")
+- `skills/refactor/SKILL.md` — line 119 (prose mention)
+- `skills-inventory.md` — lines 31, 43, 59, 61, 62, 97, 98, 124, 126, 127, 136, 156 (inventory + backlog rows)
+- `improvements.md` — lines 19, 67, 87, 103, 107, 111, 115, 119 (references to `review/SKILL.md`, `review/sub-skills/standard.md`, `review/sub-skills/security.md`)
+- Note: the string "reviews" is also the hardcoded output subdirectory name `docs/&lt;feature&gt;/reviews/` used across `review/SKILL.md` (120–122), `review/sub-skills/prior-art.md` (42, 44, 128, 133), and `learn-from-mistakes/SKILL.md:35` — renaming the skill wouldn't require changing these, but they're coupled to the concept.
+
+`simplify` references (invoked as `/simplify`; folder `skills/simplify/`):
+- `AGENTS.md` — lines 39 (workflow diagram), 47 (failure note), 64 (skills table), 89 (routing table), 107–108, 113 (run-mode rules)
+- `Readme.md:34` (table), `:48` (workflow chain)
+- `install.sh:166` (workflow diagram)
+- `skills/initialize/SKILL.md` — line 6 (workflow phrase), line 30 (`skills/simplify/SKILL.md` in reference list), line 85 (workflow diagram)
+- `skills/plan/SKILL.md` — lines 222 (dashboard column), 231 (workflow order), 235 (column definition), 245 (gate skill list)
+- `skills/plan/evals/evals.json:13` — asserts a "Simplify" dashboard column
+- `skills/plan/sub-skills/plan-step.md` — lines 50, 65, 67, 70 (`/simplify` handoff)
+- `skills/review/SKILL.md` — lines 28, 40, 41, 48, 49, 51, 52 (prior gate references "Simplify" and `docs/&lt;feature&gt;/simplify/…`)
+- `skills/verify/SKILL.md` — lines 136, 140, 172, 174
+- `skills/refactor/SKILL.md` — lines 5, 6, 19, 83, 87, 89, 92, 93, 97, 99 (the entire "Refactor vs Simplify" comparison — heavily coupled)
+- `skills/simplify/sub-skills/frontend-cleanup.md` — lines 3, 4 (self-reference `Sub-skill of /simplify`)
+- `skills/learn-from-mistakes/SKILL.md` — lines 23, 34, 94, 95 (reads `docs/&lt;feature&gt;/simplify/…`)
+- `skills-inventory.md` — lines 32, 37, 124, 137 (inventory rows)
+- `improvements.md` — lines 67, 87, 89, 93, 96, 97, 101, 149 (references to `simplify/SKILL.md` and its Python/TS sections)
+- Note: `docs/&lt;feature&gt;/simplify/` is the hardcoded output subdir, referenced in `simplify/SKILL.md` (295, 297, 305), `review/SKILL.md` (48–49), `review/sub-skills/prior-art.md:52`, `learn-from-mistakes/SKILL.md:34`.
+
+Key rename hotspots (files touched by all three): `AGENTS.md`, `Readme.md`, `install.sh`, `skills-inventory.md`, `improvements.md`, `skills/initialize/SKILL.md`, `skills/plan/SKILL.md`, `skills/plan/evals/evals.json`, `skills/plan/sub-skills/plan-step.md`, `skills/learn-from-mistakes/SKILL.md`, `skills/verify/SKILL.md`, and (for review↔simplify cross-refs) `skills/review/SKILL.md`, `skills/simplify/SKILL.md`, `skills/refactor/SKILL.md`. Plus the stray hardcoded path in `.claude/settings.local.json:17`.
+
+## 5. Top-level files
+
+- `/Users/robertlopez/repos/harness/Readme.md` (3.2 KB) — skills inventory table + workflow chain diagram
+- `/Users/robertlopez/repos/harness/AGENTS.md` (7.1 KB) — canonical workflow, skills table, trigger/routing table, rules, Behavioral Rules section
+- `/Users/robertlopez/repos/harness/skills-inventory.md` (13.9 KB) — detailed mapping of skills to external references + backlog
+- `/Users/robertlopez/repos/harness/improvements.md` (10.4 KB) — change log / backlog of planned skill edits
+- `/Users/robertlopez/repos/harness/install.sh` (10 KB, executable) — installer that writes AGENTS.md/CLAUDE.md content (contains skill tables and workflow diagrams inline)
+- `/Users/robertlopez/repos/harness/.claude/settings.json` and `.claude/settings.local.json` — settings/permissions (the `.local.json` has a hardcoded path referencing `learn-from-mistakes/SKILL.md`)
+- `scripts/` exists but is empty.
+
+Two things worth flagging for your cleanup: (a) `skills/btw-pull-request/skill.md` is lowercase while every other skill uses `SKILL.md`; (b) the `review` SKILL.md description says "three parallel reviewers" but the body and sub-skills folder define four (standard, edge-case-hunter, adversarial, prior-art) plus an unlisted `security.md`.</result>
+<usage><subagent_tokens>41805</subagent_tokens><tool_uses>8</tool_uses><duration_ms>82964</duration_ms></usage>
+</task-notification>
+
+---
+
+For the hook I want to stop from marking as complete.  Lets have it run on the POST-TOOL-USE for verify and make sure that either 1] a playwright screen shot / video exists 2] a curl script exists or 3] a bash command to verify databse exists.
+
+---
+
+don't run.  Do commit.
+
+---
+
+Ok was it commited on a branch? You can merge it into main.

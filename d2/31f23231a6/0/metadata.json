@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "d231f23231a6",
+  "session_id": "34216458-52c1-4249-b314-6b116c261b7c",
+  "strategy": "manual-commit",
+  "created_at": "2026-07-12T05:42:11.808998Z",
+  "branch": "main",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "skills/btw-pull-request/skill.md"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-8[1m]",
+  "turn_id": "295e6f791505",
+  "token_usage": {
+    "input_tokens": 224,
+    "cache_creation_tokens": 178842,
+    "cache_read_tokens": 15582652,
+    "output_tokens": 79462,
+    "api_call_count": 112
+  },
+  "session_metrics": {
+    "turn_count": 5
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-07-12T05:42:11.358047Z",
+    "agent_lines": 4,
+    "agent_removed": 8,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 4,
+    "total_lines_changed": 12,
+    "agent_percentage": 100,
+    "metric_version": 2
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "d231f23231a6",
+  "strategy": "manual-commit",
+  "branch": "main",
+  "checkpoints_count": 3,
+  "files_touched": [
+    "skills/btw-pull-request/skill.md"
+  ],
+  "sessions": [
+    {
+      "metadata": "/d2/31f23231a6/0/metadata.json",
+      "transcript": "/d2/31f23231a6/0/full.jsonl",
+      "content_hash": "/d2/31f23231a6/0/content_hash.txt",
+      "prompt": "/d2/31f23231a6/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 224,
+    "cache_creation_tokens": 178842,
+    "cache_read_tokens": 15582652,
+    "output_tokens": 79462,
+    "api_call_count": 112
+  }
+}
