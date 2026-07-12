@@ -3,12 +3,14 @@ name: plan
 description: >
   Creates a structured implementation plan from a problem spec, breaking work into independently
   testable steps with dependency tracking and a living status dashboard.
-  ONLY trigger this skill when a problem spec already exists at docs/<feature>/spec.md — if no spec
+  ONLY trigger this skill when a problem spec already exists at docs/{feature}/spec.md — if no spec
   is present, simpler ad-hoc planning suffices and this skill should not be used.
   Trigger on: "make a plan", "plan this out", "how should we implement this", "create an
   implementation plan", "break this into tasks", "what order should we build this in" — but only
   when a spec.md exists. If the user asks to plan something and there is no spec, tell them to run
   /problem-spec first.
+disable-model-invocation: true
+version: "1.0.0"
 ---
 
 # Plan Skill

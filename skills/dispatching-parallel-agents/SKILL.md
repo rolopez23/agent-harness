@@ -1,6 +1,7 @@
 ---
 name: dispatching-parallel-agents
-description: Use when facing 2+ independent tasks that can be worked on without shared state or sequential dependencies
+description: Use when facing two or more independent tasks with no shared state or sequential dependency — delegate each to a separate agent with its own precisely-scoped context so they run concurrently. Reach for this whenever work splits into parallel tracks, even if the user doesn't explicitly ask to parallelize.
+version: "1.0.0"
 ---
 
 # Dispatching Parallel Agents

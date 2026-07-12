@@ -1,11 +1,7 @@
 ---
 name: review-comprehensive
-description: >
-  Comprehensive review of staged changes or a branch diff for bugs, missed edge cases, and
-  unhandled error conditions. Runs four parallel reviewers — standard correctness, exhaustive
-  path tracing, adversarial, and prior-art — then merges findings and reports reviewer validity.
-  Trigger when the user says "review this", "check for bugs", "what did I miss", "look for
-  edge cases", or when the plan dashboard's Comp Review column needs to be updated.
+description: Use when reviewing written code to catch logical bugs and missed edge cases. You should aim to generally call this on any substantial code change (more than 50 lines excluding tests and comments).
+version: "1.0.0"
 ---
 
 # Comprehensive Review

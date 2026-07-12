@@ -8,6 +8,8 @@ description: >
   big", "split this up", "extract X out of Y", "this needs restructuring", or asks for
   Fowler-style moves on existing code. Do NOT trigger as part of the per-step workflow —
   refactor is an explicit, user-invoked operation, not a workflow stage.
+disable-model-invocation: true
+version: "1.0.0"
 ---
 
 # Refactor

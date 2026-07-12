@@ -1,6 +1,11 @@
 ---
 name: systematic-debugging
-description: Use when encountering any bug, test failure, or unexpected behavior, before proposing fixes
+description: >
+  Use when encountering any bug, test failure, or unexpected behavior — before proposing or
+  writing a fix. Enforces root-cause diagnosis over quick patches: reproduce, isolate, trace to
+  the underlying cause, then fix. Applies even when the user just says "it's broken" or pastes a
+  stack trace without asking for a methodology.
+version: "1.0.0"
 ---
 
 # Systematic Debugging

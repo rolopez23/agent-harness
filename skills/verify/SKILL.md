@@ -7,6 +7,8 @@ description: >
   or the verification cannot be run — this is distinct from a failure.
   Trigger when the user says "verify this", "test this end to end", "run the E2E", "check it
   works", or when the plan dashboard's LLM Verify column needs to be updated.
+disable-model-invocation: true
+version: "1.0.0"
 ---
 
 # Verify

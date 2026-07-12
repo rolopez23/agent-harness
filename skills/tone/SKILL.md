@@ -7,6 +7,8 @@ description: >
   "turn off the tone", "disable coding standards", "tone off", "standards on", "stop being
   terse", "tone status", or "what's my tone setting". Scope of the change persists across
   sessions and projects until toggled back.
+disable-model-invocation: true
+version: "1.0.0"
 ---
 
 # Tone

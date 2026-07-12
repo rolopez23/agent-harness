@@ -1,13 +1,7 @@
 ---
 name: clean-code
-description: >
-  Reviews staged changes or a branch diff and cleans up the code following XP Simple Design,
-  Clean Code, and Martin Fowler refactoring principles. Applies clear improvements directly and
-  suggests uncertain ones for human review. Biases toward silence — if a change isn't clearly
-  better, don't make it or suggest it.
-  Trigger when the user says "clean this up", "simplify", "is this the simplest
-  solution", or when invoked as a subagent after staging and before committing. Also trigger when
-  the plan dashboard's Clean Code column needs to be updated.
+description: Use to apply coding best practices to working code. Generally you should call this skill whenever you have working code to make sure the code is readable and maintainable.
+version: "1.0.0"
 ---
 
 # Clean Code

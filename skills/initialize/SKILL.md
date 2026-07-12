@@ -7,6 +7,8 @@ description: >
   when a project's context files are missing or don't reference these skills. Trigger when the
   user says "initialize this project", "set up AGENTS.md", "set up CLAUDE.md", "install
   skills", "onboard this repo", or "add skills to this project".
+disable-model-invocation: true
+version: "1.0.0"
 ---
 
 # Initialize

@@ -5,6 +5,8 @@ description: >
   Trigger when the user asks to bootstrap, scaffold, or create a new frontend, Next.js app,
   or React project. Also trigger when the user says "boot frontend", "new frontend",
   "create frontend", or "scaffold frontend".
+disable-model-invocation: true
+version: "1.0.0"
 ---
 
 # Next.js + React Frontend Boot

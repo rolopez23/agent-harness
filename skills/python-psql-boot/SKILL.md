@@ -5,6 +5,8 @@ description: >
   bootstrap, scaffold, or create a new backend, API, or Python server. Also trigger when the
   user says "boot backend", "new backend", "create backend", "scaffold backend", or
   "new API".
+disable-model-invocation: true
+version: "1.0.0"
 ---
 
 # Python + FastAPI + PostgreSQL Backend Boot

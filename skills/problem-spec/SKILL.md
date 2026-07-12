@@ -2,7 +2,7 @@
 name: problem-spec
 description: Human skill to increase specification on a problem.
 disable-model-invocation: true
-version: 1.0.0
+version: "1.0.0"
 ---
 
 # Problem Specification Skill
