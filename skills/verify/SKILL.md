@@ -133,17 +133,24 @@ If Playwright is not installed and the UI cannot be verified another way, return
   missing, behavior not observable this way)
 
 Failed blocks the plan dashboard update. Incomplete flags for human follow-up but does not
-block Simplify/Review.
+block Clean Code/Comp Review.
 
 ## Save the Output
 
-**The verification report is a required artifact.** Downstream skills (simplify, review) check
-for its existence before proceeding. Always save the report, even for N/A or incomplete results.
+**The verification report is a required artifact.** Downstream skills (clean-code,
+review-comprehensive) check for its existence before proceeding. Always save the report, even
+for N/A or incomplete results.
 
 Save the report to `docs/<feature>/verify/<step-name>-<YYYY-MM-DD>.md`. Determine `<feature>`
 from the plan path (e.g., `docs/eval-results-display/plan.md` → `eval-results-display`).
 If no plan exists, use `docs/verify/<branch-name>-<YYYY-MM-DD>.md` as fallback.
 Tell the user where the file was saved.
+
+**Evidence is enforced by a hook.** The `verify-evidence` PostToolUse hook reads the saved
+report and blocks the Verify column from being marked ✅ unless it contains one of three
+concrete evidence types: a `curl` command, a Playwright screenshot/video, or a DB check
+(`psql`/`sqlite3`/`\dt`/`SELECT`). A "Verified" outcome with no such evidence will be rejected —
+make sure the report shows the actual command you ran and its observed output.
 
 ## Output Format
 
@@ -169,7 +176,7 @@ Overall: Verified / Failed / Incomplete
 **You MUST update plan.md immediately after this skill completes — not later, not batched.**
 Update the Verify column in plan.md:
 - **Verified** → ✅
-- **Failed** → ❌ — needs fixes before Simplify or Review. Fix and re-verify, or update the
+- **Failed** → ❌ — needs fixes before Clean Code or Comp Review. Fix and re-verify, or update the
   plan if scope changed.
-- **Incomplete** → ⚠️ — flag for human follow-up; does not block Simplify/Review but must be
+- **Incomplete** → ⚠️ — flag for human follow-up; does not block Clean Code/Comp Review but must be
   resolved before Human sign-off.

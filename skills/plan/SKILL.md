@@ -219,21 +219,21 @@ Write to `docs/<feature-name>/plan.md`:
 
 ## Status Dashboard
 
-| Step                                                      | Blocks          | Branch / Commit | Auto Tests | Verify | Simplify | Review | Understand | Human |
-| --------------------------------------------------------- | --------------- | --------------- | :--------: | :----: | :------: | :----: | :--------: | :---: |
-| [schema](steps/schema.md)                                 | event-triggers, feed-api | —      |     ⬜     |   ➖   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
-| [event-triggers](steps/event-triggers.md)                 | feed-api        | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
-| [feed-api](steps/feed-api.md)                             | email-delivery  | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
-| [email-delivery](steps/email-delivery.md)                 | —               | —               |     ⬜     |   ⬜   |    ⬜    |   ⬜   |     ⬜     |  ⬜   |
+| Step                                                      | Blocks          | Branch / Commit | Auto Tests | Verify | Clean Code | Comp Review | Understand | Human |
+| --------------------------------------------------------- | --------------- | --------------- | :--------: | :----: | :--------: | :---------: | :--------: | :---: |
+| [schema](steps/schema.md)                                 | event-triggers, feed-api | —      |     ⬜     |   ➖   |     ⬜     |     ⬜      |     ⬜     |  ⬜   |
+| [event-triggers](steps/event-triggers.md)                 | feed-api        | —               |     ⬜     |   ⬜   |     ⬜     |     ⬜      |     ⬜     |  ⬜   |
+| [feed-api](steps/feed-api.md)                             | email-delivery  | —               |     ⬜     |   ⬜   |     ⬜     |     ⬜      |     ⬜     |  ⬜   |
+| [email-delivery](steps/email-delivery.md)                 | —               | —               |     ⬜     |   ⬜   |     ⬜     |     ⬜      |     ⬜     |  ⬜   |
 
 **Legend:** ⬜ pending · ✅ passed · ❌ failed · ⚠️ incomplete · ➖ N/A
 
-**Workflow order per step:** Auto Tests → Verify → Simplify → Review → Understand → Human
+**Workflow order per step:** Auto Tests → Verify → Clean Code → Comp Review → Understand → Human
 
 - **Auto Tests**: unit/integration tests passing (red-green-refactor, committed clean)
-- **Verify**: Proof the code works ([ref](https://simonwillison.net/2025/Dec/18/code-proven-to-work/)) — real curl, browser automation, DB inspection, file output. ➖ only when genuinely no observable effect exists.
-- **Simplify**: code has been through a simplify/refactor pass
-- **Review**: correctness review — bugs, edge cases, error handling
+- **Verify**: Proof the code works ([ref](https://simonwillison.net/2025/Dec/18/code-proven-to-work/)) — real curl, browser automation, DB inspection, file output. ➖ only when genuinely no observable effect exists. Enforced by the `verify-evidence` hook: a step cannot be marked ✅ unless the verify report contains a curl command, a Playwright screenshot/video, or a DB check.
+- **Clean Code**: code has been through a clean-code/refactor pass
+- **Comp Review**: comprehensive correctness review — bugs, edge cases, error handling
 - **Understand**: human passes `/pr-interactive-walkthrough` — all files rated Medium or High in the
   understanding assessment. Run with the step's commit range (before/after). Low on any file → ❌,
   follow up on low areas before sign-off
@@ -242,8 +242,8 @@ Write to `docs/<feature-name>/plan.md`:
 **On failure:** ❌ in any column requires fixes before proceeding. Do not mark Human ✅ while any
 prior column is ❌ without explicit user instruction.
 
-**Prior-step gate (enforced by each skill):** Every workflow skill (`verify`, `simplify`,
-`review`, `pr-interactive-walkthrough`, `learn-from-mistakes`) reads this dashboard before
+**Prior-step gate (enforced by each skill):** Every workflow skill (`verify`, `clean-code`,
+`review-comprehensive`, `pr-interactive-walkthrough`) reads this dashboard before
 running and refuses to start if the prior column for the current step is not ✅ or ➖. This
 is a hard gate, not a suggestion — it exists because the workflow has been silently skipped
 or reordered before. If a skill stops with a "prior step not complete" message, do not bypass

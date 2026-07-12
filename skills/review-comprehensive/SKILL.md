@@ -1,14 +1,14 @@
 ---
-name: review
+name: review-comprehensive
 description: >
-  Reviews staged changes or a branch diff for bugs, missed edge cases, and unhandled error
-  conditions. Runs three parallel reviewers — standard correctness, exhaustive path tracing,
-  and adversarial — then merges findings and reports reviewer validity.
+  Comprehensive review of staged changes or a branch diff for bugs, missed edge cases, and
+  unhandled error conditions. Runs four parallel reviewers — standard correctness, exhaustive
+  path tracing, adversarial, and prior-art — then merges findings and reports reviewer validity.
   Trigger when the user says "review this", "check for bugs", "what did I miss", "look for
-  edge cases", or when the plan dashboard's Review column needs to be updated.
+  edge cases", or when the plan dashboard's Comp Review column needs to be updated.
 ---
 
-# Review
+# Comprehensive Review
 
 Four independent reviewers run in parallel against the same diff. Each brings a different
 lens. Findings may overlap, contradict, or be unique — that's the point. All findings are
@@ -25,7 +25,7 @@ The four sub-skills are in `sub-skills/`:
 
 Review can be invoked two ways. Both are valid — they have different gates.
 
-- **Workflow mode** — invoked as part of a plan-driven step. Runs after Simplify, before
+- **Workflow mode** — invoked as part of a plan-driven step. Runs after Clean Code, before
   Understand, against the step's staged code. The prior-step gate below applies.
 - **Standalone mode** — invoked ad-hoc on staged changes, a PR, or a branch diff outside
   of any plan. No gate; skip straight to Step 1. Use this when reviewing someone else's
@@ -37,19 +37,19 @@ mode. Otherwise, standalone.
 
 ## Prior-Step Gate (workflow mode only)
 
-When running as part of a plan, review follows Simplify in the chain:
-Auto Tests → Verify → Simplify → **Review** → Understand → Human. Before doing any work,
+When running as part of a plan, review follows Clean Code in the chain:
+Auto Tests → Verify → Clean Code → **Comp Review** → Understand → Human. Before doing any work,
 confirm the prior columns are complete.
 
 1. Find the row for the current step in `docs/<feature>/plan.md`.
 2. The **Auto Tests** column must be ✅.
 3. The **Verify** column must be ✅ or ➖ (N/A). A verification report must exist at
    `docs/<feature>/verify/<step>-*.md` if Verify is ✅.
-4. The **Simplify** column must be ✅. A simplify report must exist at
+4. The **Clean Code** column must be ✅. A clean-code report must exist at
    `docs/<feature>/simplify/<step>-*.md`.
 
-**If any prior column is ⬜ or ❌:** Stop and say which one. For example: "Simplify has not
-been run for this step — run `/simplify` first. Review runs against the simplified code so the
+**If any prior column is ⬜ or ❌:** Stop and say which one. For example: "Clean Code has not
+been run for this step — run `/clean-code` first. Review runs against the cleaned-up code so the
 findings are about the code that will actually ship, not an intermediate version." Do not proceed.
 
 In standalone mode, skip this gate entirely — there is no plan to gate against, and the
@@ -74,9 +74,8 @@ Spawn four subagents in the same turn. Give each:
 2. The spec content (if found)
 3. Their sub-skill instructions from `sub-skills/<reviewer>.md`
 
-Prior-art additionally needs file-system access to read prior review reports, the
-learnings log, and git history — give it the list of files in the diff and confirm it
-can run shell commands.
+Prior-art additionally needs file-system access to read prior review reports and git
+history — give it the list of files in the diff and confirm it can run shell commands.
 
 Do not wait for one to finish before starting the others.
 
@@ -97,7 +96,7 @@ You are running a code review. Follow the instructions in the sub-skill exactly.
 
 ## Step 3: Merge Findings
 
-Once all three complete, compile the report. Include every finding — do not pre-filter.
+Once all four complete, compile the report. Include every finding — do not pre-filter.
 The triage step is for the human, not for the reviewer.
 
 For edge-case-hunter's JSON output, convert each entry to a finding line:
@@ -196,7 +195,7 @@ is worth noting.
 ## Update the Plan (MANDATORY)
 
 **You MUST update plan.md immediately after this skill completes — not later, not batched.**
-Update the Review column in plan.md:
+Update the Comp Review column in plan.md:
 - **All findings dismissed or clean** → ✅
 - **Valid findings raised** → ❌ — address findings (fix or explicitly accept) before Human
   sign-off. Re-run review after fixes.

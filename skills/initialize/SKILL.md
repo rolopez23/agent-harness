@@ -3,7 +3,7 @@ name: initialize
 description: >
   Installs this harness's skills into a project by writing or updating AGENTS.md and/or
   CLAUDE.md with a skills reference and canonical workflow. Run this when setting up a new
-  project, onboarding a repo to the spec→plan→TDD→verify→simplify→review→learn workflow, or
+  project, onboarding a repo to the spec→plan→TDD→verify→clean-code→review workflow, or
   when a project's context files are missing or don't reference these skills. Trigger when the
   user says "initialize this project", "set up AGENTS.md", "set up CLAUDE.md", "install
   skills", "onboard this repo", or "add skills to this project".
@@ -27,9 +27,8 @@ The harness root is the directory containing `skills/`. Confirm the following ex
 - `skills/problem-spec/SKILL.md`
 - `skills/plan/SKILL.md`
 - `skills/verify/SKILL.md`
-- `skills/simplify/SKILL.md`
-- `skills/review/SKILL.md`
-- `skills/learn-from-mistakes/SKILL.md`
+- `skills/clean-code/SKILL.md`
+- `skills/review-comprehensive/SKILL.md`
 
 Record the absolute path to the harness root. You'll use it to compute relative links.
 
@@ -81,13 +80,11 @@ Check for context files in subdirectories before starting work in them.
 
   For each step:
     write tests (red) → write code (green) → refactor → commit
-    /verify    →  E2E check against live system
-    /simplify  →  clean up staged code
-    /review    →  correctness and edge case check
+    /verify              →  E2E check against live system
+    /clean-code          →  clean up staged code
+    /review-comprehensive →  comprehensive correctness and edge case check
     /pr-interactive-walkthrough  →  cognitive understanding check
-    human      →  sign off
-
-/learn-from-mistakes  →  log corrections; updates .claude/learnings.md
+    human                →  sign off
 ```
 
 ### Skills table
@@ -104,9 +101,8 @@ to the harness root. Prefer relative paths when they share a common parent.
 | problem-spec | `/problem-spec` | [→](<harness-path>/skills/problem-spec/SKILL.md) |
 | plan | `/plan` | [→](<harness-path>/skills/plan/SKILL.md) |
 | verify | `/verify` | [→](<harness-path>/skills/verify/SKILL.md) |
-| simplify | `/simplify` | [→](<harness-path>/skills/simplify/SKILL.md) |
-| review | `/review` | [→](<harness-path>/skills/review/SKILL.md) |
-| learn-from-mistakes | `/learn-from-mistakes` | [→](<harness-path>/skills/learn-from-mistakes/SKILL.md) |
+| clean-code | `/clean-code` | [→](<harness-path>/skills/clean-code/SKILL.md) |
+| review-comprehensive | `/review-comprehensive` | [→](<harness-path>/skills/review-comprehensive/SKILL.md) |
 ```
 
 ### Behavioral rules block
@@ -114,7 +110,7 @@ to the harness root. Prefer relative paths when they share a common parent.
 ```markdown
 ## Behavioral Rules
 
-Rules added by `/learn-from-mistakes` when a pattern recurs 3+ times.
+Rules added when a pattern of mistakes recurs 3+ times.
 
 <!-- learned-rules -->
 <!-- learned-rules-end -->

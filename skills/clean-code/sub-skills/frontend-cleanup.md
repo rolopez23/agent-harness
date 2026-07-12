@@ -1,7 +1,7 @@
 # Frontend Cleanup
 
-Sub-skill of `/simplify`. Run this **automatically** when the diff touches React components
-(`.tsx` files that export JSX). These checks supplement the main simplify pass — they are
+Sub-skill of `/clean-code`. Run this **automatically** when the diff touches React components
+(`.tsx` files that export JSX). These checks supplement the main clean-code pass — they are
 specific to React/frontend code and catch patterns that generic code review misses.
 
 ## What to Check

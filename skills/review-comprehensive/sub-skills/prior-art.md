@@ -19,9 +19,6 @@ For each file in the diff:
    path, regardless of feature
 2. **Reviews on similar files** — files identified as templates, siblings, or
    close-purpose analogues to the current file (see "Identifying Similar Files" below)
-3. **Pattern-tagged learnings** — entries in `.claude/learnings.md` whose pattern tag
-   matches code in this diff (e.g., `unnecessary-type-cast`, `accessibility-not-reviewed`,
-   `cors-not-tested`)
 
 For each prior finding found, decide one of:
 
@@ -52,20 +49,10 @@ the filename and read the surrounding context to capture the finding.
 find docs -path '*/simplify/*.md' -type f 2>/dev/null
 ```
 
-Simplify reports often contain the same kind of feedback (magic numbers, dead code,
+Clean-code reports often contain the same kind of feedback (magic numbers, dead code,
 unclear names) and applying the same lens here is cheap.
 
-### 3. The learnings log
-```bash
-cat .claude/learnings.md 2>/dev/null
-```
-
-Search for entries that mention the file path, the directory, or pattern tags that match
-code in the current diff. Each entry has a `Pattern tag:` line — these are the durable
-labels. Multiple occurrences of the same tag are a strong signal that this class of issue
-recurs and should be checked here too.
-
-### 4. Git history on the file
+### 3. Git history on the file
 ```bash
 git log --all --oneline --follow -- <file>
 git log --all -p --follow -- <file> | head -200
@@ -74,7 +61,7 @@ git log --all -p --follow -- <file> | head -200
 Look for commit messages mentioning "review", "feedback", "fix from review", or
 "address comment". Read those commits — they capture what a prior reviewer caught.
 
-### 5. GitHub PR review comments (if available)
+### 4. GitHub PR review comments (if available)
 ```bash
 # Find PRs that touched the file
 gh pr list --state merged --search "<file basename>" --json number,title 2>/dev/null
@@ -122,7 +109,6 @@ siblings (#2) over inheritance-based matches.
 #### Files checked
 - **Direct prior reviews on:** <file 1>, <file 2>, ...
 - **Similar files inspected:** <file A> (template per spec.md), <file B> (sibling in same dir), ...
-- **Learnings log entries scanned:** <N> entries, <M> matching the current diff's patterns
 
 #### Findings that still apply
 - **<current file>:<line>** — From `docs/<feature>/reviews/<step>-<date>.md` (review on `<other file>`):
@@ -155,7 +141,7 @@ was checked, not skipped.
   reviewers already do that on the current diff. Prior-art only surfaces things that
   *another reviewer caught before* on related code.
 - It does **not** make new findings. Every entry in its output must trace back to a
-  specific prior source (a review report, a learnings entry, a PR comment, a commit).
+  specific prior source (a review report, a clean-code report, a PR comment, a commit).
   If you can't cite the source, it doesn't belong in this sub-skill's output.
 - It is **not** a search through the whole codebase for similar bugs. Stay scoped to
   files that have an explicit template/sibling relationship to the current file.

@@ -2,8 +2,8 @@
 name: refactor
 description: >
   Restructures existing code for modularity and clarity by actively applying Martin Fowler's
-  refactoring catalog. Distinct from `/simplify` — refactor is invasive and assumes the user
-  wants the structure changed, while simplify is conservative and biased toward silence.
+  refactoring catalog. Distinct from `/clean-code` — refactor is invasive and assumes the user
+  wants the structure changed, while clean-code is conservative and biased toward silence.
   Trigger when the user says "refactor this", "make this more modular", "this file is too
   big", "split this up", "extract X out of Y", "this needs restructuring", or asks for
   Fowler-style moves on existing code. Do NOT trigger as part of the per-step workflow —
@@ -16,7 +16,7 @@ You are restructuring existing code to improve its modularity, cohesion, and cla
 are not adding features. You are not fixing bugs. You are changing the shape of the code so
 that future work — by humans or LLMs — is easier and safer.
 
-This skill is invasive by design. Where `/simplify` is biased toward silence, `/refactor` is
+This skill is invasive by design. Where `/clean-code` is biased toward silence, `/refactor` is
 biased toward action: the user has already decided the structure needs to change, and your
 job is to apply Fowler's catalog systematically.
 
@@ -80,23 +80,23 @@ It does not apply to:
 - Mechanical extractions (moving code from one place to another without deleting it)
 - Whitespace, formatting, and comment cleanup
 
-## When to Use Refactor vs Simplify
+## When to Use Refactor vs Clean Code
 
 | Situation | Skill |
 |---|---|
-| New code from a step that just turned green | `/simplify` |
+| New code from a step that just turned green | `/clean-code` |
 | Existing code the user wants restructured | `/refactor` |
-| "Is this the simplest version?" | `/simplify` |
+| "Is this the simplest version?" | `/clean-code` |
 | "This file is too big, split it" | `/refactor` |
 | "Extract X out of Y" | `/refactor` |
-| "Clean up the staged changes before commit" | `/simplify` |
-| Reviewing a PR for tightness | `/simplify` |
+| "Clean up the staged changes before commit" | `/clean-code` |
+| Reviewing a PR for tightness | `/clean-code` |
 | "Make this more modular" / "reduce coupling" | `/refactor` |
 | "Move this from the controller into a service" | `/refactor` |
 
-Rule of thumb: simplify *prunes*, refactor *reshapes*. If the user wants the file structure,
+Rule of thumb: clean-code *prunes*, refactor *reshapes*. If the user wants the file structure,
 module boundaries, or class hierarchy to change, that is refactor. If they want the existing
-shape kept but the code inside it tightened, that is simplify.
+shape kept but the code inside it tightened, that is clean-code.
 
 ## Process
 

@@ -120,9 +120,25 @@ for skill_dir in "$SKILLS_SRC"/*/; do
   fi
 done
 
+# Prune skills that no longer exist in the harness source (handles renames + removals).
+# An optional skill that wasn't requested is NOT pruned — it still exists in the source,
+# so only genuinely deleted/renamed skills are removed.
+removed=()
+if [[ -d "$SKILLS_DST" ]]; then
+  for dst_dir in "$SKILLS_DST"/*/; do
+    [[ -d "$dst_dir" ]] || continue
+    dst_name="$(basename "$dst_dir")"
+    if [[ ! -d "$SKILLS_SRC/$dst_name" ]]; then
+      rm -rf "$dst_dir"
+      removed+=("$dst_name")
+    fi
+  done
+fi
+
 bold "Skills → $SKILLS_DST"
 for s in "${installed[@]+"${installed[@]}"}"; do green  "  + $s"; done
 for s in "${updated[@]+"${updated[@]}"}";    do yellow "  ↺ $s"; done
+for s in "${removed[@]+"${removed[@]}"}";    do printf '  - %s (removed — no longer in harness)\n' "$s"; done
 for s in "${skipped[@]+"${skipped[@]}"}";    do printf '  · %s (optional — request with --with %s)\n' "$s" "$s"; done
 
 # ── 2. context files (AGENTS.md + CLAUDE.md) ─────────────────────────────────
@@ -137,11 +153,10 @@ skills_table() {
 | problem-spec | \`/problem-spec\` | [→]($HARNESS_REL/skills/problem-spec/SKILL.md) |
 | plan | \`/plan\` | [→]($HARNESS_REL/skills/plan/SKILL.md) |
 | verify | \`/verify\` | [→]($HARNESS_REL/skills/verify/SKILL.md) |
-| simplify | \`/simplify\` | [→]($HARNESS_REL/skills/simplify/SKILL.md) |
+| clean-code | \`/clean-code\` | [→]($HARNESS_REL/skills/clean-code/SKILL.md) |
 | refactor | \`/refactor\` | [→]($HARNESS_REL/skills/refactor/SKILL.md) |
-| review | \`/review\` | [→]($HARNESS_REL/skills/review/SKILL.md) |
+| review-comprehensive | \`/review-comprehensive\` | [→]($HARNESS_REL/skills/review-comprehensive/SKILL.md) |
 | pr-interactive-walkthrough | \`/pr-interactive-walkthrough\` | [→]($HARNESS_REL/skills/pr-interactive-walkthrough/SKILL.md) |
-| learn-from-mistakes | \`/learn-from-mistakes\` | [→]($HARNESS_REL/skills/learn-from-mistakes/SKILL.md) |
 | frontend-design | \`/frontend-design\` | [→]($HARNESS_REL/skills/frontend-design/SKILL.md) |
 | systematic-debugging | \`/systematic-debugging\` | [→]($HARNESS_REL/skills/systematic-debugging/SKILL.md) |
 | dispatching-parallel-agents | \`/dispatching-parallel-agents\` | [→]($HARNESS_REL/skills/dispatching-parallel-agents/SKILL.md) |
@@ -162,13 +177,11 @@ workflow_block() {
 
   For each step:
     write tests (red) → write code (green) → refactor → commit
-    /verify    →  E2E check against live system
-    /simplify  →  clean up staged code
-    /review    →  correctness and edge case check
+    /verify              →  E2E check against live system
+    /clean-code          →  clean up staged code
+    /review-comprehensive →  comprehensive correctness and edge case check
     /pr-interactive-walkthrough  →  cognitive understanding check
-    human      →  sign off
-
-/learn-from-mistakes  →  log corrections; updates .claude/learnings.md
+    human                →  sign off
 EOF
   printf '```\n'
 }
@@ -212,7 +225,7 @@ $(skills_table)
 
 ## Behavioral Rules
 
-Rules added by \`/learn-from-mistakes\` when a pattern recurs 3+ times.
+Rules added when a pattern of mistakes recurs 3+ times.
 
 <!-- learned-rules -->
 <!-- learned-rules-end -->
@@ -244,7 +257,7 @@ update_context_file() {
   fi
 
   if ! grep -q 'learned-rules' "$file"; then
-    printf '\n---\n\n## Behavioral Rules\n\nRules added by `/learn-from-mistakes` when a pattern recurs 3+ times.\n\n<!-- learned-rules -->\n<!-- learned-rules-end -->\n' >> "$file"
+    printf '\n---\n\n## Behavioral Rules\n\nRules added when a pattern of mistakes recurs 3+ times.\n\n<!-- learned-rules -->\n<!-- learned-rules-end -->\n' >> "$file"
     green "  + added learned-rules block"
     changed=true
   fi
@@ -270,6 +283,43 @@ for fname in AGENTS.md CLAUDE.md; do
     update_context_file "$target_file" "$fname"
   fi
 done
+
+# ── 3. hooks + settings ───────────────────────────────────────────────────────
+# Install the verify-evidence PostToolUse hook: it blocks marking a step verified
+# unless the verify report shows real evidence (curl / Playwright / DB check).
+
+printf '\n'
+bold "Hooks → $USER_CLAUDE_DIR/hooks"
+
+HOOKS_DST="$USER_CLAUDE_DIR/hooks"
+mkdir -p "$HOOKS_DST"
+cp "$HARNESS_DIR/hooks/verify-evidence.sh" "$HOOKS_DST/verify-evidence.sh"
+chmod +x "$HOOKS_DST/verify-evidence.sh"
+green "  + verify-evidence.sh"
+
+SETTINGS="$USER_CLAUDE_DIR/settings.json"
+HOOK_CMD="$HOOKS_DST/verify-evidence.sh"
+
+if command -v jq >/dev/null 2>&1; then
+  [[ -f "$SETTINGS" ]] || echo '{}' > "$SETTINGS"
+  if jq -e --arg c "$HOOK_CMD" '[.hooks.PostToolUse[]?.hooks[]?.command] | index($c)' "$SETTINGS" >/dev/null 2>&1; then
+    yellow "  settings.json already registers the verify-evidence hook — no change"
+  else
+    tmp="$(mktemp)"
+    jq --arg c "$HOOK_CMD" '
+      .hooks.PostToolUse = ((.hooks.PostToolUse // []) + [
+        { matcher: "Skill", hooks: [ { type: "command", command: $c } ] }
+      ])' "$SETTINGS" > "$tmp" && mv "$tmp" "$SETTINGS"
+    green "  + registered verify-evidence PostToolUse hook in settings.json"
+  fi
+else
+  yellow "  jq not found — add this to $SETTINGS manually:"
+  cat <<EOF
+    "hooks": { "PostToolUse": [
+      { "matcher": "Skill",
+        "hooks": [ { "type": "command", "command": "$HOOK_CMD" } ] } ] }
+EOF
+fi
 
 # ── done ──────────────────────────────────────────────────────────────────────
 

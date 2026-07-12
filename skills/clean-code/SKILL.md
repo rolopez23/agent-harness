@@ -1,16 +1,16 @@
 ---
-name: simplify
+name: clean-code
 description: >
-  Reviews staged changes or a branch diff and simplifies the code following XP Simple Design,
+  Reviews staged changes or a branch diff and cleans up the code following XP Simple Design,
   Clean Code, and Martin Fowler refactoring principles. Applies clear improvements directly and
   suggests uncertain ones for human review. Biases toward silence — if a change isn't clearly
   better, don't make it or suggest it.
-  Trigger when the user says "simplify", "clean this up", "refactor this", "is this the simplest
+  Trigger when the user says "clean this up", "simplify", "is this the simplest
   solution", or when invoked as a subagent after staging and before committing. Also trigger when
-  the plan dashboard's Simplify column needs to be updated.
+  the plan dashboard's Clean Code column needs to be updated.
 ---
 
-# Simplify
+# Clean Code
 
 You are reviewing code that is staged for commit (or on a branch) and asking one question: is
 this the simplest correct solution? You are not adding features. You are not gold-plating. You
@@ -22,10 +22,10 @@ This skill can never touch tests. You can only refactor code covered by the test
 
 ## Two Run Modes
 
-Simplify can be invoked two ways. Both are valid — they have different gates.
+Clean Code can be invoked two ways. Both are valid — they have different gates.
 
 - **Workflow mode** — invoked as part of a plan-driven step. Runs after Verify, before
-  Review, against the step's staged code. The prior-step gate below applies.
+  Comp Review, against the step's staged code. The prior-step gate below applies.
 - **Standalone mode** — invoked ad-hoc on staged changes, a PR, or a branch diff outside
   of any plan. No gate; skip straight to "Get the Diff." Use this when reviewing someone
   else's PR, cleaning up a feature branch before merge, or any one-off cleanup.
@@ -36,8 +36,8 @@ mode. Otherwise, standalone.
 
 ## Prior-Step Gate (workflow mode only)
 
-When running as part of a plan, simplify follows Verify in the chain:
-Auto Tests → Verify → **Simplify** → Review → Understand → Human. Before doing any work,
+When running as part of a plan, clean-code follows Verify in the chain:
+Auto Tests → Verify → **Clean Code** → Comp Review → Understand → Human. Before doing any work,
 confirm the prior columns are complete.
 
 1. Find the row for the current step in `docs/<feature>/plan.md`.
@@ -46,26 +46,26 @@ confirm the prior columns are complete.
 4. If Verify is ✅, a verification report must exist at `docs/<feature>/verify/<step>-*.md`.
 
 **If Auto Tests is not ✅:** Stop and say: "Auto Tests have not passed for this step. Tests must
-be green before Simplify runs — simplify only refactors code that is covered by passing tests."
+be green before Clean Code runs — it only refactors code that is covered by passing tests."
 
 **If Verify is still ⬜ (pending) or ❌ with no report:** Stop and say: "Verification has not been
-run (or has failed) for this step. Run `/verify` first — simplify runs after verify in the
+run (or has failed) for this step. Run `/verify` first — clean-code runs after verify in the
 workflow (make it work → make it work well → make it beautiful)." Do not proceed.
 
 In standalone mode, skip this gate entirely — there is no plan to gate against, and the
-caller has decided to run simplify directly.
+caller has decided to run clean-code directly.
 
 ## Re-Run After Subsequent Fixes
 
-If code in this step's files changed *after* the last simplify pass (e.g., a review finding
-was fixed, a worktree merge brought in new commits), the prior pass is stale. Re-run simplify
-on the new diff before allowing Review to start. Stale simplify reports are worse than no
+If code in this step's files changed *after* the last clean-code pass (e.g., a review finding
+was fixed, a worktree merge brought in new commits), the prior pass is stale. Re-run clean-code
+on the new diff before allowing Comp Review to start. Stale clean-code reports are worse than no
 report — they lie about what was checked.
 
 ## Sub-Skills
 
 If the diff touches React components (`.tsx` files that export JSX), also run the frontend
-cleanup sub-skill after the main simplify pass:
+cleanup sub-skill after the main clean-code pass:
 - [`sub-skills/frontend-cleanup.md`](sub-skills/frontend-cleanup.md) — component extraction,
   semantic HTML, accessibility, readable class names, data transformations, style constants
 
@@ -252,7 +252,7 @@ Present as: "Consider: [what to do] — [one sentence why]. Leave as-is if you d
 Keep suggestions brief. Don't over-explain.
 
 **No changes — say so:**
-If the staged code is already clean, say "Nothing to simplify here." Don't pad this with
+If the staged code is already clean, say "Nothing to clean up here." Don't pad this with
 minor observations to seem useful.
 
 ## Fowler's Refactoring Catalog
@@ -272,7 +272,7 @@ Common moves worth knowing. Apply only when the result is clearly simpler:
 ## Output Format
 
 ```markdown
-## Simplify: <branch or "staged changes">
+## Clean Code: <branch or "staged changes">
 ## Date: <date>
 
 ### Applied
@@ -285,7 +285,7 @@ Common moves worth knowing. Apply only when the result is clearly simpler:
 
 ### Result
 All tests passing. / Tests failing: <details> — changes reverted.
-Nothing to simplify.
+Nothing to clean up.
 ```
 
 If nothing was applied and nothing was suggested, only show the Result line.
@@ -303,7 +303,7 @@ Stage all modified files (including the report) and create a commit:
 
 ```bash
 git add <modified files> docs/<feature>/simplify/<report file>
-git commit -m "Simplify <chunk label>: <one-line description of what changed>
+git commit -m "Clean up <chunk label>: <one-line description of what changed>
 
 <optional body: key refactors applied>
 
@@ -316,9 +316,9 @@ nothing to simplify), skip the commit — no point creating an empty commit.
 ## Update the Plan (MANDATORY)
 
 **You MUST update plan.md immediately after this skill completes — not later, not batched.**
-Update the Simplify column in plan.md:
+Update the Clean Code column in plan.md:
 - **Changes applied, tests green** → ✅
 - **Suggestions raised** → ✅ (suggestions are for the human; the pass is recorded)
-- **Nothing to simplify** → ✅
+- **Nothing to clean up** → ✅
 - **Tests failed after a change** → ❌ — changes have been reverted; chunk needs attention
-  before Review or Human sign-off.
+  before Comp Review or Human sign-off.

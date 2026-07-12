@@ -41,38 +41,42 @@ controller action, one job behavior, one integration point.
 ## After the Final Cycle
 
 - Update `plan.md`: mark Auto Tests ✅ for this step
-- Run LLM Verification and mark the Verify column accordingly
+- Run LLM Verification and mark the Verify column accordingly. The `verify-evidence` hook will
+  block the Verify column from being marked ✅ unless the verify report contains concrete
+  evidence — a curl command, a Playwright screenshot/video, or a DB check.
 
 ## Worktree / Background-Agent Handoff
 
 When a step is implemented by a worktree or background agent, the agent's responsibility
 ends at "tests green and work merged back." Background agents **cannot** reliably run
-`/verify`, `/simplify`, or `/review` themselves — they run in a different process, have no
-visibility into the parent plan, and cannot update the dashboard from inside their isolated
-worktree. Trying to delegate V/S/R into the worktree has burned us before
-(`agents-skip-workflow` in the learnings log).
+`/verify`, `/clean-code`, or `/review-comprehensive` themselves — they run in a different
+process, have no visibility into the parent plan, and cannot update the dashboard from inside
+their isolated worktree. Trying to delegate the verify → clean-code → review stages into the
+worktree has burned us before.
 
 **The contract for a worktree agent:**
 
 1. Implement the step's cycles (red → green → refactor → commit) inside the worktree
 2. Run the step's automated test suite — all green
 3. Merge the work back to the parent branch
-4. Report: branch name, commit range, "tests green, ready for V/S/R"
+4. Report: branch name, commit range, "tests green, ready for verify → clean-code → review"
 
 **The orchestrator's responsibility, immediately after the merge — not later, not batched:**
 
 1. `/verify` against the merged code on the parent branch (with the live system running)
-2. `/simplify` on the merged diff
-3. `/review` on the simplified diff
-4. Update the plan dashboard for this step's Verify, Simplify, Review columns
+2. `/clean-code` on the merged diff
+3. `/review-comprehensive` on the cleaned-up diff
+4. Update the plan dashboard for this step's Verify, Clean Code, Comp Review columns
 
-Only after V/S/R complete on the parent branch is the step ready for Understand and Human.
-The prior-step gate enforces this — `/simplify` and `/review` will refuse to run if Verify
-isn't done, so the orchestrator cannot accidentally skip a stage.
+Only after verify → clean-code → review complete on the parent branch is the step ready for
+Understand and Human. The prior-step gate enforces this — `/clean-code` and
+`/review-comprehensive` will refuse to run if Verify isn't done, so the orchestrator cannot
+accidentally skip a stage.
 
-**If multiple worktree agents merge in parallel,** run V/S/R per step in the order the merges
-land. Do not batch V/S/R across multiple steps — each step's report and dashboard row is
-independent, and batching loses the per-step granularity the workflow depends on.
+**If multiple worktree agents merge in parallel,** run verify → clean-code → review per step in
+the order the merges land. Do not batch these stages across multiple steps — each step's report
+and dashboard row is independent, and batching loses the per-step granularity the workflow
+depends on.
 
 ---
 
@@ -192,7 +196,11 @@ because there is genuinely no observable surface — but it still has auto tests
 
 ## Verification
 
-<exact commands to run and what a passing result looks like — this is your proof of work>
+<exact commands to run and what a passing result looks like — this is your proof of work.
+The evidence MUST be one of the three concrete modes the `verify-evidence` hook checks for:
+(1) a Playwright screenshot/video, (2) a `curl` command, or (3) a DB check (`psql`/`sqlite3`/
+`\dt`/`SELECT`). Write the verification so it produces one of these — the hook blocks the
+Verify column from being marked ✅ otherwise.>
 
 — or —
 

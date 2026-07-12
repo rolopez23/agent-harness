@@ -4,24 +4,30 @@ Skills and workflows for a standard agent development harness.
 
 ## Install
 
-Run the install script from the root of any repo you want to onboard:
+Run the install script once — it installs at the **user level** (`~/.claude`), so the skills
+apply to every project automatically:
 
 ```bash
 /path/to/harness/install.sh
 ```
 
-Or target a specific directory:
+Options:
 
 ```bash
-/path/to/harness/install.sh ~/repos/my-project
+/path/to/harness/install.sh --dir <path>      # install into an alternate Claude dir (testing)
+/path/to/harness/install.sh --with <skill>    # also install an optional skill (repeatable)
+/path/to/harness/install.sh --with all        # install every optional skill
 ```
 
 This will:
 
-- Copy all skills into `.claude/skills/`
-- Create `AGENTS.md` and `CLAUDE.md` if they don't exist, or add missing sections if they do
+- Copy all skills into `~/.claude/skills/` (pruning any that no longer exist in the harness)
+- Create `~/.claude/AGENTS.md` and `~/.claude/CLAUDE.md`, or add missing sections if they exist
+- Install the `verify-evidence` hook into `~/.claude/hooks/` and register it in
+  `~/.claude/settings.json` (blocks marking a step verified without real evidence)
 
-Then start a Claude Code session — the skills are immediately available as `/commands`.
+Then start a Claude Code session — the skills are immediately available as `/commands`. No
+per-repo install needed.
 
 ## Skills
 
@@ -31,10 +37,9 @@ Then start a Claude Code session — the skills are immediately available as `/c
 | problem-spec                | `/problem-spec`                | Define what is and isn't being solved                   |
 | plan                        | `/plan`                        | Break a spec into testable steps with readiness gate    |
 | verify                      | `/verify`                      | E2E check against a live system                         |
-| simplify                    | `/simplify`                    | Clean up staged code                                    |
-| review                      | `/review`                      | Find bugs and missed edge cases                         |
+| clean-code                  | `/clean-code`                  | Clean up staged code                                    |
+| review-comprehensive        | `/review-comprehensive`        | Comprehensive review — bugs and missed edge cases       |
 | pr-interactive-walkthrough  | `/pr-interactive-walkthrough`  | File-by-file walkthrough with understanding assessment  |
-| learn-from-mistakes         | `/learn-from-mistakes`         | Log corrections after sign-off                          |
 | frontend-design             | `/frontend-design`             | Build distinctive, production-grade frontend UI         |
 | systematic-debugging        | `/systematic-debugging`        | Root-cause-first 4-phase debugging process              |
 | dispatching-parallel-agents | `/dispatching-parallel-agents` | Split independent tasks across parallel subagents       |
@@ -45,7 +50,7 @@ Then start a Claude Code session — the skills are immediately available as `/c
 ## Workflow
 
 ```
-/problem-spec  →  /plan  →  TDD loop  →  /verify  →  /simplify  →  /review  →  /pr-interactive-walkthrough  →  human sign-off  →  /learn-from-mistakes
+/problem-spec  →  /plan  →  TDD loop  →  /verify  →  /clean-code  →  /review-comprehensive  →  /pr-interactive-walkthrough  →  human sign-off
 ```
 
 ## Acknowledgements
