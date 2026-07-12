@@ -3,7 +3,7 @@
   "checkpoint_id": "d231f23231a6",
   "strategy": "manual-commit",
   "branch": "main",
-  "checkpoints_count": 4,
+  "checkpoints_count": 6,
   "files_touched": [
     "skills/btw-pull-request/skill.md"
   ],
@@ -19,13 +19,19 @@
       "transcript": "/d2/31f23231a6/1/full.jsonl",
       "content_hash": "/d2/31f23231a6/1/content_hash.txt",
       "prompt": "/d2/31f23231a6/1/prompt.txt"
+    },
+    {
+      "metadata": "/d2/31f23231a6/2/metadata.json",
+      "transcript": "/d2/31f23231a6/2/full.jsonl",
+      "content_hash": "/d2/31f23231a6/2/content_hash.txt",
+      "prompt": "/d2/31f23231a6/2/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 230,
-    "cache_creation_tokens": 254285,
-    "cache_read_tokens": 15753354,
-    "output_tokens": 82247,
-    "api_call_count": 115
+    "input_tokens": 248,
+    "cache_creation_tokens": 313343,
+    "cache_read_tokens": 16168207,
+    "output_tokens": 92672,
+    "api_call_count": 124
   }
 }
