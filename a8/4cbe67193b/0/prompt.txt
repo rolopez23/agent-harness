@@ -1,0 +1,9 @@
+SAve these as md files I want to see them! lett me know where in my ide I can see them
+
+---
+
+Ok I edited both.  Do a grammer touch up and you should be good to begin with this feature
+
+---
+
+Feel free to add a command to turn off tone and coding standards independently

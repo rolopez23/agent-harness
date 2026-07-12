@@ -1,0 +1,45 @@
+{
+  "cli_version": "0.5.3",
+  "checkpoint_id": "a84cbe67193b",
+  "session_id": "5e29eab4-5ed6-4ada-b5a0-6cb19a0f51b4",
+  "strategy": "manual-commit",
+  "created_at": "2026-07-12T06:00:15.639301Z",
+  "branch": "tone-plugin",
+  "checkpoints_count": 3,
+  "files_touched": [
+    ".claude/settings.json",
+    "AGENTS.md",
+    "hooks/tone-hooks.sh",
+    "install.sh",
+    "skills/initialize/SKILL.md",
+    "skills/tone/SKILL.md",
+    "tone/coding-standards.md",
+    "tone/tone.md"
+  ],
+  "agent": "Claude Code",
+  "turn_id": "26b1c8691980",
+  "checkpoint_transcript_start": 100,
+  "transcript_lines_at_start": 100,
+  "token_usage": {
+    "input_tokens": 3497,
+    "cache_creation_tokens": 57854,
+    "cache_read_tokens": 2733767,
+    "output_tokens": 33898,
+    "api_call_count": 25
+  },
+  "session_metrics": {
+    "turn_count": 8
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-07-12T06:00:15.441189Z",
+    "agent_lines": 312,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 12,
+    "human_removed": 2,
+    "total_committed": 324,
+    "total_lines_changed": 326,
+    "agent_percentage": 95.70552147239265,
+    "metric_version": 2
+  }
+}
