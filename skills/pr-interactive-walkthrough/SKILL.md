@@ -1,6 +1,8 @@
 ---
 name: pr-interactive-walkthrough
-description: Guides an interactive, file-by-file PR walkthrough in run order (startup then request path). Accepts two commit hashes to diff a specific range, or defaults to staged/branch diff. At the start, asks whether to use code snippets per file or summaries-only; skips tests, Markdown, and shell scripts by default; pauses after every question and after each file’s restate/walk-through prompt—never bundling the next file or §3 assessment with a pending question; ends with a calibrated understanding assessment (repo-hygiene files excluded from rubric) and follow-up questions for low-understanding areas. Use when the user asks for a PR walkthrough, to go through a PR together, file-by-file review, to check their understanding of a branch, or when the plan dashboard’s Understand column needs to be updated.
+description: Human Invoked Skill
+disable-model-invocation: true
+version: "1.0.0"
 ---
 
 # Interactive PR Code Walkthrough
@@ -90,7 +92,7 @@ After all files are covered, **always** produce an understanding assessment.
 - **Medium:** User understands the **intent/direction** but needed correction on the **mechanism** — wrong term, imprecise explanation, confused about how it works internally. Also: hand-wavy answers that are correct but generic (could apply to anything). This is the default when the user gets the "what" but not the "how."
 - **Low:** Mostly **copying/parroting** your wording, **major** errors, or repeated confusion about the main idea. Also: guessing incorrectly about what something does (not just imprecise — actually wrong).
 
-**Bias toward strictness.** When in doubt between High and Medium, choose Medium. When in doubt between Medium and Low, consider whether the user needed a *correction* (Medium) or was *wrong* (Low). Check user memory for self-reported experience levels — a user who says they’re new to a language/framework should be assessed against whether they’re *building understanding*, not whether they already have it. But don’t inflate ratings out of politeness. The assessment is a learning tool, not a grade — accurate calibration helps the user know where to focus.
+**Bias toward strictness.** When in doubt between High and Medium, choose Medium. When in doubt between Medium and Low, consider whether the user needed a _correction_ (Medium) or was _wrong_ (Low). Check user memory for self-reported experience levels — a user who says they’re new to a language/framework should be assessed against whether they’re _building understanding_, not whether they already have it. But don’t inflate ratings out of politeness. The assessment is a learning tool, not a grade — accurate calibration helps the user know where to focus.
 
 Produce a short table: file (or file group), level, and one-line note—**only for files that belong in the rubric** (product code, shared libraries, request path, meaningful config).
 

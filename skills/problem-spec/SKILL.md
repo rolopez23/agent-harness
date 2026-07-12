@@ -1,12 +1,8 @@
 ---
 name: problem-spec
-description: >
-  First step for solving any complex coding problem. Defines what is and is not being solved,
-  identifies all existing interfaces and contracts touched, and produces a structured spec doc.
-  Trigger this skill whenever a user asks to build, implement, add, or solve something non-trivial.
-  Do NOT trigger for small changes, refactors of a single function, or bug fixes. If there is any
-  doubt about whether the problem is complex enough to warrant a spec, trigger it anyway — it is
-  much cheaper to over-spec than to under-spec.
+description: Human skill to increase specification on a problem.
+disable-model-invocation: true
+version: 1.0.0
 ---
 
 # Problem Specification Skill
@@ -43,14 +39,14 @@ Instructions are not testable — they leave the bar undefined and let "done" dr
 moving on, translate every fuzzy instruction into a concrete, observable criterion. If you
 cannot translate it, that is the next clarifying question.
 
-| Fuzzy instruction | Verifiable criterion |
-|---|---|
-| "Make it faster" | LCP < 2.5s on the contract upload page; API p95 < 500ms under 10 concurrent requests |
-| "Improve the UX" | New users complete the upload → review flow without help in under 3 minutes; no error toasts in the happy path |
-| "Handle errors better" | Every 4xx returns a JSON `{error: string}` body; every 5xx is logged with a request ID; the UI shows the error message inline within 1s |
-| "Make it more reliable" | The job retries up to 3× with exponential backoff; failed jobs land in a dead-letter table; success rate ≥ 99% across 100 sample runs |
-| "Polish the page" | All four breakpoints (320 / 768 / 1024 / 1440) render without overflow; no layout shift > 0.1; matches the design system palette |
-| "Add tests" | Coverage on the changed files ≥ 80%; every public function in the new module has at least one passing test |
+| Fuzzy instruction       | Verifiable criterion                                                                                                                    |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| "Make it faster"        | LCP < 2.5s on the contract upload page; API p95 < 500ms under 10 concurrent requests                                                    |
+| "Improve the UX"        | New users complete the upload → review flow without help in under 3 minutes; no error toasts in the happy path                          |
+| "Handle errors better"  | Every 4xx returns a JSON `{error: string}` body; every 5xx is logged with a request ID; the UI shows the error message inline within 1s |
+| "Make it more reliable" | The job retries up to 3× with exponential backoff; failed jobs land in a dead-letter table; success rate ≥ 99% across 100 sample runs   |
+| "Polish the page"       | All four breakpoints (320 / 768 / 1024 / 1440) render without overflow; no layout shift > 0.1; matches the design system palette        |
+| "Add tests"             | Coverage on the changed files ≥ 80%; every public function in the new module has at least one passing test                              |
 
 The pattern: name a number, a state, or an observable behavior. If the criterion can be
 checked by a script, a screenshot, or a stopwatch, it's a real criterion. If it relies on
@@ -105,7 +101,7 @@ Push hard on these specifically — they are the things implementations bleed in
 
 For each, get a yes/no from the user — not a "we'll see". If it's a yes, it goes in scope
 with its own success criterion (Step 1 reframe). If it's a no, it goes in the Not Doing list
-with one sentence on *why deferred* so the next person reading the spec doesn't relitigate
+with one sentence on _why deferred_ so the next person reading the spec doesn't relitigate
 the decision.
 
 A good Not Doing list is usually longer than the In Scope list. That is a feature of the
@@ -142,35 +138,45 @@ Write a draft to `docs/<feature-name>/spec.md`. Use this structure:
 # Spec: <Feature Name>
 
 ## Problem Statement
+
 One to three sentences. What is broken or missing, and why does it matter?
 
 ## What We Are Solving
+
 Bullet list. Each item is a concrete, verifiable outcome.
 
 ## What We Are NOT Solving
+
 Bullet list. Each item is something explicitly excluded.
 
 ## Actors & Triggers
+
 Who or what initiates this work, and under what conditions.
 
 ## Success Criteria
+
 How will we know this is done? What can be checked or observed?
 
 ## Interfaces
 
 ### Schemas
+
 For each schema touched: name, relevant fields (with types), and any changes being made.
 
 ### Contracts
+
 For each external system or API: what we call, what we pass, what we get back.
 
 ### Shared State
+
 Anything this work reads or writes that is also owned by another part of the system.
 
 ### Existing Code
+
 Reference code expected to be touched and how it relates to the interfaces above.
 
 ## Open Questions
+
 Questions that came up but are deferred. Note who needs to answer each.
 ```
 
