@@ -1,0 +1,27 @@
+{
+  "cli_version": "0.8.42",
+  "checkpoint_id": "b4a6c6925037",
+  "strategy": "manual-commit",
+  "branch": "feat/command-center-skill",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "skills/command-center/SKILL.md",
+    "skills/command-center/command_center.py"
+  ],
+  "sessions": [
+    {
+      "metadata": "/b4/a6c6925037/0/metadata.json",
+      "transcript": "/b4/a6c6925037/0/full.jsonl",
+      "compact_transcript": "/b4/a6c6925037/0/transcript.jsonl",
+      "content_hash": "/b4/a6c6925037/0/content_hash.txt",
+      "prompt": "/b4/a6c6925037/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 66,
+    "cache_creation_tokens": 86489,
+    "cache_read_tokens": 1544111,
+    "output_tokens": 19356,
+    "api_call_count": 33
+  }
+}
