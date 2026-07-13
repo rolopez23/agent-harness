@@ -3,10 +3,9 @@
   "checkpoint_id": "b4a6c6925037",
   "strategy": "manual-commit",
   "branch": "feat/command-center-skill",
-  "checkpoints_count": 4,
+  "checkpoints_count": 1,
   "files_touched": [
-    "skills/command-center/SKILL.md",
-    "skills/command-center/command_center.py"
+    "Readme.md"
   ],
   "sessions": [
     {
@@ -18,10 +17,10 @@
     }
   ],
   "token_usage": {
-    "input_tokens": 66,
-    "cache_creation_tokens": 86489,
-    "cache_read_tokens": 1544111,
-    "output_tokens": 19356,
-    "api_call_count": 33
+    "input_tokens": 10,
+    "cache_creation_tokens": 3095,
+    "cache_read_tokens": 334453,
+    "output_tokens": 1498,
+    "api_call_count": 5
   }
 }

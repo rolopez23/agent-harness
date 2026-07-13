@@ -1,13 +1,1 @@
-Can you show me all claude sessions?
-
----
-
-Can you add a row for whehther a session is active?
-
----
-
-YEs do that
-
----
-
-Ok great can you make a skill that boost this table in the feature /command-center.
+can you move it it in

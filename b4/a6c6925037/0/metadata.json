@@ -3,38 +3,38 @@
   "checkpoint_id": "b4a6c6925037",
   "session_id": "9aa3bfc7-57d4-4e0d-b96b-3e2c9d7e08e9",
   "strategy": "manual-commit",
-  "created_at": "2026-07-13T03:41:47.923209Z",
+  "created_at": "2026-07-13T04:01:54.665487Z",
   "branch": "feat/command-center-skill",
-  "checkpoints_count": 4,
-  "save_step_count": 1,
+  "checkpoints_count": 1,
   "files_touched": [
-    "skills/command-center/SKILL.md",
-    "skills/command-center/command_center.py"
+    "Readme.md"
   ],
   "agent": "Claude Code",
   "model": "claude-opus-4-8[1m]",
-  "turn_id": "df3b40b33400",
-  "compact_transcript_start": 0,
+  "turn_id": "6caeda9dda70",
+  "checkpoint_transcript_start": 180,
+  "transcript_lines_at_start": 180,
+  "compact_transcript_start": 39,
   "token_usage": {
-    "input_tokens": 66,
-    "cache_creation_tokens": 86489,
-    "cache_read_tokens": 1544111,
-    "output_tokens": 19356,
-    "api_call_count": 33
+    "input_tokens": 10,
+    "cache_creation_tokens": 3095,
+    "cache_read_tokens": 334453,
+    "output_tokens": 1498,
+    "api_call_count": 5
   },
   "session_metrics": {
-    "turn_count": 4
+    "turn_count": 5
   },
   "initial_attribution": {
-    "calculated_at": "2026-07-13T03:41:47.910779Z",
-    "agent_lines": 234,
+    "calculated_at": "2026-07-13T04:01:54.645196Z",
+    "agent_lines": 1,
     "agent_removed": 0,
-    "human_added": 0,
+    "human_added": 234,
     "human_modified": 0,
     "human_removed": 0,
-    "total_committed": 234,
-    "total_lines_changed": 234,
-    "agent_percentage": 100,
+    "total_committed": 235,
+    "total_lines_changed": 235,
+    "agent_percentage": 0.425531914893617,
     "metric_version": 2
   },
   "prompt_attributions": [
@@ -47,16 +47,6 @@
       "user_added_per_file": {
         ".claude/settings.local.json": 31,
         "skills-inventory.md": 181
-      }
-    },
-    {
-      "checkpoint_number": 2,
-      "user_lines_added": 31,
-      "user_lines_removed": 0,
-      "agent_lines_added": 415,
-      "agent_lines_removed": 0,
-      "user_added_per_file": {
-        ".claude/settings.local.json": 31
       }
     }
   ]
