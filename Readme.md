@@ -61,6 +61,7 @@ under the fallback install.
 | btw-pull-request            | Split unrelated changes into a clean PR                 |
 | next-react-boot             | Scaffold a Next.js 16 / React 19 / Tailwind v4 frontend |
 | python-psql-boot            | Scaffold a Python / FastAPI / PostgreSQL backend        |
+| command-center              | Table of all Claude Code sessions — active, branch      |
 
 ## Workflow
 
