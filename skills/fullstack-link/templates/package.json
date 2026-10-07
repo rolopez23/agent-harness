@@ -1,0 +1,21 @@
+{
+  "name": "{{APP_NAME}}",
+  "private": true,
+  "scripts": {
+    "setup": "npm install && npm --prefix frontend install && cd backend && uv sync && cd .. && npm run env:init",
+    "env:init": "[ -f backend/.env ] || cp backend/.env.example backend/.env; [ -f frontend/.env.local ] || cp frontend/.env.example frontend/.env.local",
+    "db:up": "docker compose up -d --wait db",
+    "db:down": "docker compose down",
+    "db:migrate": "cd backend && uv run alembic upgrade head",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "cd backend && uv run uvicorn main:app --reload --port 8000",
+    "dev": "concurrently -k -n api,web -c green,blue \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "test:frontend": "npm --prefix frontend test",
+    "test:backend": "cd backend && uv run pytest",
+    "test": "npm run test:backend && npm run test:frontend",
+    "smoke": "curl -fsS -w ' %{http_code}\\n' http://localhost:8000/api/health && curl -fsS -o /dev/null -w 'web %{http_code}\\n' http://localhost:3000"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
+  }
+}

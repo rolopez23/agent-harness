@@ -15,6 +15,7 @@
 #   ./install.sh --dir <path>             # alternate Claude Code dir (testing)
 #   ./install.sh --with <skill>           # also install an optional skill
 #                                         # (repeatable; e.g. --with next-react-boot)
+#                                         # fullstack-boot needs all four boot skills: --with all
 #   ./install.sh --with all               # install every optional skill
 
 set -euo pipefail
@@ -23,7 +24,7 @@ HARNESS_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # ── optional skills ───────────────────────────────────────────────────────────
 # Skipped by default; opt in with --with <name>.
-OPTIONAL_SKILLS=(next-react-boot python-psql-boot)
+OPTIONAL_SKILLS=(next-react-boot python-psql-boot fullstack-link fullstack-boot)
 
 # ── arg parsing ───────────────────────────────────────────────────────────────
 USER_CLAUDE_DIR="$HOME/.claude"
@@ -44,7 +45,7 @@ while [[ $# -gt 0 ]]; do
       shift 2
       ;;
     -h|--help)
-      sed -n '2,19p' "$0"
+      sed -n '2,20p' "$0"
       exit 0
       ;;
     *)
