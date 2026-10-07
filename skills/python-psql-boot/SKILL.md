@@ -1,152 +1,140 @@
 ---
 name: python-psql-boot
 description: >
-  Scaffold a Python / FastAPI / PostgreSQL backend from scratch. Trigger when the user asks to
-  bootstrap, scaffold, or create a new backend, API, or Python server. Also trigger when the
-  user says "boot backend", "new backend", "create backend", "scaffold backend", or
-  "new API".
+  Scaffold a Python / FastAPI / PostgreSQL backend from scratch with a working
+  /api/health endpoint, async SQLAlchemy, Alembic and pytest. Trigger when the user asks
+  to bootstrap, scaffold, or create a new backend, API, or Python server ("boot backend",
+  "new backend", "scaffold backend", "new API"). Run standalone or as the backend builder
+  inside /fullstack-boot.
 disable-model-invocation: true
-version: "1.0.0"
+version: "2.0.0"
 ---
 
 # Python + FastAPI + PostgreSQL Backend Boot
 
-Use this skill to scaffold a backend that follows these exact patterns and conventions.
-Do not deviate unless instructed.
+Scaffold `backend/` from the tested files in `templates/` (next to this SKILL.md), then
+verify. Templates were verified end to end on 2026-10-07. Do not hand-write what a
+template already covers.
 
-## Stack
+## Stack (tested versions, 2026-10-07)
 
-- **Language:** Python 3.11+
-- **Framework:** FastAPI with async support
-- **Server:** Uvicorn (ASGI)
-- **Database:** PostgreSQL 16
-- **ORM:** SQLAlchemy 2.0+ with async engine (`create_async_engine`, `AsyncSession`)
-- **Async driver:** asyncpg
-- **Migrations:** Alembic
-- **Package manager:** uv (`pyproject.toml`)
-- **Testing:** pytest + pytest-asyncio + httpx (async test client)
-- **Env vars:** python-dotenv
+FastAPI 0.142 · Starlette 1.7 · SQLAlchemy 2.1 (async) · asyncpg 0.32 · Alembic 1.20 ·
+Uvicorn 0.54 · pytest 9 + pytest-asyncio 1.4 + httpx 0.28 · uv · Python 3.12 · Postgres 16.
 
-## Project Layout
+Install latest, record resolved versions in the final report. If a major version moved
+past the ones above, re-check the Gotchas.
+
+## Inputs
+
+| Input | Default when absent |
+|---|---|
+| Contract (`docs/boot/contract.md`) | Ports/env below. If a contract exists, it wins. |
+| Entities, endpoints, business rules | **None → health-only boot.** Do not invent models or endpoints. Ask the user only if they said they want entities now. |
+| Owns repo root (`docker-compose.yml`, `.gitignore`)? | Standalone: yes, copy from `../fullstack-link/templates/`. Under `/fullstack-boot`: no, touch `backend/` only. |
+
+Defaults: backend `http://localhost:8000`, all routes under `/api`, CORS origin
+`FRONTEND_URL` (default `http://localhost:3000`, comma-separated list allowed),
+`DATABASE_URL=postgresql+asyncpg://app:app@localhost:5432/app`,
+`TEST_DATABASE_URL=…/app_test`.
+
+## Layout
 
 ```
 backend/
-├── main.py                  # FastAPI app, lifespan, router registration
-├── database.py              # engine, AsyncSessionLocal, Base (DeclarativeBase)
-├── models.py                # SQLAlchemy ORM models (all in one file unless large)
-├── schemas.py               # Pydantic request/response schemas (all in one file)
-├── .env                     # DATABASE_URL and other env vars
-├── pyproject.toml
-├── alembic.ini
-├── routers/
-│   └── <resource>.py        # One file per resource
-├── services/
-│   └── <service>.py         # Business logic, no DB imports in routers
-├── migrations/
-│   ├── env.py
-│   └── versions/
-└── tests/
-    ├── conftest.py          # Shared fixtures
-    └── test_<resource>.py
+├── pyproject.toml          # here, never at repo root
+├── .env.example            # committed; .env is gitignored
+├── alembic.ini             # from `alembic init`, sqlalchemy.url removed
+├── database.py             # engine (timeouts), AsyncSessionLocal, class Base, get_db
+├── models.py               # ORM models; imported by migrations/env.py
+├── schemas.py              # <Model>Create / <Model>Out (+ HealthOut)
+├── main.py                 # lifespan, CORS, /api router
+├── routers/<resource>.py   # thin; delegate to services
+├── services/<service>.py   # business logic
+├── migrations/{env.py,script.py.mako,versions/}
+└── tests/{conftest.py,test_<resource>.py,test_lifespan.py}
 ```
+
+## Steps
+
+Work in `backend/`. Write tests before code (red → green). Templates ship the tests.
+
+1. **Project.** Copy `templates/pyproject.toml` (replace `{{APP_NAME}}`). Do **not**
+   `uv init` (creates stray `main.py`, README, `.python-version`). Then:
+   ```bash
+   uv add fastapi "uvicorn[standard]" "sqlalchemy[asyncio]" asyncpg alembic python-dotenv
+   uv add --dev pytest pytest-asyncio httpx
+   ```
+   Quote extras. `sqlalchemy[asyncio]` is required, not optional.
+2. **Tests first.** Copy `templates/tests/`. `uv run pytest` must fail (no app yet).
+3. **App.** Copy `database.py`, `models.py`, `schemas.py`, `main.py`, `routers/`,
+   `services/`. `uv run pytest` → green (integration test skips without Postgres).
+4. **Env.** Copy `templates/.env.example` → `.env.example` and `.env`.
+5. **Alembic.**
+   ```bash
+   uv run alembic init -t async migrations
+   rm migrations/README
+   ```
+   Delete the `sqlalchemy.url` line from `alembic.ini`; replace `migrations/env.py` with
+   the template (sets URL from `DATABASE_URL` with `%` escaped, imports `models`,
+   `target_metadata = Base.metadata`). **No initial migration until a model exists**;
+   the first model gets `uv run alembic revision --autogenerate -m "add_<table>"`.
+6. **Entities (only if given).** Per entity: model in `models.py` (UUID `id`,
+   tz-aware `created_at`, `Mapped[...]` + `mapped_column`), `Create`/`Out` schemas,
+   router + service, tests (unit via `get_db` override; DB-touching tests marked
+   `integration` using the `real_db` fixture), one autogenerated migration.
+7. **Verify** (below). Do not report done without it.
 
 ## Conventions
 
-### Models (`models.py`)
+- `class Base(DeclarativeBase): pass`. Never `Base = DeclarativeBase()`.
+- Every route injects `db: AsyncSession = Depends(get_db)`. That makes `get_db`
+  overrides the test seam for faking the DB.
+- POST → 201, GET → 200, missing → 404 via `HTTPException`. No logic in routers.
+- Health: `services/health.database_is_reachable` runs `SELECT 1` under
+  `asyncio.wait_for(…, 3)`, never raises. Route returns 200 `{"status":"ok","database":"ok"}`
+  or 503 `{"status":"degraded","database":"unreachable"}`.
+- Lifespan: DB check at startup. Default **log ERROR and keep serving** (so health can
+  report 503). `DB_REQUIRED_AT_STARTUP=true` → fail fast (production).
+- Engine: `pool_pre_ping=True`, `connect_args={"timeout": 5}` (asyncpg default is 60s).
+- Python only via `uv run …`. No `.python-version` file.
 
-- All models inherit from a shared `Base = DeclarativeBase()`
-- Every table has `id: UUID` (default `uuid.uuid4()`) as primary key
-- Every table has `created_at: datetime` (timezone-aware, default `datetime.now(UTC)`)
-- Use `mapped_column()` and `Mapped[T]` type annotations (SQLAlchemy 2.0 style)
-- Nullable fields: `Mapped[str | None]`
-- Foreign keys: `ForeignKey("table.id")` with matching `relationship()` on both sides
+## Tests
 
-### Schemas (`schemas.py`)
+- Client: `AsyncClient(transport=ASGITransport(app=app), base_url="http://test")`.
+  `ASGITransport` does **not** run lifespan; `test_lifespan.py` tests it directly.
+- Unit tests: `db_up` / `db_down` fixtures override `get_db` with a fake session.
+- Integration: `@pytest.mark.integration` + `real_db` fixture; session-scoped
+  `test_engine` skips with the reason (and the `docker compose up -d db` hint) when
+  `TEST_DATABASE_URL` is unreachable. Each test rolls back.
+- No in-memory DB. SQLite can't stand in for asyncpg/Postgres types.
 
-- Separate `<Model>Create` (input) and `<Model>Out` (output) Pydantic models
-- `<Model>Out` has `model_config = ConfigDict(from_attributes=True)` for ORM serialization
-- UUIDs and datetimes serialize naturally via Pydantic v2
+## Verify
 
-### Routers (`routers/<resource>.py`)
-
-- `router = APIRouter(prefix="/resource", tags=["resource"])`
-- Inject `db: AsyncSession = Depends(get_db)` in every route
-- Return HTTP 201 for POST, 200 for GET, 404 with `HTTPException` if not found
-- No business logic in routers — delegate to services
-
-### Database (`database.py`)
-
-```python
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://app:app@localhost:5432/app")
-engine = create_async_engine(DATABASE_URL, echo=False)
-AsyncSessionLocal = async_sessionmaker(engine, expire_on_commit=False)
-Base = DeclarativeBase()
-
-async def get_db():
-    async with AsyncSessionLocal() as session:
-        yield session
+```bash
+uv sync && uv run pytest                     # all unit pass; integration pass or skip w/ reason
+uv run uvicorn main:app --port 8000 &        # then:
+curl -s -w ' %{http_code}\n' localhost:8000/api/health   # 200 ok, or 503 degraded if no DB
+curl -s -i -X OPTIONS localhost:8000/api/health \
+  -H 'Origin: http://localhost:3000' -H 'Access-Control-Request-Method: GET' \
+  | grep -i access-control-allow-origin
+kill %1; lsof -nP -iTCP:8000 -sTCP:LISTEN    # port must be free
 ```
 
-### Lifespan (`main.py`)
+If Postgres is reachable (`nc -z -G 2 localhost 5432`), run `uv run alembic upgrade head`
+and confirm the integration test **passes**, not skips. Report which happened.
 
-- On startup: execute `SELECT 1` to verify DB connectivity; fail fast if unreachable
-- On shutdown: dispose engine
+## Report
 
-### CORS
+Files tree · commands with pass/fail/skip · resolved versions · run commands · **friction
+log** (where this skill was wrong/ambiguous, with the concrete text fix).
 
-- Allow origins from `FRONTEND_URL` env var (default `http://localhost:3000`)
-- `allow_credentials=True`, `allow_methods=["*"]`, `allow_headers=["*"]`
+## Gotchas
 
-### Tests (`tests/`)
-
-- `conftest.py` sets up an in-memory or test-DB async session, overrides `get_db`
-- Use `httpx.AsyncClient(app=app, base_url="http://test")` as the test client
-- Tests are async (`@pytest.mark.asyncio`)
-- One test file per router
-
-### Migrations
-
-- Each schema change is a separate Alembic migration
-- Migration filenames describe the change: `add_email_to_users.py`
-- `alembic upgrade head` is the only required command for fresh setup
-
-### Docker Compose
-
-```yaml
-services:
-  db:
-    image: postgres:16
-    environment:
-      POSTGRES_USER: app
-      POSTGRES_PASSWORD: app
-      POSTGRES_DB: app
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-```
-
-## Scaffolding Steps
-
-When bootstrapping, ask the user for:
-
-1. **Domain description** — what the app does
-2. **Entities and fields** — each entity, its fields, types, and relationships
-3. **Endpoints needed** — method, path, and what it does
-4. **Business logic** — any non-trivial rules
-
-Then produce the following files in order:
-
-1. `pyproject.toml`
-2. `docker-compose.yml`
-3. `backend/.env`
-4. `backend/database.py`
-5. `backend/models.py`
-6. `backend/schemas.py`
-7. `backend/main.py`
-8. One file per router under `backend/routers/`
-9. One service file per non-trivial business logic under `backend/services/`
-10. `backend/migrations/env.py` and one initial Alembic migration
-11. `backend/tests/conftest.py` and one test file per router
-
-Do not add features or endpoints not listed by the user. Do not add auth unless asked.
+| Symptom | Fix |
+|---|---|
+| `pyenv: version '3.12' is not installed` in `backend/` | A `.python-version` was written (e.g. `uv python pin`). Delete it; use `uv run python`. |
+| pytest-asyncio "event loop is closed" / scope errors | Keep the `[tool.pytest.ini_options]` loop-scope settings from the template. |
+| `TypeError: AsyncClient.__init__() got an unexpected keyword argument 'app'` | httpx ≥0.28: use `transport=ASGITransport(app=app)`. |
+| Alembic `ValueError: invalid interpolation syntax` | `%` in `DATABASE_URL`; the template escapes it to `%%`. |
+| Health check hangs ~60s | Missing engine `connect_args` timeout or `wait_for` around `SELECT 1`. |
+| `docker` commands hang | Daemon wedged. Probe with `curl -s --max-time 5 --unix-socket /var/run/docker.sock http://localhost/_ping`; test Postgres with `nc -z`. macOS has no `timeout`. |

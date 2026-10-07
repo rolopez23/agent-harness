@@ -1,0 +1,21 @@
+# deps
+node_modules/
+.venv/
+
+# builds
+.next/
+out/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# env
+.env
+.env.*
+!.env.example
+
+# os / editor
+.DS_Store
+*.tsbuildinfo
+next-env.d.ts
+.playwright-mcp/

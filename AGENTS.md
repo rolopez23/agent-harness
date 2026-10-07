@@ -84,6 +84,10 @@ for complete instructions.
 | systematic-debugging | `/systematic-debugging` | Root-cause-first 4-phase debugging process |
 | dispatching-parallel-agents | `/dispatching-parallel-agents` | Split independent tasks across parallel subagents |
 | tone | `/tone` | Toggle the house tone and coding standards on/off, independently |
+| next-react-boot | `/next-react-boot` | Scaffold Next.js frontend from tested templates (optional) |
+| python-psql-boot | `/python-psql-boot` | Scaffold FastAPI + Postgres backend from tested templates (optional) |
+| fullstack-link | `/fullstack-link` | Contract before builders; link + verify frontend/backend after (optional) |
+| fullstack-boot | `/fullstack-boot` | Orchestrator: preflight → contract → parallel builders → link → friction (optional) |
 
 Skills live in `skills/`. Each skill directory contains a `SKILL.md` and optionally
 `sub-skills/`, `evals/`, and supporting scripts.
@@ -109,6 +113,7 @@ to invoke the right skill instead of doing ad-hoc work that bypasses the workflo
 | "design this UI", "make this look good", "build the frontend for X" | `/frontend-design` |
 | "split this work", "run these in parallel", "dispatch agents" | `/dispatching-parallel-agents` |
 | "create a skill", "add a new skill", "improve this skill" | `/skill-creator` |
+| "boot / scaffold a full-stack app", "new frontend + backend" | `/fullstack-boot` (manual; suggest it) |
 | "tone off/on", "disable coding standards", "stop being terse", "tone status" | `/tone` |
 
 **Routing rules — read before invoking:**

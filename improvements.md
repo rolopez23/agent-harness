@@ -29,6 +29,54 @@ Added as Step 8 in plan/SKILL.md — 6-item checklist before implementation hand
 
 ---
 
+## Boot Skills (from e-law-firm full-stack boot, 2026-10-07)
+
+Evidence: two parallel builder subagents + main-thread link on a fresh repo. Friction logs
+from both builders drove the changes. Applies to every `*-boot` skill, current and future.
+
+### Applied (branch `boot-skills`)
+
+1. **Ship verified templates, not code in prose.** Prose snippets had 3 real bugs
+   (`Base = DeclarativeBase()`, `AsyncClient(app=…)`, in-memory Postgres tests). Each boot
+   skill now has `templates/` copied from a build that passed its Verify block.
+2. **"Tested versions" line + install `@latest` + report resolved versions.** Turns
+   version drift into a visible diff instead of a silent break.
+3. **Contract first, single owner per path.** `fullstack-link` Phase A fixes ports, env
+   names and the health shape, so frontend and backend can build in parallel.
+4. **Every boot skill ends in a Verify block** with exact commands and expected output, then
+   a Report that includes a **friction log**. The friction log is how the skills improve.
+5. **Inputs table: standalone vs orchestrated.** Says what to do when the contract, the
+   entities or root ownership are absent. Health-only boot is a valid default.
+6. **Bounded probes only.** `docker info` and `npm view` hung the session; macOS has no
+   `timeout`. Use `curl --max-time 5 --unix-socket …/_ping`, `nc -z -G 2`, curl to the registry.
+7. **Health endpoint as link proof** with a defined Degraded mode (no Docker), so "done"
+   is honest when Postgres is unavailable.
+8. **Gotchas as symptom → fix tables**, filled from what actually broke.
+9. **Orchestrator (`fullstack-boot`)** with builder prompt templates, plus a continuation
+   prompt for stopped builders (a stopped subagent can't be resumed).
+
+### Backlog
+
+- [x] **Run Full mode once Docker is back.** Done 2026-10-07: `alembic upgrade head` ok,
+      pytest 8/8 (integration passed), smoke 200, browser shows `ok · ok`, 0 console errors.
+- [ ] **`scaffold.sh` per boot skill:** copy templates + replace `{{APP_NAME}}` /
+      `{{APP_TAGLINE}}` in one command. Biggest speed win: builders spent most tokens
+      re-typing templates.
+- [ ] **Template drift check:** script that scaffolds into a temp dir and runs each Verify
+      block; run monthly or before using a boot skill after a long gap.
+- [ ] **Committed browser smoke test** (Playwright) in the project, replacing the ad-hoc
+      MCP browser check in `fullstack-link`.
+- [ ] **Frontend favicon** (`app/icon.svg`) in the template; its absence is the one
+      console 404.
+- [ ] **`install.sh --with fullstack-boot`** should pull its three dependencies
+      automatically (today: `--with all`).
+- [ ] **Phase timing log**: `fullstack-boot` reports timings; collect them across runs to
+      see where boots are slow.
+- [ ] **Shorthand table** (`sa`, `orc`, `wf`) versioned here and installed into
+      `~/.claude/CLAUDE.md`.
+
+---
+
 ## Future Consideration
 
 ### subagent-driven-development
