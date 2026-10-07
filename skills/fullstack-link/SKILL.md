@@ -82,7 +82,7 @@ body shape, CORS origin, and file ownership. **Change the contract first, then t
 
 | Symptom | Fix |
 |---|---|
-| `docker info` hangs forever | Daemon wedged. Use the `_ping` probe above; restart Docker Desktop. |
+| `docker info` hangs forever | Daemon wedged. Use the `_ping` probe above. Restart (macOS, with the user's OK): `osascript -e 'quit app "Docker"'`, wait for exit, `open -a Docker`, poll `_ping` until `OK`. Kill leftover hung `docker` CLI processes first. |
 | `.playwright-mcp/` appears in `git status` | Browser MCP output; `gitignore` template ignores it. |
 | Ports already bound after a run | `concurrently -k` kills siblings; still `pkill -f "uvicorn main:app"` / `"next dev"` if a run was interrupted. |
 | Browser shows `Backend: unreachable` but curl works | CORS: `FRONTEND_URL` ≠ the page origin (e.g. `127.0.0.1` vs `localhost`). |

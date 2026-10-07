@@ -57,8 +57,8 @@ from both builders drove the changes. Applies to every `*-boot` skill, current a
 
 ### Backlog
 
-- [ ] **Run Full mode once Docker is back.** The templates are not yet verified against a
-      live Postgres (integration test skipped; `alembic upgrade head` not run online).
+- [x] **Run Full mode once Docker is back.** Done 2026-10-07: `alembic upgrade head` ok,
+      pytest 8/8 (integration passed), smoke 200, browser shows `ok · ok`, 0 console errors.
 - [ ] **`scaffold.sh` per boot skill:** copy templates + replace `{{APP_NAME}}` /
       `{{APP_TAGLINE}}` in one command. Biggest speed win: builders spent most tokens
       re-typing templates.
