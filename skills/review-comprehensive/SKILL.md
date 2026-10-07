@@ -17,6 +17,20 @@ The four sub-skills are in `sub-skills/`:
 - `prior-art.md` — historical: prior reviews on this file or similar files; only surfaces
   findings that another reviewer already caught on related code
 
+## Artifact location
+
+`<artifacts>` below is this feature's folder: `ai-sessions/<YYYY-MM-DD>-<feature>/`
+(gitignored). Resolve it in this order:
+
+1. The project's AGENTS.md/CLAUDE.md names another artifact root → use it.
+2. Legacy: `docs/<feature>/` already exists → keep using it.
+3. `ls -d ai-sessions/*-<feature>/` matches → use it.
+4. Otherwise create it, plus a row in `ai-sessions/sessions.md` (status, folder,
+   name/purpose, `claude --resume <session-id>`). No feature (ad-hoc run) → the
+   current session's folder.
+
+Artifacts are gitignored: never `git add` them.
+
 ## Two Run Modes
 
 Review can be invoked two ways. Both are valid — they have different gates.
@@ -27,7 +41,7 @@ Review can be invoked two ways. Both are valid — they have different gates.
   of any plan. No gate; skip straight to Step 1. Use this when reviewing someone else's
   PR or any one-off correctness pass.
 
-Detect the mode by looking for a plan at `docs/<feature>/plan.md` that references the
+Detect the mode by looking for a plan at `<artifacts>/plan.md` that references the
 files in the diff. If one exists and the diff matches a step in it, you're in workflow
 mode. Otherwise, standalone.
 
@@ -37,12 +51,12 @@ When running as part of a plan, review follows Clean Code in the chain:
 Auto Tests → Verify → Clean Code → **Comp Review** → Understand → Human. Before doing any work,
 confirm the prior columns are complete.
 
-1. Find the row for the current step in `docs/<feature>/plan.md`.
+1. Find the row for the current step in `<artifacts>/plan.md`.
 2. The **Auto Tests** column must be ✅.
 3. The **Verify** column must be ✅ or ➖ (N/A). A verification report must exist at
-   `docs/<feature>/verify/<step>-*.md` if Verify is ✅.
+   `<artifacts>/verify/<step>-*.md` if Verify is ✅.
 4. The **Clean Code** column must be ✅. A clean-code report must exist at
-   `docs/<feature>/simplify/<step>-*.md`.
+   `<artifacts>/simplify/<step>-*.md`.
 
 **If any prior column is ⬜ or ❌:** Stop and say which one. For example: "Clean Code has not
 been run for this step — run `/clean-code` first. Review runs against the cleaned-up code so the
@@ -61,7 +75,7 @@ git diff main...HEAD
 
 Also read:
 - Every file touched in the diff (bugs are often visible only in context)
-- `docs/<feature>/spec.md` if it exists — Success Criteria and Interfaces sections
+- `<artifacts>/spec.md` if it exists — Success Criteria and Interfaces sections
 
 ## Step 2: Dispatch All Four in Parallel
 
@@ -112,9 +126,9 @@ reason so the human doesn't have to stop and investigate them.
 
 ## Output Format
 
-Save to `docs/<feature>/reviews/<step-name>-<YYYY-MM-DD>.md`. Determine `<feature>` from
-the plan path (e.g., `docs/eval-results-display/plan.md` → `eval-results-display`).
-If no plan exists, use `docs/reviews/<branch-name>-<YYYY-MM-DD>.md` as fallback.
+Save to `<artifacts>/reviews/<step-name>-<YYYY-MM-DD>.md`. Determine `<feature>` from
+the plan path (e.g., `ai-sessions/2026-04-04-eval-results-display/plan.md` → `eval-results-display`).
+If no plan exists, use `<artifacts>/reviews/<branch-name>-<YYYY-MM-DD>.md`, where `<artifacts>` is the current session's folder.
 
 ```markdown
 ## Review: <branch or "staged changes">

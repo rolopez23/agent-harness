@@ -12,16 +12,16 @@ TDD rules apply to every cycle in this plan.
 
 ## Output
 
-A markdown file at `docs/<feature-name>/steps/<step-name>.md`.
+A markdown file at `<artifacts>/steps/<step-name>.md`.
 
 **Naming:** Use the E2E capability the step delivers — what the user or system can do when
 it's done, not what the code does internally:
 
 ```
-docs/notifications/steps/schema.md
-docs/notifications/steps/event-triggers.md
-docs/notifications/steps/feed-api.md
-docs/notifications/steps/email-delivery.md
+ai-sessions/2026-04-04-notifications/steps/schema.md
+ai-sessions/2026-04-04-notifications/steps/event-triggers.md
+ai-sessions/2026-04-04-notifications/steps/feed-api.md
+ai-sessions/2026-04-04-notifications/steps/email-delivery.md
 ```
 
 ## Cycle Order

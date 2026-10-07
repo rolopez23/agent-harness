@@ -14,6 +14,20 @@ are removing everything that doesn't need to be there.
 
 This skill can never touch tests. You can only refactor code covered by the tests.
 
+## Artifact location
+
+`<artifacts>` below is this feature's folder: `ai-sessions/<YYYY-MM-DD>-<feature>/`
+(gitignored). Resolve it in this order:
+
+1. The project's AGENTS.md/CLAUDE.md names another artifact root → use it.
+2. Legacy: `docs/<feature>/` already exists → keep using it.
+3. `ls -d ai-sessions/*-<feature>/` matches → use it.
+4. Otherwise create it, plus a row in `ai-sessions/sessions.md` (status, folder,
+   name/purpose, `claude --resume <session-id>`). No feature (ad-hoc run) → the
+   current session's folder.
+
+Artifacts are gitignored: never `git add` them.
+
 ## Two Run Modes
 
 Clean Code can be invoked two ways. Both are valid — they have different gates.
@@ -24,7 +38,7 @@ Clean Code can be invoked two ways. Both are valid — they have different gates
   of any plan. No gate; skip straight to "Get the Diff." Use this when reviewing someone
   else's PR, cleaning up a feature branch before merge, or any one-off cleanup.
 
-Detect the mode by looking for a plan at `docs/<feature>/plan.md` that references the
+Detect the mode by looking for a plan at `<artifacts>/plan.md` that references the
 files in the diff. If one exists and the diff matches a step in it, you're in workflow
 mode. Otherwise, standalone.
 
@@ -34,10 +48,10 @@ When running as part of a plan, clean-code follows Verify in the chain:
 Auto Tests → Verify → **Clean Code** → Comp Review → Understand → Human. Before doing any work,
 confirm the prior columns are complete.
 
-1. Find the row for the current step in `docs/<feature>/plan.md`.
+1. Find the row for the current step in `<artifacts>/plan.md`.
 2. The **Auto Tests** column must be ✅.
 3. The **Verify** column must be ✅ or ➖ (N/A).
-4. If Verify is ✅, a verification report must exist at `docs/<feature>/verify/<step>-*.md`.
+4. If Verify is ✅, a verification report must exist at `<artifacts>/verify/<step>-*.md`.
 
 **If Auto Tests is not ✅:** Stop and say: "Auto Tests have not passed for this step. Tests must
 be green before Clean Code runs — it only refactors code that is covered by passing tests."
@@ -286,17 +300,17 @@ If nothing was applied and nothing was suggested, only show the Result line.
 
 ## Save the Output
 
-Save the report to `docs/<feature>/simplify/<step-name>-<YYYY-MM-DD>.md`. Determine `<feature>`
-from the plan path (e.g., `docs/eval-results-display/plan.md` → `eval-results-display`).
-If no plan exists, use `docs/simplify/<branch-name>-<YYYY-MM-DD>.md` as fallback.
+Save the report to `<artifacts>/simplify/<step-name>-<YYYY-MM-DD>.md`. Determine `<feature>`
+from the plan path (e.g., `ai-sessions/2026-04-04-eval-results-display/plan.md` → `eval-results-display`).
+If no plan exists, use `<artifacts>/simplify/<branch-name>-<YYYY-MM-DD>.md`, where `<artifacts>` is the current session's folder.
 Tell the user where the file was saved.
 
 ## Commit the Changes
 
-Stage all modified files (including the report) and create a commit:
+Stage the modified code files and create a commit. The report stays in `<artifacts>` (gitignored, not staged):
 
 ```bash
-git add <modified files> docs/<feature>/simplify/<report file>
+git add <modified files>
 git commit -m "Clean up <chunk label>: <one-line description of what changed>
 
 <optional body: key refactors applied>
