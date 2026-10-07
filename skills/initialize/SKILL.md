@@ -2,13 +2,14 @@
 name: initialize
 description: >
   Installs this harness's skills into a project by writing or updating AGENTS.md and/or
-  CLAUDE.md with a skills reference and canonical workflow. Run this when setting up a new
+  CLAUDE.md with a skills reference and canonical workflow, plus a gitignored ai-sessions/
+  folder and .claude/settings.json read-permission defaults. Run this when setting up a new
   project, onboarding a repo to the spec→plan→TDD→verify→clean-code→review workflow, or
   when a project's context files are missing or don't reference these skills. Trigger when the
   user says "initialize this project", "set up AGENTS.md", "set up CLAUDE.md", "install
   skills", "onboard this repo", or "add skills to this project".
 disable-model-invocation: true
-version: "1.0.0"
+version: "1.1.0"
 ---
 
 # Initialize
@@ -62,7 +63,7 @@ other.
 
 ## Content blocks
 
-Both files use the same four sections. Tailor the heading style to the file (CLAUDE.md can
+Both files use the same sections. Tailor the heading style to the file (CLAUDE.md can
 use a friendlier intro; AGENTS.md is terse).
 
 ### Nested context index
@@ -76,6 +77,29 @@ Check for context files in subdirectories before starting work in them.
 <!-- nested-agents-index-end -->
 ```
 
+### AI sessions
+
+```markdown
+## AI sessions
+
+`ai-sessions/` is gitignored and holds every artifact an AI session produces.
+
+- `ai-sessions/<YYYY-MM-DD>-<feature>/` is one folder per feature or workstream for specs,
+  plans, notes, verify/review reports and a `summary.md`. Ad-hoc work gets its own dated folder.
+- `ai-sessions/sessions.md` indexes those folders (**In progress** / **Completed**) with
+  their `claude --resume <session-id>` commands.
+
+Rules for agents:
+
+1. At session start, reuse the feature's existing folder (`ls -d ai-sessions/*-<feature>/`)
+   and add this session's resume command to its row; otherwise create the folder and add a
+   row under **In progress**. Get the session ID from the scratchpad path or `/status`.
+2. Write session artifacts to that folder, not to scratchpad or `/tmp`.
+3. At session end, update `summary.md` (goal, done, time sinks, open items). When the
+   feature is done, move its row to **Completed**.
+4. Exception: files the code or other contributors depend on stay committed in `docs/`.
+```
+
 ### Workflow
 
 Commands below use the `/rl-as:` plugin prefix. If the harness was installed via the
@@ -83,8 +107,8 @@ Commands below use the `/rl-as:` plugin prefix. If the harness was installed via
 
 ```
 /rl-as:initialize     →  write or update context files in a target project
-/rl-as:problem-spec   →  define the problem, produce docs/<feature>/spec.md
-/rl-as:plan           →  break into TDD chunks, produce docs/<feature>/plan.md
+/rl-as:problem-spec   →  define the problem, produce ai-sessions/<YYYY-MM-DD>-<feature>/spec.md
+/rl-as:plan           →  break into TDD chunks, produce ai-sessions/<YYYY-MM-DD>-<feature>/plan.md
 
   For each step:
     write tests (red) → write code (green) → refactor → commit
@@ -164,6 +188,11 @@ instructions.
 
 ---
 
+## AI sessions
+...
+
+---
+
 ## Workflow
 ...
 
@@ -193,6 +222,7 @@ Check for each section by marker:
 | Section | Marker to look for |
 |---|---|
 | Nested index | `nested-agents-index` |
+| AI sessions | `## AI sessions` |
 | Workflow | `## Workflow` |
 | Skills table | `## Skills` |
 | Behavioral rules | `learned-rules` |
@@ -206,11 +236,69 @@ Append missing sections at the end of the file, separated by `---`.
 
 ---
 
+## Project files
+
+Also set these up at the target project root, adding only what's missing.
+
+**`.gitignore`** (create if missing) — skip if an `ai-sessions/` or `/ai-sessions/` line
+exists:
+
+```gitignore
+# AI session artifacts; see "AI sessions" in AGENTS.md / CLAUDE.md
+ai-sessions/
+```
+
+**`ai-sessions/sessions.md`** — create only if missing:
+
+```markdown
+# AI sessions
+
+One row per feature folder. Run resume commands from the repo root.
+
+## In progress
+
+| Folder | Name / purpose | Started | Resume |
+|---|---|---|---|
+
+## Completed
+
+| Folder | Name / purpose | Started | Finished | Outcome | Resume |
+|---|---|---|---|---|---|
+```
+
+**`.claude/settings.json`**:
+
+```json
+{
+  "permissions": {
+    "ask": [
+      "Read(**/node_modules/**)",
+      "Read(**/.venv/**)",
+      "Read(**/.next/**)",
+      "Read(**/__pycache__/**)"
+    ],
+    "deny": [
+      "Read(**/.env)",
+      "Read(**/.env.local)",
+      "Read(**/.env.*.local)",
+      "Read(**/.env.production)"
+    ]
+  }
+}
+```
+
+If the file exists, merge: append each missing entry to `permissions.ask` / `permissions.deny`
+(create the arrays if absent). Never replace existing arrays, drop keys, or duplicate
+entries. If the file isn't valid JSON, don't touch it — tell the user.
+
+---
+
 ## After Writing
 
 Tell the user:
 
-- Which files were created vs. updated
+- Which files were created vs. updated (context files, `.gitignore`, `sessions.md`,
+  `settings.json`)
 - Which sections were added to each
 - The paths written
 - One-liner next step: "Run `/problem-spec` to start your first feature, or `/plan` if you

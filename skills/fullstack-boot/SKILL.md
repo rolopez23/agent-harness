@@ -6,7 +6,7 @@ description: >
   in the main thread (fullstack-link), then harvest skill friction. Trigger on "boot the
   full stack", "boot frontend and backend", "new full-stack app", "/fullstack-boot".
 disable-model-invocation: true
-version: "1.0.0"
+version: "1.1.0"
 ---
 
 # Fullstack Boot (orchestrator)
@@ -17,7 +17,8 @@ Preflight ─► Contract ─┬─► sa: frontend (next-react-boot) ─┐
               main thread                 parallel                      main thread
 ```
 
-The main thread owns the repo root, `docker/`, `docs/`, linking and verification.
+The main thread owns the repo root, `docker/`, `docs/`, `ai-sessions/`, linking and
+verification.
 Subagents own exactly one directory each. The contract is what lets them run in
 parallel without talking to each other.
 
@@ -27,6 +28,10 @@ parallel without talking to each other.
 `disable-model-invocation`, so subagents **read** the SKILL.md; they can't invoke it.
 
 Record wall-clock start/end of each phase for the report.
+
+**Artifacts.** Session artifacts (friction log) go in `ai-sessions/<YYYY-MM-DD>-boot/`
+(gitignored; same rule as `../verify/SKILL.md` → Artifact location). Only files code
+depends on stay committed in `docs/` (e.g. `docs/boot/contract.md`).
 
 ## 0. Preflight (one batched shell call, every probe bounded)
 
@@ -46,6 +51,10 @@ Never run bare `docker …` or `npm view` in preflight: both can hang, and macOS
 Run `fullstack-link` **Phase A**: contract, compose, initdb, `.gitignore`. Also settle,
 in one question if unknown: app name, one-line tagline, and whether there are backend
 entities now (default: none → health-only).
+
+Then set up the artifact folder if missing: make sure `.gitignore` has `ai-sessions/`
+(the template does), create `ai-sessions/<YYYY-MM-DD>-boot/`, and add its row to
+`ai-sessions/sessions.md` (status, folder, name/purpose, `claude --resume <session-id>`).
 
 ## 2. Build (parallel)
 
@@ -69,7 +78,8 @@ commands; reconcile with the contract. "Done" follows that skill's Full/Degraded
 ## 4. Friction harvest
 
 Merge both builders' friction logs plus your own (preflight, link) into
-`docs/boot/friction.md` in the project:
+`ai-sessions/<YYYY-MM-DD>-boot/friction.md` in the project (gitignored; never `git add`
+it), and update the boot row in `ai-sessions/sessions.md`:
 
 | # | Skill | What it said | What happened | Fix to skill text | Severity |
 

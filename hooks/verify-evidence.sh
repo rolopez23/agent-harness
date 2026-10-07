@@ -30,9 +30,14 @@ if command -v jq >/dev/null 2>&1; then
 fi
 [[ -z "$proj" ]] && proj="$(pwd)"
 
-# Find the most recently written verify report (matches docs/<feature>/verify/*.md
-# and the docs/verify/*.md fallback).
-report="$(find "$proj" -type f -path '*verify*' -name '*.md' -print0 2>/dev/null \
+# Find the most recently written verify report. Matches
+# ai-sessions/<YYYY-MM-DD>-<feature>/verify/*.md (current) and the legacy
+# docs/<feature>/verify/*.md and docs/verify/*.md locations. Dependency, build and
+# VCS dirs are pruned: they are slow to scan and can hold third-party *verify*.md
+# files that would be mistaken for the report.
+report="$(find "$proj" \( -name node_modules -o -name .venv -o -name .next \
+    -o -name .git -o -name __pycache__ \) -prune \
+  -o -type f -path '*verify*' -name '*.md' -print0 2>/dev/null \
   | xargs -0 ls -t 2>/dev/null | head -1 || true)"
 
 fail() {
