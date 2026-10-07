@@ -45,19 +45,22 @@ For any non-trivial feature, work proceeds in this order. Do not skip steps — 
 skill that can be invoked explicitly.
 
 ```
-/initialize     →  write or update AGENTS.md in a target project
-/problem-spec   →  define the problem, produce docs/<feature>/spec.md
-/plan           →  break into steps, produce docs/<feature>/plan.md + docs/<feature>/steps/<step-name>.md
+/initialize     →  write or update AGENTS.md/CLAUDE.md, ai-sessions/, settings in a target project
+/problem-spec   →  define the problem, produce <artifacts>/spec.md
+/plan           →  break into steps, produce <artifacts>/plan.md + <artifacts>/steps/<step-name>.md
                    (requires spec.md to exist)
 
   For each step:
     write tests (red) → write code (green) → refactor → commit
-    /verify              →  E2E check against live system; produces docs/verify/<branch>-<date>.md
-    /clean-code          →  clean up staged code; produces docs/simplify/<branch>-<date>.md
-    /review-comprehensive →  comprehensive correctness check; produces docs/reviews/<branch>-<date>.md
+    /verify              →  E2E check against live system; produces <artifacts>/verify/<step>-<date>.md
+    /clean-code          →  clean up staged code; produces <artifacts>/simplify/<step>-<date>.md
+    /review-comprehensive →  comprehensive correctness check; produces <artifacts>/reviews/<step>-<date>.md
     /pr-interactive-walkthrough  →  cognitive understanding check
     human                →  developer signs off
 ```
+
+`<artifacts>` is the feature's gitignored folder, `ai-sessions/<YYYY-MM-DD>-<feature>/`. Full
+resolution rule: "Artifact location" section in each artifact-writing skill.
 
 Failures in `/verify`, `/clean-code`, or `/review-comprehensive` require fixes or a plan update
 before proceeding. The Human column in the plan dashboard cannot be marked ✅ while any prior
@@ -72,7 +75,7 @@ for complete instructions.
 
 | Skill | Invoke | Purpose |
 |---|---|---|
-| initialize | `/initialize` | Write or update AGENTS.md in a project with skills reference and workflow |
+| initialize | `/initialize` | Write or update AGENTS.md/CLAUDE.md in a project with skills reference and workflow; set up ai-sessions/ and permission defaults |
 | problem-spec | `/problem-spec` | Define what is and isn't being solved; produce a spec doc |
 | plan | `/plan` | Break a spec into testable TDD chunks with a status dashboard |
 | verify | `/verify` | E2E verification — real curl or browser automation against a live system |
@@ -120,7 +123,7 @@ to invoke the right skill instead of doing ad-hoc work that bypasses the workflo
 
 1. **Bug fixes go to `/systematic-debugging`, not `/problem-spec`.** Specs are for new
    capabilities. If the user says "fix this bug" or "X is broken," skip the spec.
-2. **`/plan` requires a spec.** If `docs/<feature>/spec.md` doesn't exist, refuse and run
+2. **`/plan` requires a spec.** If `<artifacts>/spec.md` doesn't exist, refuse and run
    `/problem-spec` first. Do not improvise a plan from a verbal description.
 3. **`/review-comprehensive` ≠ `/pr-interactive-walkthrough`.** Review hunts for bugs and edge
    cases. Walkthrough tests human comprehension. Both run per step; they are not interchangeable.

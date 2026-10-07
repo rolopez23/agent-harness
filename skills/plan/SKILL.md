@@ -27,7 +27,7 @@ step as the work proceeds.
 1. The project's AGENTS.md/CLAUDE.md names another artifact root → use it.
 2. Legacy: `docs/<feature>/` already exists → keep using it.
 3. `ls -d ai-sessions/*-<feature>/` matches → use it.
-4. Otherwise create it, plus a row in `ai-sessions/sessions.md` (status, folder,
+4. Otherwise create it, plus a row under **In progress** in `ai-sessions/sessions.md` (folder,
    name/purpose, `claude --resume <session-id>`). No feature (ad-hoc run) → the
    current session's folder.
 
