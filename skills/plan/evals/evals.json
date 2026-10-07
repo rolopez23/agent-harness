@@ -9,7 +9,7 @@
         "skills/problem-spec-workspace/iteration-1/eval-notifications/with_skill/outputs/spec.md"
       ],
       "assertions": [
-        "A plan.md file was produced at docs/notifications/plan.md or similar",
+        "A plan.md file was produced at ai-sessions/2026-04-04-notifications/plan.md or similar",
         "The plan contains a status dashboard table with columns for Auto Tests, LLM Verify, Human, Simplify, and Review",
         "The plan identifies at least 3 chunks",
         "Each chunk in the plan lists which other chunks it blocks (or explicitly notes it blocks none)",

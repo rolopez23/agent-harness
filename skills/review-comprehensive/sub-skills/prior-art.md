@@ -36,7 +36,7 @@ In order:
 ### 1. Saved review reports
 ```bash
 # Same-feature reviews on this file
-ls docs/<feature>/reviews/ 2>/dev/null
+ls <artifacts>/reviews/ 2>/dev/null
 # All reviews across all features
 find docs -path '*/reviews/*.md' -type f 2>/dev/null
 ```
@@ -79,8 +79,8 @@ If `gh` is not available or there is no remote, skip this step — do not block 
 
 A "similar file" is one where review findings are likely to transfer. Check, in order:
 
-1. **Explicit templates named in the spec or plan.** Look in `docs/<feature>/spec.md` and
-   `docs/<feature>/steps/<step>.md` for phrases like "based on X", "modeled after X",
+1. **Explicit templates named in the spec or plan.** Look in `<artifacts>/spec.md` and
+   `<artifacts>/steps/<step>.md` for phrases like "based on X", "modeled after X",
    "follow the pattern in X", "see X for an example". Files named this way are
    high-confidence templates — review findings on them almost always apply here.
 2. **Sibling files in the same directory with the same naming pattern.** E.g., for
@@ -111,12 +111,12 @@ siblings (#2) over inheritance-based matches.
 - **Similar files inspected:** <file A> (template per spec.md), <file B> (sibling in same dir), ...
 
 #### Findings that still apply
-- **<current file>:<line>** — From `docs/<feature>/reviews/<step>-<date>.md` (review on `<other file>`):
+- **<current file>:<line>** — From `<artifacts>/reviews/<step>-<date>.md` (review on `<other file>`):
   "<the original finding>". This issue is present here at <line> because <one-sentence reason>.
 - ...
 
 #### Already addressed
-- **From `docs/<feature>/reviews/<step>-<date>.md`** on `<other file>`: "<finding>" — handled
+- **From `<artifacts>/reviews/<step>-<date>.md`** on `<other file>`: "<finding>" — handled
   here at <file>:<line> by <how>.
 - ...
 

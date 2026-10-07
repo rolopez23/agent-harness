@@ -3,7 +3,7 @@ name: plan
 description: >
   Creates a structured implementation plan from a problem spec, breaking work into independently
   testable steps with dependency tracking and a living status dashboard.
-  ONLY trigger this skill when a problem spec already exists at docs/{feature}/spec.md — if no spec
+  ONLY trigger this skill when a problem spec already exists at <artifacts>/spec.md — if no spec
   is present, simpler ad-hoc planning suffices and this skill should not be used.
   Trigger on: "make a plan", "plan this out", "how should we implement this", "create an
   implementation plan", "break this into tasks", "what order should we build this in" — but only
@@ -19,9 +19,23 @@ You are creating a living implementation plan from a problem spec. The goal is t
 into steps that can be built, tested, and verified independently — and to track the state of each
 step as the work proceeds.
 
+## Artifact location
+
+`<artifacts>` below is this feature's folder: `ai-sessions/<YYYY-MM-DD>-<feature>/`
+(gitignored). Resolve it in this order:
+
+1. The project's AGENTS.md/CLAUDE.md names another artifact root → use it.
+2. Legacy: `docs/<feature>/` already exists → keep using it.
+3. `ls -d ai-sessions/*-<feature>/` matches → use it.
+4. Otherwise create it, plus a row in `ai-sessions/sessions.md` (status, folder,
+   name/purpose, `claude --resume <session-id>`). No feature (ad-hoc run) → the
+   current session's folder.
+
+Artifacts are gitignored: never `git add` them.
+
 ## Before You Start
 
-Locate the spec at `docs/<feature-name>/spec.md`. Read it fully. If it does not exist, stop:
+Locate the spec at `<artifacts>/spec.md`. Read it fully. If it does not exist, stop:
 "I need a problem spec before I can make a plan. Run /problem-spec first."
 
 **Scope check:** If the spec covers multiple independent subsystems, suggest splitting into separate
@@ -212,12 +226,12 @@ State your recommendation and reasoning briefly. Record whatever the user choose
 
 ## Step 5: Write the Plan Document
 
-Write to `docs/<feature-name>/plan.md`:
+Write to `<artifacts>/plan.md`:
 
 ```markdown
 # Plan: <Feature Name>
 
-> Spec: [docs/<feature-name>/spec.md](relative-path-to-spec)
+> Spec: [<artifacts>/spec.md](relative-path-to-spec)
 
 ## Status Dashboard
 
@@ -277,7 +291,7 @@ For each step, write a detailed TDD implementation plan. See `sub-skills/plan-st
 TDD rules (Iron Law, red-green-refactor, commit rules, red flags) live in `sub-skills/tdd.md`
 — read it before implementing any cycle.
 
-Each step plan lives at `docs/<feature-name>/steps/<step-name>.md`. The main plan links to
+Each step plan lives at `<artifacts>/steps/<step-name>.md`. The main plan links to
 each one.
 
 **No placeholders.** Every step in a sub-plan must contain what the engineer actually needs.

@@ -11,6 +11,20 @@ Your job is to define the problem clearly before any solution is considered. You
 the implementation. You are not suggesting technologies. You are figuring out exactly what needs to
 be true when this work is done — and exactly what is out of scope.
 
+## Artifact location
+
+`<artifacts>` below is this feature's folder: `ai-sessions/<YYYY-MM-DD>-<feature>/`
+(gitignored). Resolve it in this order:
+
+1. The project's AGENTS.md/CLAUDE.md names another artifact root → use it.
+2. Legacy: `docs/<feature>/` already exists → keep using it.
+3. `ls -d ai-sessions/*-<feature>/` matches → use it.
+4. Otherwise create it, plus a row in `ai-sessions/sessions.md` (status, folder,
+   name/purpose, `claude --resume <session-id>`). No feature (ad-hoc run) → the
+   current session's folder.
+
+Artifacts are gitignored: never `git add` them.
+
 ## Ground Rules
 
 - **Never assume.** If anything is ambiguous, ask. A wrong assumption here costs far more than a
@@ -132,7 +146,7 @@ relates to the problem.
 
 ## Step 6: Write a Draft Spec
 
-Write a draft to `docs/<feature-name>/spec.md`. Use this structure:
+Write a draft to `<artifacts>/spec.md`. Use this structure:
 
 ```markdown
 # Spec: <Feature Name>
@@ -242,7 +256,7 @@ ask a follow-up before moving on.
 
 Once the re-interview is complete and all stress-test findings are resolved:
 
-- Update `docs/<feature-name>/spec.md` with the final answers
+- Update `<artifacts>/spec.md` with the final answers
 - Move any unresolved items to the Open Questions section with an owner
 - Tell the user where the file was saved and ask them to review it before any implementation begins
 

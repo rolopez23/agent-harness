@@ -22,6 +22,20 @@ This skill is invasive by design. Where `/clean-code` is biased toward silence, 
 biased toward action: the user has already decided the structure needs to change, and your
 job is to apply Fowler's catalog systematically.
 
+## Artifact location
+
+`<artifacts>` below is this feature's folder: `ai-sessions/<YYYY-MM-DD>-<feature>/`
+(gitignored). Resolve it in this order:
+
+1. The project's AGENTS.md/CLAUDE.md names another artifact root → use it.
+2. Legacy: `docs/<feature>/` already exists → keep using it.
+3. `ls -d ai-sessions/*-<feature>/` matches → use it.
+4. Otherwise create it, plus a row in `ai-sessions/sessions.md` (status, folder,
+   name/purpose, `claude --resume <session-id>`). No feature (ad-hoc run) → the
+   current session's folder.
+
+Artifacts are gitignored: never `git add` them.
+
 ## Hard Rules
 
 1. **Tests are not yours to touch.** Production code can be restructured; tests stay. If a
@@ -333,8 +347,8 @@ Partial. <what's done, what's left, why stopped>.
 
 ## Save the Output
 
-Save the report to `docs/refactor/<scope>-<YYYY-MM-DD>.md`. If the refactor is tied to a
-named feature, use `docs/<feature>/refactor/<scope>-<YYYY-MM-DD>.md` instead.
+Save the report to `<artifacts>/refactor/<scope>-<YYYY-MM-DD>.md` (current session's folder). If the refactor is tied to a
+named feature, use the feature's `<artifacts>/refactor/<scope>-<YYYY-MM-DD>.md` instead.
 
 Tell the user where the file was saved and link to the commits that contain the moves.
 

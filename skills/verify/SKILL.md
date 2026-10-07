@@ -24,6 +24,20 @@ Automated tests and manual verification are complementary. Tests prove correctne
 Verification proves correctness to the human. Both are required — one does not substitute for
 the other.
 
+## Artifact location
+
+`<artifacts>` below is this feature's folder: `ai-sessions/<YYYY-MM-DD>-<feature>/`
+(gitignored). Resolve it in this order:
+
+1. The project's AGENTS.md/CLAUDE.md names another artifact root → use it.
+2. Legacy: `docs/<feature>/` already exists → keep using it.
+3. `ls -d ai-sessions/*-<feature>/` matches → use it.
+4. Otherwise create it, plus a row in `ai-sessions/sessions.md` (status, folder,
+   name/purpose, `claude --resume <session-id>`). No feature (ad-hoc run) → the
+   current session's folder.
+
+Artifacts are gitignored: never `git add` them.
+
 ## The Core Rule
 
 ```
@@ -47,9 +61,9 @@ If you haven't run it in this response, you cannot claim it.
 
 Determine what needs to be verified. In order of preference:
 
-1. Read the step plan (`docs/<feature>/steps/<step-name>.md`) — the LLM Verification section
+1. Read the step plan (`<artifacts>/steps/<step-name>.md`) — the LLM Verification section
    describes exactly what to run and what a passing result looks like.
-2. Read the spec (`docs/<feature>/spec.md`) — the Success Criteria section defines what must be
+2. Read the spec (`<artifacts>/spec.md`) — the Success Criteria section defines what must be
    true when the work is done.
 3. If neither exists, infer from the code what the observable behavior should be.
 
@@ -143,9 +157,9 @@ block Clean Code/Comp Review.
 review-comprehensive) check for its existence before proceeding. Always save the report, even
 for N/A or incomplete results.
 
-Save the report to `docs/<feature>/verify/<step-name>-<YYYY-MM-DD>.md`. Determine `<feature>`
-from the plan path (e.g., `docs/eval-results-display/plan.md` → `eval-results-display`).
-If no plan exists, use `docs/verify/<branch-name>-<YYYY-MM-DD>.md` as fallback.
+Save the report to `<artifacts>/verify/<step-name>-<YYYY-MM-DD>.md`. Determine `<feature>`
+from the plan path (e.g., `ai-sessions/2026-04-04-eval-results-display/plan.md` → `eval-results-display`).
+If no plan exists, use `<artifacts>/verify/<branch-name>-<YYYY-MM-DD>.md`, where `<artifacts>` is the current session's folder.
 Tell the user where the file was saved.
 
 **Evidence is enforced by a hook.** The `verify-evidence` PostToolUse hook reads the saved
